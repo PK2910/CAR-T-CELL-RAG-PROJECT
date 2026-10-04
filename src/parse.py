@@ -34,13 +34,23 @@ def local(tag: str) -> str:
     return tag.rsplit("}", 1)[-1]
 
 
+# Elements that start a new line/block: they need a space around them,
+# otherwise "apheresis<break/>Genetic" becomes "apheresisGenetic"
+BLOCK_TAGS = {"break", "p", "list-item", "title", "label", "td", "th", "tr", "caption"}
+
+
 def text_of(el: ET.Element) -> str:
     """All text inside an element, skipping tables/figures/math, with tidy whitespace."""
     def walk(e):
         parts = [e.text or ""]
         for child in e:
-            if local(child.tag) not in SKIP_TAGS:
+            name = local(child.tag)
+            if name in BLOCK_TAGS:
+                parts.append(" ")
+            if name not in SKIP_TAGS:
                 parts.append(walk(child))
+            if name in BLOCK_TAGS:
+                parts.append(" ")
             parts.append(child.tail or "")  # text after a child belongs to the parent
         return "".join(parts)
     return re.sub(r"\s+", " ", walk(el)).strip()
@@ -60,6 +70,37 @@ def paragraphs_in(el: ET.Element) -> list[str]:
         else:
             found.extend(paragraphs_in(child))  # e.g. subsections, lists
     return found
+
+
+def extract_table(wrap: ET.Element) -> dict:
+    """Turn one <table-wrap> into {label, caption, markdown, footnote}.
+    Tables published only as images have markdown=None. Merged cells (rowspan/colspan)
+    are not expanded, so complex tables may come out slightly misaligned."""
+    def field(path):
+        el = wrap.find(path)
+        return text_of(el) if el is not None else ""
+
+    def cell(c):
+        return text_of(c).replace("|", "/")  # '|' would break the markdown columns
+
+    rows = [[cell(c) for c in tr if local(c.tag) in ("td", "th")]
+            for tr in wrap.iter() if local(tr.tag) == "tr"]
+    rows = [r for r in rows if any(r)]
+
+    markdown = None
+    if rows:
+        width = max(len(r) for r in rows)
+        rows = [r + [""] * (width - len(r)) for r in rows]
+        lines = ["| " + " | ".join(rows[0]) + " |", "|" + " --- |" * width]
+        lines += ["| " + " | ".join(r) + " |" for r in rows[1:]]
+        markdown = "\n".join(lines)
+
+    return {
+        "label": field("label"),
+        "caption": field("caption"),
+        "markdown": markdown,
+        "footnote": field("table-wrap-foot"),
+    }
 
 
 def clean_title(title: str) -> str:
@@ -117,7 +158,8 @@ def parse_paper(path: Path) -> dict | None:
         # Join the abstract's paragraphs, leaving out headings like "Abstract" / "Background"
         "abstract": " ".join(paragraphs_in(main_abstract)) if main_abstract is not None else "",
         "sections": sections,
-        "n_tables_skipped": len(article.findall(".//table-wrap")),
+        # Extracted now, but the baseline doesn't chunk them (they're a planned add-on)
+        "tables": [extract_table(w) for w in article.iter("table-wrap")],
         "dropped_sections": dropped,
     }
 
@@ -148,7 +190,10 @@ def main():
     print(f"Total words:       {sum(words):,}")
     print(f"No body sections:  {sum(1 for p in papers if not p['sections'])} papers (abstract only)")
     print(f"Missing year/PMID: {sum(1 for p in papers if not p['year'])} / {sum(1 for p in papers if not p['pmid'])}")
-    print(f"Tables skipped:    {sum(p['n_tables_skipped'] for p in papers)}")
+    tables = [t for p in papers for t in p["tables"]]
+    print(f"Tables extracted:  {sum(1 for t in tables if t['markdown'])} as text, "
+          f"{sum(1 for t in tables if not t['markdown'])} image-only (not usable) "
+          f"[saved for the tables add-on, not used by the baseline]")
     print(f"Boilerplate sections dropped: {sum(len(p['dropped_sections']) for p in papers)}")
 
 
