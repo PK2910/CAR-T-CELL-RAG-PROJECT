@@ -17,8 +17,9 @@ from pathlib import Path
 
 from tokenizers import Tokenizer
 
-PAPERS_FILE = Path("data/processed/papers.json")
-OUT_FILE = Path("data/processed/chunks.json")
+ROOT = Path(__file__).resolve().parent.parent  # project folder, wherever we run from
+PAPERS_FILE = ROOT / "data/processed/papers.json"
+OUT_FILE = ROOT / "data/processed/chunks.json"
 
 # Count tokens with the SAME tokenizer the embedding model uses
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"

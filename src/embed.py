@@ -19,9 +19,10 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 from sentence_transformers import SentenceTransformer
 
-CHUNKS_FILE = Path("data/processed/chunks.json")
-QDRANT_PATH = Path("data/qdrant")
-INFO_FILE = Path("data/processed/index_info.json")
+ROOT = Path(__file__).resolve().parent.parent  # project folder, wherever we run from
+CHUNKS_FILE = ROOT / "data/processed/chunks.json"
+QDRANT_PATH = ROOT / "data/qdrant"
+INFO_FILE = ROOT / "data/processed/index_info.json"
 
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"  # must match the tokenizer used in chunk.py
 COLLECTION = "cart_all_baseline"

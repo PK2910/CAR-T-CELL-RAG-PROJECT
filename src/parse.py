@@ -15,8 +15,9 @@ import statistics
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-RAW_DIR = Path("data/raw")
-OUT_FILE = Path("data/processed/papers.json")
+ROOT = Path(__file__).resolve().parent.parent  # project folder, wherever we run from
+RAW_DIR = ROOT / "data/raw"
+OUT_FILE = ROOT / "data/processed/papers.json"
 
 # Elements whose text we don't want inside paragraphs (baseline skips tables, figures, math)
 SKIP_TAGS = {"table-wrap", "fig", "disp-formula", "inline-formula", "math", "supplementary-material"}

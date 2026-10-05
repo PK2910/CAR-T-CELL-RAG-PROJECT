@@ -18,7 +18,8 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ra
 
 # ---------- Settings ----------
 TARGET_PAPERS = 200
-RAW_DIR = Path("data/raw")
+ROOT = Path(__file__).resolve().parent.parent  # project folder, wherever we run from
+RAW_DIR = ROOT / "data/raw"
 
 # Papers must mention CAR-T AND ALL in the title or abstract, and be open access
 QUERY = (
