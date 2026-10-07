@@ -1,0 +1,1022 @@
+{
+  "q01": {
+    "PMC12846953_0008": {
+      "relevant": true,
+      "reason": "ELIANA CR rate 81% in pediatric/young adult patients"
+    },
+    "PMC10140490_0022": {
+      "relevant": true,
+      "reason": "ELIANA overall remission 81% within 3 months"
+    },
+    "PMC10140490_0023": {
+      "relevant": false,
+      "reason": "real-world CIBMTR results, not the ELIANA rate"
+    },
+    "PMC10647582_0004": {
+      "relevant": false,
+      "reason": "describes ELIANA design but no remission rate in the passage shown"
+    },
+    "PMC8268756_0013": {
+      "relevant": false,
+      "reason": "ELIANA transplant consolidation (9%), not remission rate"
+    },
+    "PMC11049267_0009": {
+      "relevant": true,
+      "reason": "ORR within 3 months 82% (also contains the 79/97 = 81% infused trap)"
+    },
+    "PMC8047987_0005": {
+      "relevant": false,
+      "reason": "describes ELIANA, no remission rate (seen in hybrid top 5)"
+    },
+    "PMC11108586_0031": {
+      "relevant": false,
+      "reason": "indirect tisa-cel vs blinatumomab comparison, no ELIANA rate (seen in rerank top 5)"
+    }
+  },
+  "q02": {
+    "PMC11049267_0018": {
+      "relevant": true,
+      "reason": "brexu-cel phase 1 in adults: ORR 69% (53% CR, 16% CRi)"
+    },
+    "PMC9482759_0005": {
+      "relevant": false,
+      "reason": "ZUMA-2 is mantle cell/large B-cell lymphoma, not ALL (trap)"
+    },
+    "PMC7480185_0022": {
+      "relevant": false,
+      "reason": "adult vs pediatric durability, no brexu-cel rates"
+    },
+    "PMC11941108_0010": {
+      "relevant": false,
+      "reason": "ZUMA-3 transplant consolidation outcomes, not response rate"
+    },
+    "PMC10884615_0002": {
+      "relevant": false,
+      "reason": "about tisagenlecleucel"
+    },
+    "PMC8268756_0004": {
+      "relevant": false,
+      "reason": "tisagenlecleucel referral indications"
+    },
+    "PMC11108586_0016": {
+      "relevant": false,
+      "reason": "brexu-cel in children (ZUMA-4, 67%): wrong population"
+    },
+    "PMC12846953_0008": {
+      "relevant": false,
+      "reason": "ELIANA (tisagenlecleucel)"
+    },
+    "PMC12468742_0005": {
+      "relevant": true,
+      "reason": "ZUMA-3, 78 adults: CR/CRi 73% (CR 60%)"
+    },
+    "PMC12468742_0007": {
+      "relevant": false,
+      "reason": "5-year safety update and real-world cohort; no response rate in passage shown"
+    },
+    "PMC9175816_0002": {
+      "relevant": false,
+      "reason": "brexu-cel cytopenia rates, not response rates (seen in hybrid top 5)"
+    },
+    "PMC13330168_0001": {
+      "relevant": false,
+      "reason": "71-81% range across three products, not brexu-cel specific (seen in hybrid top 5)"
+    },
+    "PMC8882938_0000": {
+      "relevant": false,
+      "reason": "mantle cell lymphoma, wrong disease (seen in hybrid top 5)"
+    },
+    "PMC12011161_0000": {
+      "relevant": false,
+      "reason": "editorial on a humanized CAR; no brexu-cel response rates (seen in rerank top 5)"
+    }
+  },
+  "q03": {
+    "PMC12468742_0008": {
+      "relevant": false,
+      "reason": "obe-cel approval dates only, no results"
+    },
+    "PMC11108586_0014": {
+      "relevant": false,
+      "reason": "other CAR-T approvals, not obe-cel"
+    },
+    "PMC11049267_0019": {
+      "relevant": false,
+      "reason": "brexu-cel and ide-cel"
+    },
+    "PMC11049267_0018": {
+      "relevant": false,
+      "reason": "brexu-cel, different drug"
+    },
+    "PMC12999291_0003": {
+      "relevant": false,
+      "reason": "tisa-cel indication; no obe-cel results in passage shown"
+    },
+    "PMC11108586_0015": {
+      "relevant": false,
+      "reason": "other products in pediatrics"
+    },
+    "PMC12468742_0003": {
+      "relevant": false,
+      "reason": "review overview"
+    },
+    "PMC11108586_0016": {
+      "relevant": false,
+      "reason": "brexu-cel"
+    },
+    "PMC13330168_0001": {
+      "relevant": false,
+      "reason": "lists approvals only, no obe-cel results (seen in rerank top 5)"
+    },
+    "PMC12011161_0000": {
+      "relevant": false,
+      "reason": "editorial; no obe-cel results (seen in rerank top 5)"
+    },
+    "PMC12468742_0005": {
+      "relevant": false,
+      "reason": "brexu-cel ZUMA-3, different drug (seen in general-reranker top 5)"
+    },
+    "PMC10035397_0001": {
+      "relevant": false,
+      "reason": "UCART19, different product (seen in general-reranker top 5)"
+    },
+    "PMC10647582_0005": {
+      "relevant": false,
+      "reason": "brexu-cel (KTE-X19), different drug (seen in general-reranker top 5)"
+    }
+  },
+  "q04": {
+    "PMC8473073_0018": {
+      "relevant": false,
+      "reason": "any-grade CRS 70% in adults; describes severe CRS but no severe-CRS rate"
+    },
+    "PMC6237143_0022": {
+      "relevant": false,
+      "reason": "CRS mechanism and markers"
+    },
+    "PMC12304051_0010": {
+      "relevant": false,
+      "reason": "methods of one study"
+    },
+    "PMC9253302_0012": {
+      "relevant": false,
+      "reason": "qualitative 'low rates' in a small cohort, no frequency"
+    },
+    "PMC8473073_0020": {
+      "relevant": false,
+      "reason": "severe CRS as infection risk factor"
+    },
+    "PMC7902522_0014": {
+      "relevant": false,
+      "reason": "any-grade CRS prevalence (75-100%), not severe"
+    },
+    "PMC8581403_0003": {
+      "relevant": false,
+      "reason": "remission rates and CRS definition"
+    },
+    "PMC9118034_0001": {
+      "relevant": true,
+      "reason": "26 of 102 patients had severe CRS (Penn grade 3-5)"
+    },
+    "PMC11361912_0050": {
+      "relevant": true,
+      "reason": "severe CRS 8.3%-43% after anti-CD19 CAR-T (seen in hybrid top 5)"
+    },
+    "PMC10133856_0003": {
+      "relevant": false,
+      "reason": "describes severe CRS, no rate (seen in hybrid top 5)"
+    },
+    "PMC13248089_0014": {
+      "relevant": false,
+      "reason": "severe CRS risk factors, no rate (seen in hybrid top 5)"
+    },
+    "PMC12846953_0016": {
+      "relevant": false,
+      "reason": "any-grade CRS 77-100%; no severe-CRS rate (seen in rerank top 5)"
+    },
+    "PMC8345443_0015": {
+      "relevant": false,
+      "reason": "severe CRS lower with alternative CARs; no rate in ALL (seen in rerank top 5)"
+    },
+    "PMC8517091_0016": {
+      "relevant": false,
+      "reason": "CRS described, no severe-CRS rate (seen in general-reranker top 5)"
+    },
+    "PMC10134288_0018": {
+      "relevant": false,
+      "reason": "severe CRS diagnosis/prophylaxis, no rate (seen in general-reranker top 5)"
+    },
+    "PMC9368621_0003": {
+      "relevant": false,
+      "reason": "CRS timing and cardiac damage, no rate (seen in general-reranker top 5)"
+    }
+  },
+  "q05": {
+    "PMC10590030_0018": {
+      "relevant": false,
+      "reason": "ICANS description and risk factors, no frequency"
+    },
+    "PMC8562470_0008": {
+      "relevant": false,
+      "reason": "ICANS definition (case report)"
+    },
+    "PMC10604728_0012": {
+      "relevant": false,
+      "reason": "ICANS mechanism"
+    },
+    "PMC12846953_0018": {
+      "relevant": false,
+      "reason": "ICANS mechanism"
+    },
+    "PMC9201083_0020": {
+      "relevant": false,
+      "reason": "ICANS features and biomarkers"
+    },
+    "PMC11377606_0011": {
+      "relevant": false,
+      "reason": "ICANS management and MNTs"
+    },
+    "PMC11466746_0015": {
+      "relevant": false,
+      "reason": "ICANS vs efficacy, no frequency"
+    },
+    "PMC11377606_0008": {
+      "relevant": false,
+      "reason": "ICANS timing"
+    },
+    "PMC8268756_0036": {
+      "relevant": false,
+      "reason": "neurotoxicity symptoms and pathophysiology"
+    },
+    "PMC11697943_0012": {
+      "relevant": false,
+      "reason": "two cases of grade 2 ICANS, no rate"
+    },
+    "PMC10133856_0002": {
+      "relevant": false,
+      "reason": "mentions ICANS, no frequency (seen in hybrid top 5)"
+    },
+    "PMC11466746_0001": {
+      "relevant": false,
+      "reason": "ICANS named as a toxicity; no frequency (seen in rerank top 5)"
+    },
+    "PMC10590030_0004": {
+      "relevant": true,
+      "reason": "ICANS in 12-60% of patients, grade >=3 in 3-50% (seen in general-reranker top 5)"
+    },
+    "PMC7046249_0010": {
+      "relevant": true,
+      "reason": "19 of 254 patients (7.5%) had grade >=3 ICANS (seen in general-reranker top 5)"
+    }
+  },
+  "q06": {
+    "PMC6237143_0032": {
+      "relevant": false,
+      "reason": "general discussion, no real-world data"
+    },
+    "PMC10647582_0004": {
+      "relevant": false,
+      "reason": "trial results only"
+    },
+    "PMC11049267_0011": {
+      "relevant": false,
+      "reason": "follicular lymphoma"
+    },
+    "PMC8275491_0010": {
+      "relevant": false,
+      "reason": "pharmacovigilance axi-cel vs tisa-cel, not vs trial"
+    },
+    "PMC6470706_0004": {
+      "relevant": false,
+      "reason": "trial results only"
+    },
+    "PMC11049267_0009": {
+      "relevant": false,
+      "reason": "trial results only"
+    }
+  },
+  "q07": {
+    "PMC13248089_0004": {
+      "relevant": false,
+      "reason": "CD19 CAR-T trials"
+    },
+    "PMC5774642_0009": {
+      "relevant": true,
+      "reason": "CD22-CAR trial: remissions and relapse with diminished CD22"
+    },
+    "PMC10196916_0002": {
+      "relevant": false,
+      "reason": "mentions CD22 CAR use, no remission rate"
+    },
+    "PMC9296935_0012": {
+      "relevant": false,
+      "reason": "combined CD19/CD22 retreatment cases"
+    },
+    "PMC7126394_0010": {
+      "relevant": false,
+      "reason": "CD19/CD22 dual CAR relapses"
+    },
+    "PMC10604728_0015": {
+      "relevant": true,
+      "reason": "CD22 CAR after CD19 CAR failure: 24 of 34 CR/CRi"
+    },
+    "PMC7926700_0022": {
+      "relevant": true,
+      "reason": "CD22 CAR high remission rate incl. after CD19 CAR-T"
+    },
+    "PMC7126394_0011": {
+      "relevant": false,
+      "reason": "one patient's relapse after dual CAR"
+    },
+    "PMC11869864_0000": {
+      "relevant": false,
+      "reason": "dual CD19/CD22 CARs, not CD22 after CD19 failure (seen in rerank top 5)"
+    },
+    "PMC7046249_0000": {
+      "relevant": false,
+      "reason": "CD19 CAR-T remission rates (seen in rerank top 5)"
+    },
+    "PMC10031882_0000": {
+      "relevant": false,
+      "reason": "CD19+CD22 co-administration study design; no rates shown (seen in rerank top 5)"
+    },
+    "PMC10786140_0020": {
+      "relevant": false,
+      "reason": "CD22 as a target, no remission rates (seen in general-reranker top 5)"
+    }
+  },
+  "q08": {
+    "PMC13429391_0003": {
+      "relevant": false,
+      "reason": "mixed/unspecified populations and Ph+ consolidation"
+    },
+    "PMC8138447_0003": {
+      "relevant": false,
+      "reason": "transplant after CAR-T"
+    },
+    "PMC12468742_0011": {
+      "relevant": false,
+      "reason": "transplant consolidation"
+    },
+    "PMC12183025_0013": {
+      "relevant": false,
+      "reason": "small cohort, not pediatric long-term EFS"
+    },
+    "PMC8427303_0007": {
+      "relevant": false,
+      "reason": "case report"
+    },
+    "PMC11269827_0014": {
+      "relevant": false,
+      "reason": "survival after transplant"
+    },
+    "PMC7926700_0035": {
+      "relevant": false,
+      "reason": "opinion on transplant"
+    },
+    "PMC9004014_0013": {
+      "relevant": false,
+      "reason": "humanized CAR + transplant cohort"
+    },
+    "PMC11941108_0002": {
+      "relevant": false,
+      "reason": "adults, transplant"
+    }
+  },
+  "q09": {
+    "PMC10140490_0003": {
+      "relevant": true,
+      "reason": "CD19-negative relapses (20-30%) caused by leukemia evasion mechanisms"
+    },
+    "PMC10140490_0036": {
+      "relevant": false,
+      "reason": "prevention strategies and prognosis"
+    },
+    "PMC7126394_0010": {
+      "relevant": false,
+      "reason": "relapses NOT due to antigen escape"
+    },
+    "PMC9296935_0012": {
+      "relevant": false,
+      "reason": "retreatment cases"
+    },
+    "PMC7046249_0016": {
+      "relevant": false,
+      "reason": "mechanism of CD19-positive relapse (relevant to q10 instead)"
+    },
+    "PMC8259947_0019": {
+      "relevant": false,
+      "reason": "relapse after CD22 CAR"
+    },
+    "PMC10140490_0010": {
+      "relevant": true,
+      "reason": "epitope masking by CAR transgene (seen in q10 candidates)"
+    },
+    "PMC11869864_0000": {
+      "relevant": false,
+      "reason": "strategies to prevent CD19-negative relapse, not mechanisms (seen in rerank top 5)"
+    },
+    "PMC8232108_0002": {
+      "relevant": false,
+      "reason": "relapse rate only, no mechanisms (seen in general-reranker top 5)"
+    },
+    "PMC13330168_0003": {
+      "relevant": true,
+      "reason": "lineage switch, CD19-negative subclones, CAR transduced into blasts (seen in general-reranker top 5)"
+    }
+  },
+  "q10": {
+    "PMC10647582_0016": {
+      "relevant": false,
+      "reason": "about CD19-negative relapse"
+    },
+    "PMC7126394_0011": {
+      "relevant": false,
+      "reason": "CD19-negative relapse case"
+    },
+    "PMC11849274_0012": {
+      "relevant": false,
+      "reason": "CD19 mutations (CD19-negative)"
+    },
+    "PMC7126394_0010": {
+      "relevant": true,
+      "reason": "antigen-positive relapse attributed to lost CAR-T persistence"
+    },
+    "PMC9004014_0002": {
+      "relevant": false,
+      "reason": "treatment options after relapse"
+    },
+    "PMC10140490_0036": {
+      "relevant": false,
+      "reason": "risk factor only, no mechanism"
+    },
+    "PMC10140490_0010": {
+      "relevant": false,
+      "reason": "epitope masking (CD19-negative)"
+    },
+    "PMC11697943_0014": {
+      "relevant": false,
+      "reason": "relapse counts, no mechanism"
+    },
+    "PMC7046249_0016": {
+      "relevant": true,
+      "reason": "CD19-positive relapse from premature CAR-T loss / immune rejection (seen in q09 candidates)"
+    }
+  },
+  "q11": {
+    "PMC7378699_0020": {
+      "relevant": false,
+      "reason": "study limitations"
+    },
+    "PMC8139250_0014": {
+      "relevant": true,
+      "reason": "CD28: robust expansion, short persistence; 4-1BB: prolonged (systematic review)"
+    }
+  },
+  "q12": {
+    "PMC8343118_0043": {
+      "relevant": false,
+      "reason": "preconditioning drugs in melanoma, not ALL regimen"
+    },
+    "PMC13330168_0053": {
+      "relevant": false,
+      "reason": "earlier use of CAR-T"
+    },
+    "PMC6356949_0008": {
+      "relevant": false,
+      "reason": "counts of patients receiving lymphodepletion"
+    },
+    "PMC8562470_0004": {
+      "relevant": false,
+      "reason": "lymphodepletion mentioned as infection risk only (seen in general-reranker top 5)"
+    }
+  },
+  "q13": {
+    "PMC8232108_0003": {
+      "relevant": true,
+      "reason": "explains why B-cell aplasia happens (on-target off-tumor), partial"
+    },
+    "PMC7926700_0034": {
+      "relevant": false,
+      "reason": "B-cell aplasia mentioned as temporary; no monitoring/management (seen in rerank top 5)"
+    },
+    "PMC8268756_0026": {
+      "relevant": true,
+      "reason": "monthly B-cell counts; early loss of B-cell aplasia signals relapse risk (seen in rerank top 5)"
+    },
+    "PMC12999291_0005": {
+      "relevant": false,
+      "reason": "B-cell aplasia named as on-target toxicity only (seen in rerank top 5)"
+    },
+    "PMC7046249_0012": {
+      "relevant": true,
+      "reason": "B-cell aplasia reverses when CAR-T cells disappear (marker of persistence, partial) (seen in general-reranker top 5)"
+    }
+  },
+  "q14": {
+    "PMC8905689_0015": {
+      "relevant": true,
+      "reason": "adult outcomes and durability concerns (partial)"
+    },
+    "PMC8905689_0005": {
+      "relevant": false,
+      "reason": "systematic review methods"
+    },
+    "PMC11108586_0002": {
+      "relevant": false,
+      "reason": "epidemiology context"
+    },
+    "PMC8905689_0013": {
+      "relevant": false,
+      "reason": "says adult results may differ, no specifics"
+    },
+    "PMC8905689_0000": {
+      "relevant": true,
+      "reason": "adult systematic review: mean CR 81% (partial)"
+    },
+    "PMC8581403_0001": {
+      "relevant": false,
+      "reason": "epidemiology"
+    },
+    "PMC10884615_0001": {
+      "relevant": false,
+      "reason": "costs/epidemiology"
+    },
+    "PMC12365290_0001": {
+      "relevant": false,
+      "reason": "thymus size study"
+    },
+    "PMC7480185_0022": {
+      "relevant": true,
+      "reason": "pediatric responses more durable than adult (seen in q02 candidates)"
+    },
+    "PMC11108586_0003": {
+      "relevant": false,
+      "reason": "gap in pediatric vs adult trials; no outcome comparison (seen in rerank top 5)"
+    },
+    "PMC12468742_0000": {
+      "relevant": false,
+      "reason": "B-ALL epidemiology (seen in general-reranker top 5)"
+    },
+    "PMC8905689_0002": {
+      "relevant": true,
+      "reason": "high early remission in adults with r/r B-ALL (partial: adult outcomes) (seen in general-reranker top 5)"
+    },
+    "PMC7480185_0002": {
+      "relevant": false,
+      "reason": "chemotherapy survival in children vs adults, not CAR-T (seen in general-reranker top 5)"
+    }
+  },
+  "q15": {
+    "PMC13485847_0014": {
+      "relevant": false,
+      "reason": "donor-derived CAR-T after transplant relapse"
+    },
+    "PMC8591161_0003": {
+      "relevant": false,
+      "reason": "CAR-T for relapse after transplant"
+    },
+    "PMC8591161_0012": {
+      "relevant": false,
+      "reason": "GVHD after donor CAR-T"
+    },
+    "PMC8591161_0001": {
+      "relevant": false,
+      "reason": "CAR-T for relapse after transplant"
+    },
+    "PMC8268756_0015": {
+      "relevant": false,
+      "reason": "relapse after transplant"
+    },
+    "PMC11269827_0001": {
+      "relevant": false,
+      "reason": "relapse rates, general"
+    },
+    "PMC11941108_0010": {
+      "relevant": true,
+      "reason": "ZUMA-3 outcomes with vs without consolidative allo-HCT (seen in q02 candidates)"
+    },
+    "PMC8268756_0013": {
+      "relevant": true,
+      "reason": "only 9% of ELIANA patients had allo-HCT in remission (seen in q01 candidates)"
+    },
+    "PMC8138447_0003": {
+      "relevant": true,
+      "reason": "conflicting evidence on HSCT after CAR-T (seen in q08 candidates)"
+    },
+    "PMC7926700_0035": {
+      "relevant": true,
+      "reason": "allo-SCT after CAR-T may improve EFS (seen in q08 candidates)"
+    },
+    "PMC9004014_0013": {
+      "relevant": true,
+      "reason": "EFS 91% with allo-HCT vs 69% overall (seen in q08 candidates)"
+    },
+    "PMC11941108_0002": {
+      "relevant": true,
+      "reason": "role of consolidative allo-HCT unclear (seen in q08 candidates)"
+    },
+    "PMC12468742_0011": {
+      "relevant": true,
+      "reason": "consolidation is an evolving strategy for high-risk patients (seen in q08 candidates)"
+    },
+    "PMC8591161_0009": {
+      "relevant": false,
+      "reason": "CAR-T after transplant relapse, not consolidation (seen in hybrid top 5)"
+    },
+    "PMC13485847_0002": {
+      "relevant": false,
+      "reason": "donor-derived CAR-T after transplant relapse (seen in general-reranker top 5)"
+    },
+    "PMC8883625_0001": {
+      "relevant": false,
+      "reason": "lymphoma patient on dialysis (seen in general-reranker top 5)"
+    }
+  },
+  "q16": {
+    "PMC10345854_0028": {
+      "relevant": false,
+      "reason": "history of blina/ino approval, no comparison"
+    },
+    "PMC7926700_0003": {
+      "relevant": false,
+      "reason": "blina/ino vs chemotherapy, not CAR-T"
+    },
+    "PMC11969774_0005": {
+      "relevant": true,
+      "reason": "retrospective CAR-T vs blinatumomab cohorts before HSCT"
+    },
+    "PMC10352576_0003": {
+      "relevant": true,
+      "reason": "blina/ino limited in extramedullary disease vs CAR-T CR 86-94% (partial)"
+    },
+    "PMC13618174_0003": {
+      "relevant": false,
+      "reason": "blina vs chemotherapy"
+    },
+    "PMC10345854_0002": {
+      "relevant": true,
+      "reason": "inferior later-line outcomes with ino/blina, context for CAR-T (partial)"
+    },
+    "PMC13630001_0003": {
+      "relevant": true,
+      "reason": "CAR-T vs blinatumomab study background"
+    },
+    "PMC12468742_0007": {
+      "relevant": true,
+      "reason": "less benefit from brexu-cel after prior blina/ino (seen in q02 candidates)"
+    }
+  },
+  "q17": {
+    "PMC8581403_0000": {
+      "relevant": false,
+      "reason": "B-ALL challenges, not T-ALL"
+    },
+    "PMC13330168_0000": {
+      "relevant": false,
+      "reason": "B-ALL review"
+    },
+    "PMC7480185_0000": {
+      "relevant": false,
+      "reason": "B-ALL review"
+    },
+    "PMC8581403_0026": {
+      "relevant": false,
+      "reason": "allogeneic CAR-T in general"
+    },
+    "PMC9217916_0000": {
+      "relevant": false,
+      "reason": "CAR-T background"
+    },
+    "PMC7046249_0003": {
+      "relevant": false,
+      "reason": "B-ALL problems"
+    },
+    "PMC11361912_0041": {
+      "relevant": false,
+      "reason": "manufacturing"
+    },
+    "PMC9685914_0004": {
+      "relevant": false,
+      "reason": "T-cell quality in general"
+    },
+    "PMC7902522_0000": {
+      "relevant": false,
+      "reason": "ALL resistance in general"
+    },
+    "PMC8581403_0005": {
+      "relevant": false,
+      "reason": "B-ALL review"
+    },
+    "PMC11049267_0041": {
+      "relevant": false,
+      "reason": "general CAR-T challenges / solid tumors (seen in hybrid top 5)"
+    },
+    "PMC7902522_0019": {
+      "relevant": false,
+      "reason": "on-target off-tumor in B-ALL, not T-ALL (seen in hybrid top 5)"
+    },
+    "PMC12468742_0000": {
+      "relevant": false,
+      "reason": "B-ALL review abstract (seen in rerank top 5)"
+    },
+    "PMC7926700_0039": {
+      "relevant": false,
+      "reason": "B-ALL conclusions (seen in rerank top 5)"
+    },
+    "PMC10604728_0001": {
+      "relevant": false,
+      "reason": "T-cell ALL more aggressive; no CAR-T difficulty (seen in general-reranker top 5)"
+    },
+    "PMC8268756_0001": {
+      "relevant": false,
+      "reason": "B-ALL CAR-T roadmap (seen in general-reranker top 5)"
+    },
+    "PMC11108586_0002": {
+      "relevant": false,
+      "reason": "pediatric CAR-T background (seen in general-reranker top 5)"
+    }
+  },
+  "q18": {
+    "PMC12487908_0015": {
+      "relevant": false,
+      "reason": "ICANS counts in one study"
+    },
+    "PMC8259947_0012": {
+      "relevant": false,
+      "reason": "CRS grades in one study"
+    },
+    "PMC12999291_0007": {
+      "relevant": false,
+      "reason": "ASTCT grading mentioned for CRS, not ICANS"
+    },
+    "PMC11377606_0011": {
+      "relevant": false,
+      "reason": "vague 'multidisciplinary care' and MNTs; no grading/treatment specifics (seen in rerank top 5)"
+    },
+    "PMC7046249_0008": {
+      "relevant": false,
+      "reason": "CRS grading, not ICANS (seen in general-reranker top 5)"
+    }
+  },
+  "q19": {
+    "PMC11923441_0024": {
+      "relevant": false,
+      "reason": "hematotoxicity score"
+    },
+    "PMC11923441_0013": {
+      "relevant": false,
+      "reason": "hematotoxicity score"
+    },
+    "PMC10590030_0024": {
+      "relevant": true,
+      "reason": "sHLH/MAS definition; incidence after CAR-T about 3.5%"
+    },
+    "PMC12848364_0007": {
+      "relevant": false,
+      "reason": "neutrophil recovery"
+    },
+    "PMC12848364_0018": {
+      "relevant": false,
+      "reason": "hematotoxicity score"
+    }
+  },
+  "q20": {
+    "PMC9673810_0000": {
+      "relevant": true,
+      "reason": "systematic review of cytopenias after CD19 CAR-T and contributing factors"
+    },
+    "PMC9175816_0006": {
+      "relevant": true,
+      "reason": "causes of cytopenias: infections, autoimmune (seen in hybrid top 5)"
+    },
+    "PMC11049267_0033": {
+      "relevant": false,
+      "reason": "mentions consensus recommendations exist; no causes/management specifics (seen in rerank top 5)"
+    },
+    "PMC9673810_0001": {
+      "relevant": true,
+      "reason": "factors that influence cytopenias (causes), systematic review (seen in rerank top 5)"
+    }
+  },
+  "q21": {
+    "PMC8268756_0003": {
+      "relevant": true,
+      "reason": "Kymriah approved for children/young adults, refractory or 2nd+ relapse"
+    },
+    "PMC8268756_0021": {
+      "relevant": false,
+      "reason": "Kymriah REMS safety program, not the indication"
+    },
+    "PMC6784091_0018": {
+      "relevant": true,
+      "reason": "Kymriah approved Aug 30 2017 for B-cell ALL (partial: no age)"
+    },
+    "PMC5982434_0001": {
+      "relevant": false,
+      "reason": "EU assessment pending at the time"
+    },
+    "PMC6784091_0064": {
+      "relevant": true,
+      "reason": "Kymriah approved for B-cell ALL (partial)"
+    },
+    "PMC6784091_0105": {
+      "relevant": true,
+      "reason": "Kymriah approved for B-cell ALL Aug 2017 (partial)"
+    },
+    "PMC6376657_0000": {
+      "relevant": true,
+      "reason": "Kymriah approved for R/R B-ALL (partial)"
+    },
+    "PMC10647582_0004": {
+      "relevant": true,
+      "reason": "FDA approval up to 25 years (seen in q01/q06 candidates)"
+    },
+    "PMC11049267_0009": {
+      "relevant": true,
+      "reason": "FDA approval up to 25 years (seen in q01 candidates)"
+    },
+    "PMC8268756_0004": {
+      "relevant": true,
+      "reason": "FDA approved for patients 25 and younger (seen in q02 candidates)"
+    },
+    "PMC12999291_0003": {
+      "relevant": true,
+      "reason": "tisa-cel indicated up to age 25 (seen in q03 candidates)"
+    },
+    "PMC8268756_0000": {
+      "relevant": true,
+      "reason": "Kymriah approved for children and young adults with R/R B-ALL (seen in rerank top 5)"
+    },
+    "PMC11869864_0001": {
+      "relevant": true,
+      "reason": "Kymriah licensed for patients aged <=25 years with B-ALL (seen in rerank top 5)"
+    },
+    "PMC13545807_0077": {
+      "relevant": true,
+      "reason": "Kymriah is the only FDA CAR-T with a pediatric indication (partial) (seen in rerank top 5)"
+    },
+    "PMC6470706_0003": {
+      "relevant": true,
+      "reason": "Kymriah for pediatric patients with B-cell precursor ALL (seen in general-reranker top 5)"
+    },
+    "PMC9566791_0000": {
+      "relevant": true,
+      "reason": "Kymriah FDA-approved in 2017 for r/r ALL (partial) (seen in general-reranker top 5)"
+    },
+    "PMC12341234_0002": {
+      "relevant": true,
+      "reason": "Kymriah approved for paediatric and young adults with r/r B-ALL (seen in general-reranker top 5)"
+    }
+  },
+  "q22": {
+    "PMC11361912_0072": {
+      "relevant": false,
+      "reason": "early-phase multiantigen CAR trials"
+    },
+    "PMC12468742_0023": {
+      "relevant": false,
+      "reason": "prediction of first-line use by 2030, no trial results (hallucination temptation)"
+    },
+    "PMC13545807_0081": {
+      "relevant": false,
+      "reason": "pediatric solid tumors"
+    },
+    "PMC12846953_0033": {
+      "relevant": false,
+      "reason": "general conclusion"
+    },
+    "PMC13545807_0004": {
+      "relevant": false,
+      "reason": "glioma trial"
+    },
+    "PMC8905689_0002": {
+      "relevant": false,
+      "reason": "relapsed/refractory adults, ELIANA"
+    },
+    "PMC11108586_0043": {
+      "relevant": false,
+      "reason": "phase 1 dual-CAR trials"
+    },
+    "PMC11923441_0004": {
+      "relevant": false,
+      "reason": "hematotoxicity analysis"
+    },
+    "PMC13545807_0028": {
+      "relevant": false,
+      "reason": "solid tumor trials"
+    },
+    "PMC11108586_0004": {
+      "relevant": false,
+      "reason": "review aims and history"
+    }
+  },
+  "q23": {
+    "PMC13545807_0075": {
+      "relevant": false,
+      "reason": "gut microbiome and response, not diet advice"
+    },
+    "PMC9575491_0007": {
+      "relevant": false,
+      "reason": "CAR-T as consolidation"
+    },
+    "PMC8571234_0015": {
+      "relevant": false,
+      "reason": "therapy after CAR-T"
+    },
+    "PMC12183025_0017": {
+      "relevant": false,
+      "reason": "Richter transformation outcomes"
+    },
+    "PMC13545807_0074": {
+      "relevant": false,
+      "reason": "gut dysbiosis and FMT trial, not diet advice"
+    }
+  },
+  "q24": {
+    "_all_top10": {
+      "relevant": false,
+      "reason": "only lab-methods and statistics passages; nothing about Australia"
+    }
+  },
+  "q29": {
+    "PMC11949925_0008": {
+      "relevant": true,
+      "reason": "1-6 tocilizumab doses, median 480 mg (range 160-800 mg), repeated after 8 h (method B, guardrail questions)"
+    },
+    "PMC11949925_0013": {
+      "relevant": false,
+      "reason": "tocilizumab side effects, no dose (method B, guardrail questions)"
+    },
+    "PMC11949925_0014": {
+      "relevant": false,
+      "reason": "tocilizumab and CAR-T expansion, no dose (method B, guardrail questions)"
+    },
+    "PMC11949925_0012": {
+      "relevant": false,
+      "reason": "guideline mention, no dose (method B, guardrail questions)"
+    },
+    "PMC11949925_0016": {
+      "relevant": false,
+      "reason": "conclusion, no dose (method B, guardrail questions)"
+    },
+    "PMC10590030_0017": {
+      "relevant": false,
+      "reason": "first-line management, no dose (method B, guardrail questions)"
+    },
+    "PMC9368621_0011": {
+      "relevant": false,
+      "reason": "'high doses' mentioned without numbers (method B, guardrail questions)"
+    },
+    "PMC11949925_0000": {
+      "relevant": false,
+      "reason": "study abstract, no dose (method B, guardrail questions)"
+    },
+    "PMC10134288_0018": {
+      "relevant": false,
+      "reason": "tocilizumab approval/prophylaxis, no dose (method B, guardrail questions)"
+    }
+  },
+  "q30": {
+    "PMC6278156_0024": {
+      "relevant": false,
+      "reason": "different study (50-100 x 10^6 cells), not ZUMA-3 [overrides keyword rule] (method B, guardrail questions)"
+    },
+    "PMC10345854_0007": {
+      "relevant": false,
+      "reason": "ZUMA-4 pediatric trial dose levels, not ZUMA-3 [overrides keyword rule] (method B, guardrail questions)"
+    },
+    "PMC11049267_0018": {
+      "relevant": false,
+      "reason": "ZUMA-3 phase 1, no dose in passage (method B, guardrail questions)"
+    },
+    "PMC8882938_0015": {
+      "relevant": false,
+      "reason": "ZUMA-2 mantle cell lymphoma (method B, guardrail questions)"
+    },
+    "PMC11049267_0017": {
+      "relevant": false,
+      "reason": "ZUMA-2 mantle cell lymphoma (method B, guardrail questions)"
+    },
+    "PMC9482759_0005": {
+      "relevant": false,
+      "reason": "ZUMA-2 lymphoma (method B, guardrail questions)"
+    },
+    "PMC11108586_0016": {
+      "relevant": false,
+      "reason": "ZUMA-4 pediatric (method B, guardrail questions)"
+    },
+    "PMC11941108_0010": {
+      "relevant": false,
+      "reason": "'pivotal dose' without the number (method B, guardrail questions)"
+    },
+    "PMC9482759_0009": {
+      "relevant": false,
+      "reason": "ZUMA-2 lymphoma (method B, guardrail questions)"
+    },
+    "PMC10786140_0016": {
+      "relevant": false,
+      "reason": "ZUMA-3 results, no dose (method B, guardrail questions)"
+    }
+  }
+}
