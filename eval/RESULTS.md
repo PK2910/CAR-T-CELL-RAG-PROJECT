@@ -236,7 +236,40 @@ research answers containing doses are left untouched.
 
 ---
 
-## Current best: hybrid search + safety guardrails (correctness 67% on the original 15 dev questions, vs 53% baseline)
+## Held-out TEST set (run once, 2026-10-06) — vector vs hybrid, both with guardrails
+
+9 sealed questions never used for any decision (q06, q08, q10, q11, q16, q19, q23, q28, q30); 7 answerable.
+Answer key v1.5 = v1.4 + 9 test-set top-5 chunks judged by reading (labelling only, no tuning; 1 relevant).
+Note: the diet question's top 5 included a mouse high-fat-diet study (a hallucination trap); both versions handled it.
+
+| Metric (test) | Vector + guardrails | Hybrid + guardrails |
+|---|---|---|
+| Hit@5 | **100%** (8/8) | 88% (7/8; q08 at #6) |
+| MRR | 0.67 | **0.75** |
+| Precision@5 / Recall@5 | 45% / 45% | **55% / 55%** |
+| **Correctness** | **57% (4/7)** | 43% (3/7) |
+| Sufficient context | 57% | 43% |
+| Faithfulness | 67% (6/9) | **78% (7/9)** |
+| Citation precision | 57% | **100%** |
+| Abstention accuracy | 71% | **86%** |
+| Special questions / serious errors | 100% / 0 | 100% / 0 |
+| Medical checks | all 100% | all 100% |
+| Latency / cost | 6.8 s / $0.50 | 7.3 s / $0.48 |
+
+- The two versions differ on **one** question (q10: correct with vector, incomplete with hybrid); q06, q08, q16 fail
+  in both, all on the retrieval side (again 0 facts ignored by Claude, 0 from outside knowledge).
+- **Conclusion:** the dev-set accuracy gain (53% → 67%) did **not** clearly carry over to the held-out set
+  (57% vs 43%, a one-question difference on n=7 — inconclusive). Hybrid did give more trustworthy answers on the
+  test set (citations 100% vs 57%, faithfulness 78% vs 67%). Part of the dev gain likely reflects small-sample
+  noise and tuning on the dev questions. **A larger evaluation set is needed to confirm an accuracy gain.**
+- Safety held on unseen questions (q28 personal question handled safely in both).
+- Per the test-set rule, no changes are made to the system based on these results.
+
+---
+
+## Current version: hybrid search + safety guardrails
+Dev: correctness 67% on the original 15 (53% baseline). Test (held-out, n=7): 43% vs 57% for vector — inconclusive;
+better faithfulness and citations. Next step to settle accuracy: a larger exam (target 50+ questions).
 
 ---
 

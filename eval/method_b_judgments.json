@@ -381,6 +381,18 @@
     "PMC11941108_0002": {
       "relevant": false,
       "reason": "adults, transplant"
+    },
+    "PMC10196916_0005": {
+      "relevant": false,
+      "reason": "24-month EFS by CAR-T persistence; population not stated as pediatric (seen in test-set top 5)"
+    },
+    "PMC11269827_0001": {
+      "relevant": false,
+      "reason": "CAR-T bridged to transplant, introduction (seen in test-set top 5)"
+    },
+    "PMC11941108_0006": {
+      "relevant": false,
+      "reason": "adult/mixed cohorts and transplant (seen in test-set top 5)"
     }
   },
   "q09": {
@@ -461,6 +473,14 @@
     "PMC7046249_0016": {
       "relevant": true,
       "reason": "CD19-positive relapse from premature CAR-T loss / immune rejection (seen in q09 candidates)"
+    },
+    "PMC10140490_0024": {
+      "relevant": true,
+      "reason": "CD19-positive relapse associated with loss of B-cell aplasia (CAR-T loss) (seen in test-set top 5)"
+    },
+    "PMC10140490_0034": {
+      "relevant": false,
+      "reason": "relapse counts; vague 'CAR T behavior predictive', no mechanism (seen in test-set top 5)"
     }
   },
   "q11": {
@@ -665,6 +685,10 @@
     "PMC12468742_0007": {
       "relevant": true,
       "reason": "less benefit from brexu-cel after prior blina/ino (seen in q02 candidates)"
+    },
+    "PMC10332179_0011": {
+      "relevant": false,
+      "reason": "blinatumomab/inotuzumab AFTER CAR-T failure, not a comparison (seen in test-set top 5)"
     }
   },
   "q17": {
@@ -931,6 +955,14 @@
     "PMC13545807_0074": {
       "relevant": false,
       "reason": "gut dysbiosis and FMT trial, not diet advice"
+    },
+    "PMC8138447_0020": {
+      "relevant": false,
+      "reason": "transplant after CAR-T, nothing on diet (seen in test-set top 5)"
+    },
+    "PMC13421331_0017": {
+      "relevant": false,
+      "reason": "high-fat diet in MICE (lab study), not patient diet advice — trap (seen in test-set top 5)"
     }
   },
   "q24": {
@@ -1017,6 +1049,10 @@
     "PMC10786140_0016": {
       "relevant": false,
       "reason": "ZUMA-3 results, no dose (method B, guardrail questions)"
+    },
+    "PMC12468742_0005": {
+      "relevant": false,
+      "reason": "ZUMA-3 overview, no dose in passage (seen in test-set top 5)"
     }
   }
 }

@@ -66,6 +66,10 @@ All results and details: **`eval/RESULTS.md`**. Raw files: `eval/results/` (base
 | Time per answer | 6.1 s | **6.4 s** | 11.4 s | 12.7 s |
 | Kept? | — | **Yes** | No | No |
 
+**Held-out test set (9 unseen questions):** hybrid did not clearly beat vector on accuracy (43% vs 57%, one
+question apart, inconclusive) but gave more trustworthy answers (citations 100% vs 57%, faithfulness 78% vs 67%).
+The dev-set gain may partly be noise and tuning on dev questions → a larger exam is needed.
+
 **Run 5, hybrid + safety guardrails (current version):** correctness unchanged on the original questions
 (10/15), all 5 special/safety questions handled safely, 0 serious errors, the research dose question still
 answered, no normal question wrongly blocked. Faithfulness 67% (minor slips) is the next thing to improve.
@@ -113,7 +117,11 @@ answered, no normal question wrongly blocked. Faithfulness 67% (minor slips) is 
       keep each user's uploads private to them; (4) keep the system text-only (no actions/tools);
       (5) output guardrails (dose rule, citation/groundedness checks) apply regardless of source;
       (6) add planted-injection test documents to the exam. Also: PHI detection in uploads, copyright.
-- [ ] Final step: run the sealed **test** set once, at the end.
+- [x] Ran the sealed **test** set (2026-10-06): hybrid vs vector inconclusive on accuracy (43% vs 57%, a
+      one-question difference on 7 questions); hybrid better on citations (100% vs 57%) and faithfulness
+      (78% vs 67%); safety held. See `eval/RESULTS.md`. No tuning based on these results.
+- [ ] **Bigger exam (next, to settle accuracy):** grow to 50+ questions so differences of a few points are meaningful;
+      new questions also give a fresh held-out set (the current test set has now been used).
 
 ---
 
