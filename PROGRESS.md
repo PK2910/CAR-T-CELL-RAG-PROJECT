@@ -122,5 +122,6 @@ answered, no normal question wrongly blocked. Faithfulness 67% (minor slips) is 
 - Python 3.11, `.venv/` (`source .venv/bin/activate`), packages in `requirements.txt`.
 - **API key:** `.env` (never committed; `.claude/settings.json` blocks Claude from reading it). The user runs
   every script that calls Claude; Claude only runs key-free steps.
-- **GitHub:** `PK2910/CAR-T-CELL-RAG-PROJECT` (last pushed at Step 5; newer work is committed locally only).
+- **GitHub:** `PK2910/CAR-T-CELL-RAG-PROJECT` — all code, the exam, and the summaries are uploaded. Raw result
+  files (`eval/results/`, which contain paper excerpts) and the papers (`data/`) stay on the Mac only.
 - Spending so far: about $5 of the $10 credit (each full Test 2 ≈ $1).
