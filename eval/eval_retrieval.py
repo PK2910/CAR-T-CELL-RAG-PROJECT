@@ -23,6 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))  # so the LangChain version (langchain_version/) can be imported
 from retrieve import ranking, retrieve  # noqa: E402
 
 QUESTIONS_FILE = ROOT / "eval/questions.json"
@@ -35,15 +36,30 @@ DEPTHS = [5, 10, 20, 50, 100]  # Hit@k at several depths, to tell close misses f
 CHUNK_IDS = [c["chunk_id"] for c in json.loads(CHUNKS_FILE.read_text())]  # list position = Qdrant point id
 
 
+def search(question: str, k: int, mode: str) -> list[dict]:
+    if mode == "langchain":  # the LangChain version in langchain_version/
+        from langchain_version import rag
+        return rag.retrieve(question, k=k)
+    return retrieve(question, k=k, mode=mode)
+
+
+def full_ranking(question: str, mode: str) -> list[int]:
+    if mode == "langchain":
+        from langchain_version import rag
+        return rag.ranking(question)
+    return ranking(question, mode)
+
+
 def first_relevant_rank(question: str, relevant: set[str], mode: str) -> int:
-    """Rank of the best answer-bearing chunk when ALL chunks are ranked for this question."""
-    return next(rank for rank, pos in enumerate(ranking(question, mode), 1) if CHUNK_IDS[pos] in relevant)
+    """Rank of the best answer-bearing chunk when chunks are ranked for this question
+    (10**6 if none appears, e.g. LangChain only ranks its merged top-50 lists)."""
+    return next((rank for rank, pos in enumerate(full_ranking(question, mode), 1) if CHUNK_IDS[pos] in relevant), 10**6)
 
 
 def grade(question: dict, mode: str, judged: dict) -> dict:
     relevant = set(question["relevant_chunks"])
     start = time.perf_counter()
-    results = retrieve(question["question"], k=K, mode=mode)
+    results = search(question["question"], K, mode)
     latency = time.perf_counter() - start
     best_rank = first_relevant_rank(question["question"], relevant, mode)
     # Chunks in the top 5 that nobody has judged yet (new results this search surfaced)
@@ -76,7 +92,7 @@ def mean(rows: list[dict], key: str) -> float:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--split", default="dev", choices=["dev", "test", "all"])
-    parser.add_argument("--mode", default="vector", choices=["vector", "hybrid", "rerank"])
+    parser.add_argument("--mode", default="vector", choices=["vector", "hybrid", "rerank", "langchain"])
     parser.add_argument("--label", default=None, help="name of this run (default: baseline for vector, else the mode)")
     args = parser.parse_args()
     label = args.label or ("baseline" if args.mode == "vector" else args.mode)
@@ -84,7 +100,7 @@ def main():
     questions = [q for q in json.loads(QUESTIONS_FILE.read_text())
                  if q["relevant_chunks"] and (args.split == "all" or q["split"] == args.split)]
     judged = json.loads(JUDGMENTS_FILE.read_text())
-    retrieve("warm-up", k=1, mode=args.mode)  # load models/indexes once so they don't count toward latency
+    search("warm-up", 1, args.mode)  # load models/indexes once so they don't count toward latency
     rows = [grade(q, args.mode, judged) for q in questions]
 
     print(f"\nTest 1 (search) | mode={args.mode} | split={args.split} | {len(rows)} questions | top {K}\n")

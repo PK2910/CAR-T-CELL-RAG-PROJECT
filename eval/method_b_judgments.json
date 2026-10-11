@@ -759,6 +759,10 @@
     "PMC11108586_0002": {
       "relevant": false,
       "reason": "pediatric CAR-T background (seen in general-reranker top 5)"
+    },
+    "PMC10345854_0000": {
+      "relevant": false,
+      "reason": "B-ALL review abstract, not T-ALL (seen in LangChain top 5)"
     }
   },
   "q18": {

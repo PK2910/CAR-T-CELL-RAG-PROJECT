@@ -17,6 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))  # so the LangChain version (langchain_version/) can be imported
 import anthropic  # noqa: E402
 from generate import EFFORT, MODEL, SYSTEM_PROMPT, answer  # noqa: E402
 
@@ -30,7 +31,7 @@ SOURCE_FIELDS = ["chunk_id", "pmcid", "pmid", "title", "first_author", "journal"
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--split", default="dev", choices=["dev", "test", "all"])
-    parser.add_argument("--mode", default="vector", choices=["vector", "hybrid", "rerank"])
+    parser.add_argument("--mode", default="vector", choices=["vector", "hybrid", "rerank", "langchain"])
     parser.add_argument("--label", default=None, help="name of this run (default: baseline for vector, else the mode)")
     args = parser.parse_args()
     args.label = args.label or ("baseline" if args.mode == "vector" else args.mode)
@@ -44,7 +45,11 @@ def main():
     for i, q in enumerate(questions, 1):
         start = time.perf_counter()
         try:
-            result = answer(q["question"], mode=args.mode)
+            if args.mode == "langchain":  # the LangChain version in langchain_version/
+                from langchain_version import rag
+                result = rag.answer(q["question"])
+            else:
+                result = answer(q["question"], mode=args.mode)
         except anthropic.APIError as e:  # keep going; one failed call shouldn't lose the whole run
             print(f"[{i:>2}/{len(questions)}] {q['id']}  ERROR: {type(e).__name__}")
             rows.append({"id": q["id"], "question": q["question"], "error": f"{type(e).__name__}: {e}"})

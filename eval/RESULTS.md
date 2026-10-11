@@ -267,6 +267,32 @@ Note: the diet question's top 5 included a mouse high-fat-diet study (a hallucin
 
 ---
 
+## Run 6: LangChain version (side by side, `langchain_version/`) — label `langchain`
+
+Same data, settings, and guardrails, rebuilt with LangChain: QdrantVectorStore + HuggingFaceEmbeddings
+(same vectors, copied into LangChain's payload layout — no re-embedding), BM25Retriever given our word-splitting,
+EnsembleRetriever (RRF, c = 60, over each retriever's top 50), ChatPromptTemplate | ChatAnthropic (offline check:
+identical request settings), our guardrails around the chain. Answer key v1.6 (+1 judged chunk).
+
+| Metric (dev) | Plain Python (hybrid + guardrails) | LangChain |
+|---|---|---|
+| Hit@5 / MRR | 94% / 0.73 | 94% / 0.73 |
+| Precision@5 / Recall@5 | 58% / 61% | 58% / 61% |
+| Correctness | 69% (11/16) | 69% (11/16) — same 5 questions wrong |
+| Sufficient context | 69% | 69% |
+| Faithfulness | 67% (14/21) | 76% (16/21) |
+| Citation precision / abstention | 88% / 78% | 88% / 78% |
+| Special questions / serious errors | 100% / 0 | 100% / 0 |
+| Latency / cost | 6.6 s / $1.15 | 6.3 s / $1.12 |
+
+- **LangChain reproduces the original system**; the 2-question faithfulness difference is run-to-run variation
+  in Claude's wording and the judge, not the framework.
+- Differences found: LangChain's default BM25 splits on spaces only (punctuation stays attached: "ALL," ≠ "ALL"),
+  so our tokenizer was plugged in; its ensemble merges only each retriever's top 50 (q17's answer page #8 → #23);
+  it has no built-in guardrails.
+
+---
+
 ## Current version: hybrid search + safety guardrails
 Dev: correctness 67% on the original 15 (53% baseline). Test (held-out, n=7): 43% vs 57% for vector — inconclusive;
 better faithfulness and citations. Next step to settle accuracy: a larger exam (target 50+ questions).

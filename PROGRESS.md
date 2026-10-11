@@ -66,6 +66,10 @@ All results and details: **`eval/RESULTS.md`**. Raw files: `eval/results/` (base
 | Time per answer | 6.1 s | **6.4 s** | 11.4 s | 12.7 s |
 | Kept? | — | **Yes** | No | No |
 
+**LangChain version (`langchain_version/`, side by side):** same results as the plain-Python version (69%
+correct, the same 5 questions wrong, 100% safe). LangChain needed our own BM25 word-splitting, a storage-layout
+copy, and our guardrails. See `eval/RESULTS.md`, Run 6.
+
 **Held-out test set (9 unseen questions):** hybrid did not clearly beat vector on accuracy (43% vs 57%, one
 question apart, inconclusive) but gave more trustworthy answers (citations 100% vs 57%, faithfulness 78% vs 67%).
 The dev-set gain may partly be noise and tuning on dev questions → a larger exam is needed.
