@@ -104,6 +104,18 @@ def extract_table(wrap: ET.Element) -> dict:
     }
 
 
+def extract_figure(fig: ET.Element) -> dict:
+    """Turn one <fig> into {label, caption, graphic}. The XML holds only the caption and the image's
+    file name; the image itself is a separate file we don't download."""
+    label, caption = fig.find("label"), fig.find("caption")
+    graphic = next((g for g in fig.iter() if local(g.tag) == "graphic"), None)
+    return {
+        "label": text_of(label) if label is not None else "",
+        "caption": text_of(caption) if caption is not None else "",
+        "graphic": graphic.get("{http://www.w3.org/1999/xlink}href") if graphic is not None else None,
+    }
+
+
 def clean_title(title: str) -> str:
     """'3. Sequential Use of CAR T' -> 'Sequential Use of CAR T', 'II. Methods' -> 'Methods'"""
     # Numbering must be followed by whitespace, so the "I" in "Introduction" is kept
@@ -159,8 +171,9 @@ def parse_paper(path: Path) -> dict | None:
         # Join the abstract's paragraphs, leaving out headings like "Abstract" / "Background"
         "abstract": " ".join(paragraphs_in(main_abstract)) if main_abstract is not None else "",
         "sections": sections,
-        # Extracted now, but the baseline doesn't chunk them (they're a planned add-on)
+        # Not in the baseline text chunks; chunked separately by chunk_extras.py (the "plus" index)
         "tables": [extract_table(w) for w in article.iter("table-wrap")],
+        "figures": [extract_figure(f) for f in article.iter("fig")],
         "dropped_sections": dropped,
     }
 
@@ -195,6 +208,9 @@ def main():
     print(f"Tables extracted:  {sum(1 for t in tables if t['markdown'])} as text, "
           f"{sum(1 for t in tables if not t['markdown'])} image-only (not usable) "
           f"[saved for the tables add-on, not used by the baseline]")
+    figures = [f for p in papers for f in p["figures"]]
+    print(f"Figures extracted: {sum(1 for f in figures if f['caption'])} with a caption "
+          f"(caption + image file name only; images are not downloaded)")
     print(f"Boilerplate sections dropped: {sum(len(p['dropped_sections']) for p in papers)}")
 
 

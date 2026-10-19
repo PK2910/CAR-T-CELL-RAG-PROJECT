@@ -13,7 +13,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 from qdrant_client.models import Distance, PointStruct, VectorParams  # noqa: E402
-from retrieve import COLLECTION, load_client  # noqa: E402
+from index_config import INDEXES  # noqa: E402
+from retrieve import load_client  # noqa: E402
+
+COLLECTION = INDEXES["text"]["collection"]  # the LangChain copy is of the text index
 
 LC_COLLECTION = "cart_all_langchain"
 

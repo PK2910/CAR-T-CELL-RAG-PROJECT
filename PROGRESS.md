@@ -126,8 +126,28 @@ answered, no normal question wrongly blocked. Faithfulness 67% (minor slips) is 
       (78% vs 67%); safety held. See `eval/RESULTS.md`. No tuning based on these results.
 - [ ] **Bigger exam (next, to settle accuracy):** grow to 50+ questions so differences of a few points are meaningful;
       new questions also give a fresh held-out set (the current test set has now been used).
+      **2026-10-13: answer key written for 25 new questions (q31-q55, split `final`)** — 20 answerable, 1 partial
+      (q54, ICANS steroid doses: sources have almost none), 2 personal, 1 unanswerable (q55). The old 30
+      (dev + used test) are now "practice" (`--split practice`); the new 25 are the sealed final exam
+      (`--split final`), not yet run. Keys written from sentences read in the papers; q34 passages judged by reading.
+      Still to do: user spot-check of ~5 keys; judge unread passages the search surfaces when Test 1 runs.
 
 ---
+
+## 5b. Latest (2026-10-19) — where to pick up
+
+- **Done since 10-13:** final set run (48% correct, 100% safe); 16-question holdout; two Claude-generated question
+  sets (30 + 50); tables + figure captions index (`RAG_INDEX=plus`); contrastive fine-tuning of the embedding model
+  (`RAG_INDEX=tuned`). Full numbers: `eval/RESULTS.md`, Runs 7–9.
+- **Decisions:** keep the text index + original bge-small as the default. Fine-tuning helped only on
+  Claude-generated questions (hand-written 37 → 37 of 60), tables gave equal correctness.
+- **Multi-query decomposition** (2026-10-19, `eval/RESULTS.md` Run 10): no gain on two-part questions (both pages
+  in top 5: 25% vs 25%) and worse on one-part ones (75% → 65%). Not adopted.
+- **Project closed as the final version (2026-10-19):** hybrid search + safety guardrails, text index.
+  Possible future work: HyDE; per-sub-query interleaving instead of RRF; fine-tuning v2 on all pages with
+  question-style anchors (e.g. doc2query); a small production demo (FastAPI + Docker + rate-limited public link).
+- **Open items:** 34 holdout questions (q72–q105) have no answer key; the personal-question detector missed q53;
+  q07/q14/q15 answer-key fixes; human spot-check of the judge.
 
 ## 6. Setup notes
 

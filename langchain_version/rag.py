@@ -27,11 +27,13 @@ from langchain_huggingface import HuggingFaceEmbeddings  # noqa: E402
 from langchain_qdrant import QdrantVectorStore  # noqa: E402
 
 from bm25 import tokenize  # noqa: E402
-from embed import CHUNKS_FILE, EMBEDDING_MODEL, QUERY_PREFIX  # noqa: E402
+from embed import EMBEDDING_MODEL, QUERY_PREFIX  # noqa: E402
+from index_config import INDEXES  # noqa: E402
 from guardrails import PERSONAL_NOTE, check_answer, is_personal  # noqa: E402
 from retrieve import RRF_K, device, load_client  # noqa: E402
 
 LC_COLLECTION = "cart_all_langchain"  # created by build_index.py
+CHUNKS_FILE = INDEXES["text"]["chunks"]  # the LangChain copy holds the text index only
 CANDIDATES = 50                      # each retriever returns its top 50; the ensemble merges them
 MODEL = "claude-sonnet-5-5"
 PRICE_PER_MTOK = {"input": 2.00, "output": 10.00}

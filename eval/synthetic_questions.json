@@ -1,0 +1,757 @@
+[
+  {
+    "id": "s01",
+    "question": "Why do first-generation CAR T cells perform worse than second-generation CAR T cells in terms of expansion and survival?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "First-generation CARs had only a CD3ζ (or FcεRIγ) signaling domain and no costimulatory domain, so they lacked the second signal for full T cell activation. As a result they were more prone to apoptosis and had limited in vivo expansion and cytotoxicity, whereas second-generation CARs add a costimulatory domain (e.g., CD28 or 4-1BB) that supplies signal 2.",
+    "expected_behavior": null,
+    "must_include": [
+      "first-generation CARs lack a costimulatory domain (no second signal)",
+      "more susceptible to apoptosis with limited expansion and cytotoxicity",
+      "second-generation CARs add costimulatory domain such as CD28 or 4-1BB"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6278156"
+    ],
+    "relevant_chunks": [
+      "PMC6278156_0003"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s02",
+    "question": "Does blocking PD-1 improve the antitumor activity of CAR T cells against solid tumors in preclinical models?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Yes. In mouse models, HER2 CAR T cells combined with anti-PD-1 antibody produced significant tumor regression and reduced MDSCs in the tumor microenvironment. PD-1 blockade with anti-human antibodies also improved the activity of human mesothelin-directed CAR T cells in an immune-deficient animal model.",
+    "expected_behavior": null,
+    "must_include": [
+      "HER2 CAR T plus anti-PD-1 caused significant tumor regression in mice",
+      "PD-1 blockade improved human mesothelin-directed CAR T activity",
+      "MDSCs decreased in the tumor microenvironment"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC5685771"
+    ],
+    "relevant_chunks": [
+      "PMC5685771_0012"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s03",
+    "question": "Why is delayed blood count recovery after CAR T-cell therapy clinically important, and what consequences does it have?",
+    "type": "side_effect",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Delayed hematopoietic recovery (cytopenias after CAR T-cell therapy, or CAR-T-OPENIA) is increasingly recognized in clinical practice. It leads to infections, greater resource use for transfusions, and limited options for salvage therapy, so proper evaluation and management are needed for safe post-infusion care.",
+    "expected_behavior": null,
+    "must_include": [
+      "infections",
+      "transfusion resource utilization",
+      "limited salvage therapy options"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9175816"
+    ],
+    "relevant_chunks": [
+      "PMC9175816_0001"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s04",
+    "question": "Can neurotoxicity after CAR T-cell therapy for B-cell ALL occur late, beyond the first month, and what does a fatal case with prolonged cytopenia look like?",
+    "type": "side_effect",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Yes. A 22-year-old with relapsed B-ALL after transplant who received tisagenlecleucel had profound cytopenia from day 30, then neurological symptoms from day 50 that progressed to hydrocephalus and abnormal CSF. Prednisolone was ineffective and he died on day 77 from suspected late-onset CAR T-cell-mediated encephalitis.",
+    "expected_behavior": null,
+    "must_include": [
+      "neurological symptoms began around day 50, later than the usual first four weeks",
+      "prolonged severe cytopenia preceded encephalitis",
+      "fatal outcome on day 77 despite prednisolone"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11620989"
+    ],
+    "relevant_chunks": [
+      "PMC11620989_0000"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s05",
+    "question": "How does the duration of CAR-T cell persistence in the body relate to event-free survival in relapsed/refractory B-ALL patients treated with CD19 CAR-T therapy?",
+    "type": "comparison",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Longer CAR-T persistence was linked to much better event-free survival. At 24 months, EFS was 58% with ≥3 months persistence and 70% with ≥6 months, versus 13% (<3 months) and 12% (<6 months) for shorter persistence, with significant differences (p<0.001).",
+    "expected_behavior": null,
+    "must_include": [
+      "24-month EFS 58% for ≥3 months and 70% for ≥6 months persistence",
+      "24-month EFS about 13% (<3 months) and 12% (<6 months)",
+      "difference significant, p<0.001"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC10196916"
+    ],
+    "relevant_chunks": [
+      "PMC10196916_0005"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s06",
+    "question": "How can CAR T-cell therapy for B-ALL avoid relapses caused by loss of CD19, and what alternative targets or strategies are being explored?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Relapse after CD19 CAR T-cells often results from CD19 down-regulation, so researchers are exploring other targets such as CD20, CD22 and BCMA, and dual-target CARs that recognize CD19 plus another antigen. Bispecific CARs can respond to either antigen (CD19 OR CD20) or require both (CD19 AND CD22).",
+    "expected_behavior": null,
+    "must_include": [
+      "CD19 down-regulation causes relapse",
+      "alternative targets CD20, CD22, BCMA",
+      "dual-target (bispecific) CARs, OR/AND designs"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC10604728"
+    ],
+    "relevant_chunks": [
+      "PMC10604728_0021"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s07",
+    "question": "Why has CAR-T cell therapy targeting CD123 shown limited efficacy in acute myeloid leukemia, and what other antigens have been explored as targets?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Anti-CD123 CAR-T therapy had low efficiency because CD123 is also expressed, though at lower levels than on AML cells, on normal cells such as monocytes and endothelial cells. After these disappointing results, other targets such as Lewis-Y (LeY) and CLEC12A (including a CLEC12A-CD33 CAR) were tried.",
+    "expected_behavior": null,
+    "must_include": [
+      "CD123 is expressed on normal cells such as monocytes and endothelial cells",
+      "Alternative targets include Lewis-Y and CLEC12A"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC10134288"
+    ],
+    "relevant_chunks": [
+      "PMC10134288_0011"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s08",
+    "question": "What was the first CAR-T product approved by the FDA for B-cell acute lymphoblastic leukemia, and for which patients was it approved?",
+    "type": "fact_number",
+    "checks": [
+      "number_accuracy"
+    ],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "The FDA approved tisagenlecleucel (CTL019, Novartis), a CD19-targeted CAR-T cell product, in August 2017 for relapsed or refractory B-ALL in children and young adults up to 25 years of age.",
+    "expected_behavior": null,
+    "must_include": [
+      "tisagenlecleucel (CTL019), CD19-targeted",
+      "approved August 2017",
+      "children and young adults up to age 25"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC7480185"
+    ],
+    "relevant_chunks": [
+      "PMC7480185_0001"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s09",
+    "question": "Which CAR-T product was first approved by the US FDA for B-cell acute lymphoblastic leukemia, and what patient population is it indicated for?",
+    "type": "fact_number",
+    "checks": [
+      "number_accuracy"
+    ],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Tisagenlecleucel (Kymriah, Novartis) was approved by the US FDA in August 2017 for patients up to 25 years of age with relapsed or refractory B-cell ALL. The EMA's CHMP recommended approval for the same indication in June 2018.",
+    "expected_behavior": null,
+    "must_include": [
+      "tisagenlecleucel (Kymriah)",
+      "approved August 2017",
+      "patients up to 25 years with relapsed/refractory B-ALL"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC8268756"
+    ],
+    "relevant_chunks": [
+      "PMC8268756_0001"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s10",
+    "question": "What are the common neurological toxicities of CAR-T-cell therapy and how are severe cases managed with corticosteroids?",
+    "type": "side_effect",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Neurotoxicity is a common adverse reaction to CAR-T therapy and includes confusion and seizures. The NCI recommends high-dose corticosteroids for grade 3 neurotoxicities lasting at least 24 hours and for all grade 4 neurotoxicities.",
+    "expected_behavior": null,
+    "must_include": [
+      "confusion and seizures",
+      "high-dose corticosteroids for grade 3 neurotoxicity persisting >=24 h",
+      "corticosteroids for all grade 4 neurotoxicity"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC7907037"
+    ],
+    "relevant_chunks": [
+      "PMC7907037_0016"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s11",
+    "question": "Why might changing the scFv in an anti-CD19 CAR not strongly affect its efficacy, and why choose 4-1BB co-stimulation for a second-generation CD19 CAR?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "CD19 appears to have a single dominant epitope or adjacent epitopes, so different anti-CD19 scFvs (such as A3B1) can perform similarly, making the scFv choice less determinant than for other targets. A 4-1BB co-stimulatory domain was chosen because the UPenn-CHOP CAR with 4-1BB showed significantly longer CAR T cell persistence in mice and humans.",
+    "expected_behavior": null,
+    "must_include": [
+      "CD19 has a single dominant epitope or adjacent epitopes",
+      "4-1BB co-stimulation associated with longer CAR T persistence",
+      "A3B1-based ARI-0001 had efficacy similar to other constructs"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6319086"
+    ],
+    "relevant_chunks": [
+      "PMC6319086_0015"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s12",
+    "question": "What clinical responses and safety were seen when HER2-targeted CAR-T cells were given to patients with solid tumors such as biliary tract cancer, pancreatic cancer, and glioblastoma?",
+    "type": "fact_number",
+    "checks": [
+      "number_accuracy"
+    ],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "In a phase I trial of 6 patients with HER2-positive biliary tract or pancreatic cancer, one had a 4.5-month partial response and five had stable disease, with mild to moderate adverse events. In HER2-positive glioblastoma, HER2 CMV bispecific CAR-T cells were well tolerated without severe adverse events or cytokine release syndrome, and 7 of 17 patients achieved stable disease.",
+    "expected_behavior": null,
+    "must_include": [
+      "1 of 6 biliary/pancreatic patients had a 4.5-month partial response and 5 had stable disease",
+      "7 of 17 glioblastoma patients achieved stable disease",
+      "no severe adverse events or CRS in glioblastoma trial"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC5809840"
+    ],
+    "relevant_chunks": [
+      "PMC5809840_0010"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s13",
+    "question": "Why might CAR-T cells for solid tumors need to be engineered with more than one chemokine receptor to reach the tumor?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "In a mouse model, CXCR3 was required for T cells to extravasate from the vasculature into the tumor, and neither CCR2 nor CCR5 could substitute. This suggests CAR-Ts for solid tumors may need several chemokine receptors, each serving a different function on the path from circulation to tumor tissue.",
+    "expected_behavior": null,
+    "must_include": [
+      "CXCR3 needed for extravasation into tumor in mouse model",
+      "CCR2 and CCR5 could not fulfil that role",
+      "multiple chemokine receptors each with its own function"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6784091"
+    ],
+    "relevant_chunks": [
+      "PMC6784091_0088"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s14",
+    "question": "How does IL-2 availability influence the cytotoxic activity of CD8+ CAR-T cells, and what role do CD4+ CAR-T subsets (Treg-depleted versus Treg) play in this?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "IL-2 supplementation increased CD8+ CAR-T lytic activity along with perforin and granzyme B production, while neutralizing IL-2 suppressed the boost provided by CD4+CD25- CAR-T cells. CD4+CD25- cells supply IL-2 to enhance CD8+ CAR-T killing, whereas CD4+CD25+ (Treg) cells inhibit it by depleting IL-2; IL-2 alone was less effective than CD4+CD25- cells, suggesting additional mechanisms.",
+    "expected_behavior": null,
+    "must_include": [
+      "IL-2 supplementation increased CD8+ CAR-T lysis and perforin/granzyme B",
+      "CD4+CD25- cells supply IL-2 while CD4+CD25+ Tregs deplete it",
+      "IL-2 alone was less effective than CD4+CD25- cells, implying other mechanisms"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC12001162"
+    ],
+    "relevant_chunks": [
+      "PMC12001162_0009"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s15",
+    "question": "Does using donor-derived CAR-T cells instead of recipient-derived CAR-T cells improve complete remission rates in relapsed B-ALL after allogeneic transplant, and why might the difference be small?",
+    "type": "comparison",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "No significant difference in complete remission rates was found between donor-derived and recipient-derived CAR-T recipients, consistent with earlier studies. This may be because during relapse with mixed chimerism, the recipient's T cells are a mix of donor and autologous cells that retain some donor T-cell function, letting recipient-derived CAR-T cells also exert graft-versus-leukemia effects.",
+    "expected_behavior": null,
+    "must_include": [
+      "no significant difference in CR rates",
+      "mixed chimerism at relapse",
+      "recipient T cells retain some donor T-cell function and GVL effect"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13485847"
+    ],
+    "relevant_chunks": [
+      "PMC13485847_0013"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s16",
+    "question": "Do humanized CD19 CAR T cells improve persistence and durability of remission in relapsed/refractory B-ALL compared with murine-based CARs?",
+    "type": "comparison",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Evidence is mixed. In a phase 1 trial, persistence was not clearly better than prior CAR19 approaches, durable remissions were rare, and most relapses were CD19+. Shi et al. (52 patients) found efficacy comparable to murine CARs (median EFS 10 months), while Myers et al. reported more encouraging results in retreated patients (12-month RFS 74%), though repeated infusions and a mostly pediatric cohort may have contributed.",
+    "expected_behavior": null,
+    "must_include": [
+      "persistence not clearly improved and durable remissions rare, with mostly CD19+ relapses",
+      "Shi et al.: efficacy comparable to murine CARs, median EFS 10 months",
+      "Myers et al.: 12-month RFS 74% in retreatment cohort"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC12011161"
+    ],
+    "relevant_chunks": [
+      "PMC12011161_0002"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s17",
+    "question": "Is donor-derived CD19 CAR T cell therapy safe and effective for B-cell ALL that relapses after allogeneic stem cell transplant?",
+    "type": "other",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "A phase 1 trial of donor-derived anti-CD19 CAR T cells (GC007g) given after allogeneic HSCT concluded the therapy was safe and effective in relapsed or refractory B-ALL. The results support further evaluation in an expansion cohort of patients with post-HSCT relapse.",
+    "expected_behavior": null,
+    "must_include": [
+      "donor-derived CD19 CAR T cells (GC007g) after HSCT were safe and effective",
+      "further assessment in an expansion cohort planned"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC10776428"
+    ],
+    "relevant_chunks": [
+      "PMC10776428_0019"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s18",
+    "question": "What are the main cardiac concerns associated with CAR-T cell therapy, and what is the role of echocardiography in assessing them?",
+    "type": "other",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "CAR-T therapy has improved outcomes in pediatric and adult hematologic patients, but concerns about cardiotoxicity have emerged. Cardiac events can prolong hospitalization, cause life-threatening adverse events or death, and echocardiographic assessment is a focus for evaluating CAR-T-related cardiotoxicity.",
+    "expected_behavior": null,
+    "must_include": [
+      "cardiac events can prolong hospitalization or cause life-threatening events or death",
+      "cytokine cascade and inflammatory activation underlie the mechanism",
+      "echocardiography used to assess cardiotoxicity"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9368621"
+    ],
+    "relevant_chunks": [
+      "PMC9368621_0001"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s19",
+    "question": "How does tocilizumab work to control cytokine release syndrome after CD19 CAR-T therapy, and what determines how severe the syndrome becomes in B-cell ALL?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Tocilizumab is an IL-6 receptor antagonist that binds IL-6R and blocks the IL-6 pathway, thereby reducing inflammation. The main factor determining CRS severity is tumor burden.",
+    "expected_behavior": null,
+    "must_include": [
+      "Tocilizumab antagonizes the IL-6 receptor, inhibiting the IL-6 pathway",
+      "Tumor burden is the determining factor for CRS severity"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11949925"
+    ],
+    "relevant_chunks": [
+      "PMC11949925_0012"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s20",
+    "question": "How do CD28-costimulated and 4-1BB-costimulated CD19 CAR-T cells compare in neurotoxicity (ICANS) in patients with relapsed/refractory B-ALL?",
+    "type": "comparison",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Neurotoxicity was more frequent with CD28 CAR-T cells: 4 patients (22%) had grade I–II ICANS versus 1 patient (5.6%) with 4-1BB, and severe ICANS occurred in three CD28 patients but none in the 4-1BB group.",
+    "expected_behavior": null,
+    "must_include": [
+      "grade I–II neurotoxicity in 22% (CD28) vs 5.6% (4-1BB)",
+      "severe ICANS in 3 CD28 patients",
+      "no severe ICANS with 4-1BB"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC7378699"
+    ],
+    "relevant_chunks": [
+      "PMC7378699_0014"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s21",
+    "question": "What regulatory measures have been proposed to better manage the risk of secondary cancers after CAR-T therapy?",
+    "type": "other",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Proposed measures include a systematic risk management plan with stronger adverse event reporting focused on early detection of secondary cancers, higher IND entry standards (preclinical data, GMP compliance, long-term follow-up plans, stricter risk assessment), and enhanced clinical supervision with quality inspections and long-term follow-up. They also include collecting real-world data, a feedback mechanism to update regulations, guidelines and product labels, and greater international regulatory cooperation.",
+    "expected_behavior": null,
+    "must_include": [
+      "strengthened adverse event reporting for secondary cancers",
+      "stricter IND approval standards and long-term follow-up",
+      "real-world data and international cooperation"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11462758"
+    ],
+    "relevant_chunks": [
+      "PMC11462758_0004"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s22",
+    "question": "How often does acute GVHD occur when CAR T cells are used for relapse after haploidentical stem cell transplantation, and how does this compare with HLA-matched transplantation?",
+    "type": "comparison",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "In HLA-matched transplant relapse, both recipient- and donor-derived CAR T cells showed good efficacy with low aGVHD risk (e.g., 38 donor-derived recipients without aGVHD flare). After haploidentical transplantation, reported GVHD rates were higher and varied, e.g., 7 of 34 patients, 10 of 15 (66.67%), and 10 of 20 (50%) with new-onset aGVHD, and the source of CAR T cells was related to aGVHD occurrence.",
+    "expected_behavior": null,
+    "must_include": [
+      "Low aGVHD risk in HLA-matched transplant relapse",
+      "Higher, variable aGVHD rates after haploidentical transplant (e.g., 50% in 10 of 20 patients)",
+      "aGVHD occurrence related to CAR T cell source in haploidentical group"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC8591161"
+    ],
+    "relevant_chunks": [
+      "PMC8591161_0012"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s23",
+    "question": "What happens when Ph+ B-cell ALL patients stay MRD-positive on chemotherapy plus tyrosine kinase inhibitors, and what resistance mutation can lead to stopping dasatinib?",
+    "type": "other",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "In the described Ph+ B-ALL patient, morphologic remission persisted but BCR-ABL 190 stayed positive despite dasatinib, with MRD and rapid molecular relapse after DOAME plus dasatinib. A T315I mutation was then detected, so dasatinib was discontinued.",
+    "expected_behavior": null,
+    "must_include": [
+      "persistent BCR-ABL positivity despite dasatinib",
+      "molecular relapse within 2 weeks",
+      "T315I mutation led to dasatinib discontinuation"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9549058"
+    ],
+    "relevant_chunks": [
+      "PMC9549058_0002"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s24",
+    "question": "How do different research groups control T-cell subset composition when manufacturing CD19 CAR-T products, for example the CD4/CD8 ratio or enrichment of memory subsets?",
+    "type": "comparison",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "The FHCRC group manufactures CAR-T products with a defined 1:1 CD4+:CD8+ ratio. In adults with r/r B-ALL they also enrich CD8+ central memory T cells by depleting CD4+, CD14+ and CD45RA+ cells and then selecting CD62L+ cells, while the pediatric study fixes the 1:1 ratio without enrichment. City of Hope trials used CAR-T cells enriched for central memory T cells from CD8+ alone or combined CD4/8+ cells.",
+    "expected_behavior": null,
+    "must_include": [
+      "1:1 CD4+ to CD8+ ratio",
+      "CD8+ central memory enrichment via CD4/CD14/CD45RA depletion then CD62L selection",
+      "no enrichment in the pediatric study"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6237143"
+    ],
+    "relevant_chunks": [
+      "PMC6237143_0009"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s25",
+    "question": "In preclinical mouse models, how does humanized CD19 CAR-T compare with murine CD19 CAR-T in delaying tumor progression, survival, and cytokine release?",
+    "type": "comparison",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Humanized CD19 CAR-T delayed tumor fluorescence onset (21 vs 14 days) and extended median survival (43 vs 35 days) compared with murine CD19 CAR-T. It also released more TNF-α and IFN-γ at 48 h in vitro, and more IFN-γ in vivo.",
+    "expected_behavior": null,
+    "must_include": [
+      "median survival 43 days vs 35 days",
+      "tumor fluorescence appeared at 21 vs 14 days",
+      "higher TNF-α and IFN-γ release at 48 h"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC8461760"
+    ],
+    "relevant_chunks": [
+      "PMC8461760_0018"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s26",
+    "question": "How is severe neurotoxicity managed after CD19 CAR T-cell therapy in B-ALL patients with CNS leukemia, and how does it relate to cytokine release syndrome?",
+    "type": "side_effect",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Among 11 patients with grade 3-4 neurologic events, 10 (90.9%) received systemic corticosteroids, with other measures including mannitol (n=7), antiepileptics (n=6), tocilizumab (n=3) and ICU admission (n=2); no lethal diffuse cerebral edema occurred. Neurotoxicity correlated significantly with the incidence and severity of CRS (Spearman r = 0.553, P = .024).",
+    "expected_behavior": null,
+    "must_include": [
+      "10 of 11 grade 3-4 NE patients received corticosteroids",
+      "no lethal diffuse cerebral edema",
+      "significant correlation with CRS (r = 0.553)"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11022988"
+    ],
+    "relevant_chunks": [
+      "PMC11022988_0014"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s27",
+    "question": "What clinical outcomes and safety findings have been reported for CD19 CAR T-cell therapy in patients with severe refractory lupus and lupus nephritis?",
+    "type": "fact_number",
+    "checks": [
+      "number_accuracy"
+    ],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "In a compassionate-use cohort of seven patients with refractory SLE and active lupus nephritis, a single autologous CD19 CAR T infusion led to complete B-cell depletion, normalized complement, loss of anti-dsDNA antibodies, and DORIS remission or low disease activity in all patients within a median 13 months. No ICANS occurred and CRS was mild (grade I).",
+    "expected_behavior": null,
+    "must_include": [
+      "all patients achieved DORIS remission or low disease activity",
+      "complete B-cell depletion with anti-dsDNA disappearance",
+      "no ICANS and only grade I CRS"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13204585"
+    ],
+    "relevant_chunks": [
+      "PMC13204585_0014"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s28",
+    "question": "Why did some adults with B-ALL relapse after achieving MRD-negative remission with bispecific CD19/CD22 CAR-T therapy, and was antigen loss responsible?",
+    "type": "mechanism",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Relapsed leukemia cells in two patients still expressed CD19 and CD22 at pretreatment levels and remained sensitive to lysis by autologous CD19/CD22 CAR-T cells, so relapse was not due to antigen escape. It was likely due at least in part to poor persistence of the infused CAR-T cells, with loss of CAR-T surveillance.",
+    "expected_behavior": null,
+    "must_include": [
+      "relapse was not due to antigen escape; CD19 and CD22 still expressed",
+      "relapsed cells remained sensitive to CAR-T lysis",
+      "likely due to loss of CAR-T persistence"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC7126394"
+    ],
+    "relevant_chunks": [
+      "PMC7126394_0010"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s29",
+    "question": "How do CAR-T cells targeting a viral protein expressed on tumor cells after oncolytic virus infection compare with untransduced T cells in killing cancer cells in vitro?",
+    "type": "comparison",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "A56 CAR-T cells lysed HCT-116 cancer cells significantly more than untransduced T cells, in a time-dependent manner. They formed more and larger aggregates around tumor cells and eliminated dividing tumor cells faster than the tumor cells grew, whereas untransduced T cells showed little aggregation and tumor growth was largely unaffected.",
+    "expected_behavior": null,
+    "must_include": [
+      "A56 CAR-T cells caused greater time-dependent tumor cell lysis than untransduced T cells",
+      "more and larger CAR-T cell aggregates around tumor cells",
+      "untransduced T cells barely aggregated and did not control tumor growth"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC10918216"
+    ],
+    "relevant_chunks": [
+      "PMC10918216_0010"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "s30",
+    "question": "What outcomes were seen in patients with relapsed B-ALL who received blinatumomab salvage after anti-CD19 CAR T failure, including transplant and survival?",
+    "type": "other",
+    "checks": [],
+    "split": "synthetic",
+    "answerable": true,
+    "reference_answer": "Two patients went on to allogeneic transplant after blinatumomab salvage; one remained in CR on blinatumomab maintenance, while the other died of severe invasive fungal disease two months after transplant. Two other patients who achieved CR/CRi stayed in remission, and one patient with a partial response survived on maintenance therapy until the cutoff date.",
+    "expected_behavior": null,
+    "must_include": [
+      "two patients received allo-HSCT",
+      "one died of severe invasive fungal infection two months after transplant",
+      "patients with CR/CRi remained in remission"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC10332179"
+    ],
+    "relevant_chunks": [
+      "PMC10332179_0009"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  }
+]

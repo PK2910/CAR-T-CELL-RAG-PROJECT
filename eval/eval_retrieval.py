@@ -24,12 +24,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))  # so the LangChain version (langchain_version/) can be imported
+from index_config import CHUNKS_FILE, INFO_FILE  # noqa: E402  (text or plus index, from RAG_INDEX)
 from retrieve import ranking, retrieve  # noqa: E402
 
 QUESTIONS_FILE = ROOT / "eval/questions.json"
-CHUNKS_FILE = ROOT / "data/processed/chunks.json"
+from question_sets import SPLITS, load_questions  # noqa: E402  (+ synthetic set if made)
 JUDGMENTS_FILE = ROOT / "eval/method_b_judgments.json"
-INDEX_INFO_FILE = ROOT / "data/processed/index_info.json"
+INDEX_INFO_FILE = INFO_FILE
 RESULTS_DIR = ROOT / "eval/results"
 K = 5  # same number of passages that generate.py gives Claude
 DEPTHS = [5, 10, 20, 50, 100]  # Hit@k at several depths, to tell close misses from far misses
@@ -91,14 +92,15 @@ def mean(rows: list[dict], key: str) -> float:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--split", default="dev", choices=["dev", "test", "all"])
+    parser.add_argument("--split", default="dev", choices=SPLITS)
     parser.add_argument("--mode", default="vector", choices=["vector", "hybrid", "rerank", "langchain"])
     parser.add_argument("--label", default=None, help="name of this run (default: baseline for vector, else the mode)")
     args = parser.parse_args()
     label = args.label or ("baseline" if args.mode == "vector" else args.mode)
 
-    questions = [q for q in json.loads(QUESTIONS_FILE.read_text())
-                 if q["relevant_chunks"] and (args.split == "all" or q["split"] == args.split)]
+    questions = [q for q in load_questions()
+                 if q["relevant_chunks"] and (args.split == "all" or q["split"] == args.split
+                 or (args.split == "practice" and q["split"] in ("dev", "test")))]
     judged = json.loads(JUDGMENTS_FILE.read_text())
     search("warm-up", 1, args.mode)  # load models/indexes once so they don't count toward latency
     rows = [grade(q, args.mode, judged) for q in questions]

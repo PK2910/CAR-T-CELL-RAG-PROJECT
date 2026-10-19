@@ -11,12 +11,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "eval"))
+sys.path.insert(0, str(ROOT / "src"))
+from index_config import CHUNKS_FILE  # noqa: E402
 from method_b import key_sentences  # noqa: E402
 
 
 def main():
     run = json.loads(Path(sys.argv[1]).read_text())
-    chunks = {c["chunk_id"]: c for c in json.loads((ROOT / "data/processed/chunks.json").read_text())}
+    chunks = {c["chunk_id"]: c for c in json.loads(CHUNKS_FILE.read_text())}
     questions = {q["id"]: q for q in json.loads((ROOT / "eval/questions.json").read_text())}
     for row in run["questions"]:
         if not row["unjudged_in_top5"]:

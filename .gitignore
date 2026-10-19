@@ -4,3 +4,12 @@ __pycache__/
 data/
 .claude/
 eval/results/
+resume/
+
+# Fine-tuning: the trained model (133 MB), logs, and files that contain paper excerpts stay on the Mac
+train/models/
+train/finetune.log
+train/triplets.jsonl
+train/train_split.jsonl
+train/heldout_split.jsonl
+.DS_Store

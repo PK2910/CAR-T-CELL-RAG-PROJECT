@@ -1,0 +1,1041 @@
+[
+  {
+    "id": "m01",
+    "question": "What does the evidence say about whether intravenously infused CD19 CAR-T cells can reach and clear extramedullary leukemia in ALL, and why have conventional CAR-T cells been considered insufficient there, given that earlier trials mostly excluded these patients?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "In a pediatric B-ALL cohort, high complete remission rates with intravenous CAR-T suggested the cells can traffic to extramedullary sites and eliminate tumor, though neurotoxicity (ICANS) was frequent, especially with CNS involvement and elevated CSF IL-6. Another paper notes conventional CAR-T cells showed little antitumor activity against extramedullary leukemia, that efficacy against solid-type tissue disease is poorer than against leukemia, and that most earlier trials did not enroll such patients.",
+    "expected_behavior": null,
+    "must_include": [
+      "High CR rates with intravenous anti-CD19 CAR-T in the cohort suggest CAR-T cells can traffic to extramedullary sites and eliminate tumor cells",
+      "High incidence of ICANS, especially in CNS-involved relapse, possibly linked to increased CSF IL-6",
+      "Conventional CAR-T cells showed little evidence of antitumor activity against extramedullary leukemia",
+      "Most previous CAR-T clinical trials did not enroll patients with extramedullary leukemia"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9296935",
+      "PMC5819207"
+    ],
+    "relevant_chunks": [
+      "PMC9296935_0014",
+      "PMC5819207_0002"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m02",
+    "question": "How did a meta-analysis of transposon-generated CD19 CAR-T trials assess reporting bias, and why did a systematic review of CAR-T versus non-CAR-T bridging before allogeneic transplant in B-ALL forgo meta-analysis in favor of narrative synthesis?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "The transposon CAR-T meta-analysis used Deeks funnel plot inspection and the Egger test; funnel plots were asymmetric except for overall response, and the Egger test for ORR showed no significant publication bias (intercept 1.32, p = 0.48). The bridging systematic review did not pool data because of substantial clinical and methodological heterogeneity (varied populations, comparators, CD19 vs CD19/CD22 constructs, outcome definitions), so it used narrative synthesis.",
+    "expected_behavior": null,
+    "must_include": [
+      "Reporting bias was assessed using Deeks funnel plot and the Egger test; funnel plots were asymmetric except for overall response",
+      "Egger test for ORR gave intercept 1.32 (p = 0.48), indicating no significant publication bias",
+      "Meta-analysis was not performed due to substantial clinical and methodological heterogeneity",
+      "Heterogeneity involved populations (CR1 with MRD vs overt R/R), comparators (chemo, TKI, blinatumomab, historical controls), CAR-T constructs (CD19 vs CD19/CD22), and outcome definitions; narrative synthesis was used instead"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC12067360",
+      "PMC13618174"
+    ],
+    "relevant_chunks": [
+      "PMC12067360_0015",
+      "PMC13618174_0010"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m03",
+    "question": "What strategies have been proposed to improve CAR T cell infiltration into tumors, and what additional modifications or clinical protocol elements are suggested to overcome immunosuppressive tumor microenvironments in solid tumors?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "To improve infiltration, approaches include neutralizing chemokine ligands or engineering T cells to overexpress chemokine receptors whose ligands are present in the tumor microenvironment. To counter immunosuppression, proposed strategies include adding anti-cancer cytokines like IL12, manipulating checkpoint signaling (PD1/CTLA4), and targeting suppressive factors (TGF-β, IL10) and suppressive immune cells, alongside standardized clinical protocols such as patient preconditioning and cytokine support.",
+    "expected_behavior": null,
+    "must_include": [
+      "Chemokine ligands can be targeted for neutralization to improve T cell infiltration.",
+      "T cells can be modified to overexpress chemokine receptors whose cognate ligands are expressed in the tumor microenvironment.",
+      "Strategies to overcome immunosuppressive microenvironments include IL12, PD1/CTLA4 checkpoint manipulation, and targeting TGF-β, IL10 and suppressive immune cells.",
+      "Standard clinical protocols are needed, including patient preconditioning and cytokine support."
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6470706",
+      "PMC5809840"
+    ],
+    "relevant_chunks": [
+      "PMC6470706_0029",
+      "PMC5809840_0028"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m04",
+    "question": "Which T-cell subsets in the infused product are linked to long-term CAR T persistence, and how do costimulatory domain choice (41BB vs CD28) and the product's differentiated phenotype each help explain differences or limits in persistence?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Long-term persistence correlates with stem cell-like memory (TSCM) and central memory (TCM) cells in the infused product. In vivo, CD28 drives rapid expansion and early tumor control while 41BB drives memory-type functions with slower kinetics, and the limited persistence of the dual-target AUTO3 product was attributed to its mostly differentiated phenotype, possibly from the manufacturing method.",
+    "expected_behavior": null,
+    "must_include": [
+      "Long-term persistence of CAR-T cells correlates with TCM and TSCM concentration in infused products",
+      "CD28 drives more rapid expansion and early tumor control, whereas 41BB drives more memory functions with slower kinetics",
+      "Limited persistence of AUTO3 probably reflects the differentiated phenotype of the product, which may reflect the manufacturing methodology",
+      "Long-term persisting T cells derive predominantly from TSCM and TCM compartments of the infused product"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6237143",
+      "PMC8516648"
+    ],
+    "relevant_chunks": [
+      "PMC6237143_0015",
+      "PMC8516648_0019"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m05",
+    "question": "What is MUC1's role as a CAR-T target in thoracic cancers, including preclinical findings in esophageal cancer, and why is MUC1 considered a candidate target in lung cancer given its post-translational alterations?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "MUC1 is a transmembrane protein promoting adhesion and metastasis that is overexpressed in lung, breast and esophageal cancers; MUC1-targeted CAR-T cells inhibited esophageal cancer growth in transplantation and PDX models via JAK/STAT activation. In lung cancer, MUC1 is a candidate because abnormal glycosylation produces tumor-selective glyco-epitopes linked to tumor progression and poor prognosis.",
+    "expected_behavior": null,
+    "must_include": [
+      "MUC1 is overexpressed in lung, breast and esophageal cancers and facilitates adhesion and metastasis",
+      "MUC1-targeted CAR-T cells inhibited esophageal cancer growth in transplantation and PDX models, reducing proliferation via JAK/STAT activation",
+      "MUC1 is an altered gene product from post-translational modification, a potential CAR-T target",
+      "Tumor-selective glyco-epitopes from abnormal glycosylation relate to tumor progression and poor prognosis"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9334018",
+      "PMC8246176"
+    ],
+    "relevant_chunks": [
+      "PMC9334018_0014",
+      "PMC8246176_0005"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m06",
+    "question": "What outcomes have been reported for CD19 CAR-T given early to pediatric B-ALL patients with MRD positivity or chemotherapy intolerance, and how do results of CAR-T consolidation in adult MRD-positive B-ALL compare?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "In pediatric B-ALL patients with MRD positivity or chemotherapy intolerance, CD19 CAR-T gave a Day 28 ORR of 98%, an MRD-negative CR rate of 96%, and a 5-year OS of 74.9%. In adults with MRD-positive B-ALL, consolidation gave MRD-negative remission in all 15 patients in Niu et al., with 12-month RFS of 77.8% and OS of 80.8% in non-transplanted first-line patients, and 6 of 7 patients reached NGS-MRD negativity in Schwartz et al.",
+    "expected_behavior": null,
+    "must_include": [
+      "Pediatric cohort with MRD positivity or chemotherapy intolerance: Day 28 ORR 98%, MRD-negative CR 96%, 5-year OS 74.9%",
+      "Favorable outcomes attributed to lower disease burden in the cohort rather than overt bulky relapsed/refractory disease",
+      "Niu et al.: all 15 adults achieved MRD-negative remission; 12-month RFS 77.8% and OS 80.8% in non-transplanted first-line patients",
+      "Schwartz et al.: 6 of 7 first-remission MRD-positive adults achieved NGS-MRD negativity"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC12536014",
+      "PMC13330168"
+    ],
+    "relevant_chunks": [
+      "PMC12536014_0017",
+      "PMC13330168_0055"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m07",
+    "question": "What strategies have been used to enhance CAR T-cell infiltration into solid tumors by degrading the extracellular matrix or engineering chemokine receptors, and why is infiltration alone not sufficient for efficacy?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "In melanoma, collagenase-mediated stromal degradation and CAR T-cells engineered to express heparinase (HPSE) degrade the ECM and increase intratumoral infiltration and anti-tumor activity. Separately, CAR-T cells expressing chemokine receptor CCR2b show rapid chemotaxis and improved efficacy, but infiltration alone is not necessarily effective because immunosuppressive factors in the TME (e.g., Tregs, M2 macrophages, suppressive cytokines) inhibit CAR-T function.",
+    "expected_behavior": null,
+    "must_include": [
+      "Collagenase-mediated stromal degradation enhances CAR T-cell penetration into tumors",
+      "CAR T-cells engineered to express heparinase (HPSE) improve ECM degradation, increasing intratumoral infiltration and anti-tumor activity",
+      "CAR-T expressing chemokine receptor CCR2b shows rapid chemotaxis in vivo and in vitro and improved efficacy",
+      "After infiltration, immunosuppressive molecules and cells in the TME (Tregs, M2 macrophages, IL-10, TGFβ) cause immunosuppression, so infiltration alone is not necessarily effective"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13204585",
+      "PMC6309774"
+    ],
+    "relevant_chunks": [
+      "PMC13204585_0051",
+      "PMC6309774_0011"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m08",
+    "question": "What outcomes have been seen when CD19-positive relapse after CAR T therapy in B-ALL is treated with reinfusion, and why might intensified lymphodepletion with fludarabine plus cyclophosphamide improve reinfusion responses?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "In pediatric B-ALL, 3 patients with CD19-positive relapse were reinfused at DL2 with intensified lymphodepletion (fludarabine plus cyclophosphamide); 2 achieved MRD-negative CR and 1 had no response, and one patient reached remission again after repeated infusions. Intensified lymphodepletion containing fludarabine in addition to cyclophosphamide is reported to improve reinfusion response and enhance initial CAR T cell expansion and persistence.",
+    "expected_behavior": null,
+    "must_include": [
+      "Of 3 patients with CD19-positive relapse reinfused at DL2 with intensified lymphodepletion (fludarabine plus cyclophosphamide), 2 achieved MRD-negative CR and 1 had no response.",
+      "Patient 6 achieved MRD-negative CR again after further infusions and remained alive in remission at data cutoff.",
+      "Intensified lymphodepletion with fludarabine in addition to cyclophosphamide improves reinfusion response.",
+      "It enhances CAR T cell expansion and persistence."
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9647829",
+      "PMC7126394"
+    ],
+    "relevant_chunks": [
+      "PMC9647829_0014",
+      "PMC7126394_0013"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m09",
+    "question": "How does humanized CD19 CAR-T expansion after a repeat infusion compare with murine CD19 CAR-T in B-ALL, and how do CAR-T kinetics in cerebrospinal fluid differ from those in blood in pediatric ALL with CNS involvement?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "After a second infusion, humanized CD19 CAR-T reached higher CAR-T percentages and cell counts than murine CAR-T in an example patient (6.36% vs 1.04%; 693 vs 10 cells/100 μL), though median peak comparisons were not significantly different, likely because only 2 patients received humanized cells. In pediatric ALL, CAR-T cells in CSF peaked later than in blood (day 14 vs day 8) and stayed at a higher fraction than in blood on days 14 and 28.",
+    "expected_behavior": null,
+    "must_include": [
+      "In patient No.2, CD19hs CAR-T after repeat dosing reached 6.36% vs 1.04% for CD19m, and 693 vs 10 cells/100 μL",
+      "No significant difference in median peak values between second infusions of CD19m (n=5) and CD19hs (n=2), possibly due to small numbers",
+      "CAR-T cells in CSF peaked later than in blood (day 14 vs day 8)",
+      "CSF CAR-T fraction was higher than in blood on day 14 and day 28"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9253302",
+      "PMC9528944"
+    ],
+    "relevant_chunks": [
+      "PMC9253302_0017",
+      "PMC9528944_0017"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m10",
+    "question": "In B-ALL patients who relapse after allogeneic transplant, how did donor stem cell infusion compare with donor lymphocyte infusion as maintenance after CAR-T remission, and what complete remission rates did CAR-T therapy itself achieve in HLA-matched versus haploidentical transplant groups?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Donor stem cell infusion (DSI) maintenance gave higher progression-free and overall survival at 365 days than DLI, possibly because anti-CD19 CAR-T cells re-amplified more in the DSI group. For CAR-T therapy in post-transplant relapse, the CR rate was 100% (7/7) in the HLA-matched group and 83.3% (10/12) in the haploidentical group, 89.5% overall.",
+    "expected_behavior": null,
+    "must_include": [
+      "PFS and OS were higher in the DSI group than in the DLI group at 365 days",
+      "Greater re-amplification of anti-CD19 CAR T-cells in the DSI group may explain the better efficacy",
+      "CR rate of 100% (7/7) in the HLA-matched transplantation group",
+      "CR rate of 83.3% (10/12) in the haploidentical group, 89.5% (17/19) overall"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9996720",
+      "PMC8591161"
+    ],
+    "relevant_chunks": [
+      "PMC9996720_0023",
+      "PMC8591161_0009"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m11",
+    "question": "How might topologically associating domains guide the choice of a genomic safe harbor for CAR transgene insertion, and how do DNA transposon systems deliver CAR genes without viral vectors, including which transposons have been used for CD19 CARs?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Genome is divided into megabase-scale TADs within which enhancers and promoters interact, with borders blocking inter-domain interaction; so a safe harbor could be chosen by avoiding cancer-related genes within a TAD or preferring a TAD border. DNA transposon systems use a two-vector system (CAR gene flanked by ITRs plus a transposase) for cut-and-paste integration without viral vectors, and Sleeping Beauty and PiggyBac have been used for CD19 CARs.",
+    "expected_behavior": null,
+    "must_include": [
+      "Genome is divided into megabase-scale TADs in which enhancers and promoters interact, with border regions preventing interaction between adjacent TADs",
+      "A safe harbor could avoid cancer-related gene sites within a TAD or prefer a TAD border",
+      "Transposon systems use two vectors: CAR gene flanked by ITRs and a transposase enzyme that binds the ITRs to mediate integration, without viral vectors",
+      "Sleeping Beauty and PiggyBac are the two transposon systems used to deliver CD19-CAR"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC10318782",
+      "PMC12067360"
+    ],
+    "relevant_chunks": [
+      "PMC10318782_0044",
+      "PMC12067360_0003"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m12",
+    "question": "How did the allogeneic CD7-targeted CAR T product in T-cell ALL perform in terms of response rate and safety, and how did allogeneic anti-CD19 CAR T-cells compare with autologous ones for complete remission in relapsed/refractory B-ALL?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "The allogeneic CD7 CAR T product WU-CART-007 produced a 58% composite CR rate in 12 evaluable T-ALL/LBL patients, with CRS in 78% (mostly grade 1-2), one case of grade 1 neurotoxicity, and no GVHD or anti-donor/anti-drug antibodies. In the B-ALL meta-analysis of anti-CD19 CAR T-cells, autologous cells achieved better CR than allogeneic CD19-targeting CAR T-cells.",
+    "expected_behavior": null,
+    "must_include": [
+      "WU-CART-007 (allogeneic CD7 CAR T) gave a 58% composite CR rate in 12 evaluable patients",
+      "CRS occurred in 14 of 18 patients (78%), mostly grade 1-2, with one grade 1 neurotoxicity and no GVHD or anti-drug antibodies",
+      "Meta-analysis of 953 R/R B-ALL patients showed pooled CR rate of 80%",
+      "Autologous anti-CD19 CAR T-cells had improved CR compared with allogeneic CD19-targeting CAR T-cells"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11108586",
+      "PMC10647582"
+    ],
+    "relevant_chunks": [
+      "PMC11108586_0040",
+      "PMC10647582_0007"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m13",
+    "question": "How is PD-L1 used as a CAR-T target in hepatocellular carcinoma versus non-small cell lung cancer, and what clinical status or safety outcomes have been reported for these approaches?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "In HCC, PD-L1 has been explored in dual-targeting strategies with c-Met, combining tumor targeting with checkpoint-related mechanisms. In NSCLC, PD-L1-targeted CAR-T cells showed cytotoxicity and tumor inhibition preclinically, but a phase I trial in advanced lung cancer was terminated because of serious adverse effects, while a PD-L1-MSLN CAR-T phase I trial is ongoing.",
+    "expected_behavior": null,
+    "must_include": [
+      "PD-L1 contributes to immune evasion via PD-1 on T cells",
+      "Dual-targeting of PD-L1 and c-Met has been explored in HCC to combine tumor targeting with checkpoint-related mechanisms",
+      "PD-L1-targeted CAR-T cells showed cytotoxicity and tumor growth inhibition in NSCLC models",
+      "A phase I trial of PD-L1 CAR-T in advanced lung cancer was terminated due to serious adverse effects; a PD-L1-MSLN CAR-T phase I trial is ongoing"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13309999",
+      "PMC9201083"
+    ],
+    "relevant_chunks": [
+      "PMC13309999_0010",
+      "PMC9201083_0013"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m14",
+    "question": "How do CAR-iNKT cells compare with conventional CAR-T cells in tumor infiltration and safety for allogeneic use, and how does the persistence of 4-1BB-costimulated CD19 CAR-T cells compare with CD28-costimulated ones?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "CAR-iNKT cells express more chemokine receptors and infiltrate tumors better than conventional CAR-T cells, and they protect against GvHD while limiting off-target reactivity because CD1d is non-polymorphic, making them a safe allogeneic platform. 4-1BB CAR-T cells persisted longer than CD28 CAR-T cells, with a peak number more than 8 times higher and a more gradual decline at a clinically equivalent dose, likely due to progressive activation and memory differentiation.",
+    "expected_behavior": null,
+    "must_include": [
+      "CAR-iNKT cells express higher chemokine receptor levels and show greater tumour infiltration than CAR-T cells",
+      "CAR-iNKT cells show protection against GvHD and limit off-target reactivity due to non-polymorphic CD1d, supporting allogeneic use",
+      "4-1BB CAR-T cells had a peak number >8 times that of CD28 CAR-T cells and declined more gradually at a clinically equivalent dose",
+      "Longer persistence of 4-1BB CAR-T cells was likely due to progressive activation and memory phenotype differentiation"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC7865527",
+      "PMC7378699"
+    ],
+    "relevant_chunks": [
+      "PMC7865527_0018",
+      "PMC7378699_0018"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m15",
+    "question": "How do the 4-1BB and CD28 costimulatory domains differ in their effects on CAR-T cell behavior, and why did first-generation CARs lacking a costimulatory domain fail?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "4-1BB CARs tend to favor persistence and memory T cell formation, whereas CD28 CARs show more potent cytotoxicity and early tumor eradication. First-generation CARs contained only the CD3 activation domain and no costimulatory domain, so the T cells quickly underwent apoptosis in the body and the approach failed.",
+    "expected_behavior": null,
+    "must_include": [
+      "4-1BB CAR favors persistence and memory T cell formation",
+      "CD28 CAR gives more potent cytotoxic activity and early tumor eradication",
+      "First-generation CARs contained only the CD3 activation domain and lacked a costimulatory domain",
+      "T cells quickly underwent apoptosis in vivo, so first-generation CARs failed; second-generation CARs added a costimulatory domain"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC7046249",
+      "PMC7972873"
+    ],
+    "relevant_chunks": [
+      "PMC7046249_0001",
+      "PMC7972873_0002"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m16",
+    "question": "What pooled incidence rates of arrhythmia, heart failure and cardiomyopathy have been reported after CAR-T therapy, and what follow-up schedule is suggested for patients who develop cytokine release syndrome?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "A meta-analysis reported pooled incidences of about 54% for arrhythmias, 30% for heart failure and 20% for cardiomyopathy after CAR-T therapy. A systematic review suggests that patients with any CRS grade need cardiac follow-up every three months, after an initial follow-up at one month.",
+    "expected_behavior": null,
+    "must_include": [
+      "Pooled incidence: arrhythmias 54%, heart failure 30%, cardiomyopathy 20%",
+      "CRS grade ≥2 conferred over twice the risk of cardiovascular events",
+      "All patients with a CRS grade need cardiac follow-up every three months",
+      "Patient is followed up at one month"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11334556",
+      "PMC9482759"
+    ],
+    "relevant_chunks": [
+      "PMC11334556_0010",
+      "PMC9482759_0011"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m17",
+    "question": "What distinguishes the CD19-binding domain of obe-cel from that of tisa-cel and brexu-cel, and how does the kinetics and persistence of CD28-based brexu-cel compare with 4-1BB-based products?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Obe-cel uses an intermediate-affinity scFv with a rapid dissociation rate, unlike the high-affinity scFv shared by tisa-cel and brexu-cel, which may reduce side effects and improve engraftment and persistence. Brexu-cel, being CD28-based, shows rapid CAR-T expansion, an early cytokine peak, higher CRS/ICANS rates, and shorter persistence than 4-1BB-containing products.",
+    "expected_behavior": null,
+    "must_include": [
+      "Obe-cel uses an intermediate-affinity scFv with rapid dissociation rate, unlike the high-affinity scFv of tisa-cel and brexu-cel",
+      "The rapid dissociation can reduce side effects and improve CAR-T engraftment and persistence",
+      "Brexu-cel (CD28-based) shows rapid CAR-T expansion and early cytokine peak, with higher CRS and ICANS rates than 4-1BB products",
+      "Brexu-cel persistence is typically shorter than with 4-1BB-containing CAR-T products"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC12468742",
+      "PMC12846953"
+    ],
+    "relevant_chunks": [
+      "PMC12468742_0008",
+      "PMC12846953_0010"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m18",
+    "question": "What strategies have been used to blunt PD-1 inhibitory signaling in CAR-T cells for solid tumors, and what additional benefit was seen when CAR-T cells secreted anti-PD-L1 antibodies themselves in a renal cell carcinoma mouse model?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Approaches to attenuate PD-1 signaling include combining CAR-T cells with systemic anti-PD-1/PD-L1 antibody, co-expressing a dominant-negative PD-1 or a PD-1/CD28 chimeric switch receptor, and genetically disrupting PD-1. CAR-T cells secreting anti-PD-L1 antibodies reduced tumor growth in a humanized renal cell carcinoma mouse model and also enabled human NK cells to migrate into the tumor, where they act via ADCC and IFNγ stimulation of CD8+ T cells.",
+    "expected_behavior": null,
+    "must_include": [
+      "Approaches to attenuate PD-1 signaling in CAR-T cells include systemic anti-PD-1/PD-L1 antibody combination, dominant-negative PD-1 or PD-1/CD28 chimeric switch receptor co-expression, and genetic disruption of PD-1.",
+      "CAR T cells secreting anti-PD-L1 antibodies decreased tumor growth in a humanized renal cell carcinoma mouse model.",
+      "The secreted antibodies enabled human NK cells to infiltrate the tumor, acting through ADCC and IFNγ stimulation of CD8+ T cells."
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6778656",
+      "PMC5685771"
+    ],
+    "relevant_chunks": [
+      "PMC6778656_0002",
+      "PMC5685771_0011"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m19",
+    "question": "What outcomes have been reported when CRISPR/Cas9 is used to simultaneously knock out TCR and HLA class I (with or without PD-1) in CAR-T cells, and what safety concern accompanies multiplex editing?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Multiplex editing of TCR, β2M and PD-1 gave about 65% double-negative CD3/HLA-I cells, reduced alloreactivity and enhanced in vivo antitumor activity of CD19 CAR-T cells, but multiple simultaneous DNA breaks can cause translocations with unpredictable consequences. Separately, TCR/HLA-I double-knockout T cells showed no change in expansion, kept the double-negative state, and had killing and IFN-γ secretion equal to non-edited CAR-T cells.",
+    "expected_behavior": null,
+    "must_include": [
+      "Triple disruption of TCR, β2M and PD-1 yielded ~65% CD3/HLA-I double-negative cells, reduced alloreactivity and enhanced in vivo antitumor activity",
+      "Multiple simultaneous DNA breaks can lead to translocations with hard-to-predict ramifications",
+      "TCR−/HLA-I− T cells showed no expansion difference versus non-disrupted cells and kept the double-negative state",
+      "TCR−/HLA-I− CAR-T cells had killing activity and IFN-γ secretion equal to non-disrupted CAR-T cells"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC5855562",
+      "PMC10926606"
+    ],
+    "relevant_chunks": [
+      "PMC5855562_0020",
+      "PMC10926606_0029"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m20",
+    "question": "How do CAR-T therapy response rates and cytokine release syndrome rates differ between hematologic malignancies and solid tumors in meta-analyses?",
+    "type": "two_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Pooled objective response rate was significantly higher in hematologic malignancies (71%) than in solid malignancies (20%). Cytokine release syndrome was also more frequent in hematologic cancers: any-grade 81% vs 37% in solid tumors, and grade ≥3 29% vs 19%.",
+    "expected_behavior": null,
+    "must_include": [
+      "Pooled ORR was 71% (95% CI 62–79%) in hematologic malignancies versus 20% (95% CI 11–34%) in solid malignancies.",
+      "Overall pooled ORR across all malignancies was 56%.",
+      "Any-grade CRS occurred in 81% of hematologic malignancy patients versus 37% of solid tumor patients.",
+      "Grade ≥3 CRS was 29% in blood cancers versus 19% in solid tumors."
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6356949",
+      "PMC8345443"
+    ],
+    "relevant_chunks": [
+      "PMC6356949_0009",
+      "PMC8345443_0010"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m21",
+    "question": "How should prolonged cytopenia after CAR T-cell infusion be managed when G-CSF does not work, and what role does allogeneic stem cell transplantation play?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "When neutropenia stays unresponsive to G-CSF beyond day +14 after infusion, or anemia and thrombocytopenia persist, infusion of autologous hematopoietic stem cells should be considered. Allogeneic HSCT is an option if autologous stem cells are unavailable or treatment fails, but it is not routine and must be decided case by case.",
+    "expected_behavior": null,
+    "must_include": [
+      "Autologous hematopoietic stem cell transfusion for G-CSF-unresponsive neutropenia beyond day +14",
+      "Allogeneic HSCT is not routine and is considered individually when autologous cells are unavailable or treatment fails"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11049267"
+    ],
+    "relevant_chunks": [
+      "PMC11049267_0035"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m22",
+    "question": "What uncertainties limit our understanding of how well SARS-CoV-2 mRNA vaccines protect patients who have received CAR-T therapy?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Evidence is limited by the novelty of the mRNA platform with scarce longitudinal data, the lack of established anti-spike IgG and neutralizing antibody thresholds, and not knowing what level of humoral response correlates with clinical protection. The durability of immune responses and how in vitro assays correlate with vaccine efficacy in immunocompromised patients also remain undetermined.",
+    "expected_behavior": null,
+    "must_include": [
+      "Level of humoral response that correlates with clinical protection is unknown",
+      "Durability of response and correlation of in vitro assays with efficacy in immunocompromised patients undetermined"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC8473073"
+    ],
+    "relevant_chunks": [
+      "PMC8473073_0033"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m23",
+    "question": "How do CAR-T cells compare with T-cell redirecting bispecific antibodies in practicality and efficacy, and how could allogeneic CAR-Ts change that comparison?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Bispecifics are favored for ease of use, availability and cost, while CAR-Ts are currently favored for potency in producing complete responses and for duration of response. If allogeneic off-the-shelf CAR-Ts become widely available, they would act more like regular biologic drugs, with redosing, no processing wait, lower costs and better availability.",
+    "expected_behavior": null,
+    "must_include": [
+      "Bispecifics favored for ease of use, availability and cost; CAR-Ts for complete responses and duration of response",
+      "Allogeneic off-the-shelf CAR-Ts could offer redosing, no processing wait, and lower cost"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6784091"
+    ],
+    "relevant_chunks": [
+      "PMC6784091_0121"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m24",
+    "question": "How does reprogramming immunosuppressive tumor-associated macrophages and myeloid-derived suppressor cells with a folate-targeted TLR7 agonist affect CAR-T therapy against solid tumors in mice?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "A folate-targeted TLR7 agonist (FA-TLR7-1A) repolarized TAMs and MDSCs from an M2-like anti-inflammatory to an M1-like pro-inflammatory phenotype, significantly boosting CAR-T efficacy against 4T1 solid tumors in immunocompetent mice. It also increased infiltration and activation of CAR-T and endogenous T cells in tumors, without notable adverse effects.",
+    "expected_behavior": null,
+    "must_include": [
+      "FA-TLR7-1A repolarizes TAMs and MDSCs from M2-like to M1-like",
+      "enhanced CAR-T efficacy and T-cell infiltration/activation in 4T1 tumors"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11361912"
+    ],
+    "relevant_chunks": [
+      "PMC11361912_0010"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m25",
+    "question": "Why do triple-negative breast cancers become resistant to EGFR CAR-T cells, and what kind of inhibitor can suppress the genes responsible?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Resistance arises because CAR-T treatment drives strong upregulation of immunosuppressive genes, largely via CAR-T-derived IFN-γ signaling acting through CAR-T-activated enhancers. Expression of these genes can be suppressed by inhibitors of transcriptional regulators, such as the CDK7 inhibitor THZ1, which blocks CDK7-mediated Pol II phosphorylation.",
+    "expected_behavior": null,
+    "must_include": [
+      "Upregulation of immunosuppressive genes driven by CAR-T-derived IFN-γ",
+      "CDK7 inhibitor THZ1 suppresses these genes"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11361912"
+    ],
+    "relevant_chunks": [
+      "PMC11361912_0099"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m26",
+    "question": "Which intracellular signaling pathways in T cells are being targeted to improve CAR T cell persistence, and what happens to T cell proliferation when distal MAPK molecules like ERK are inhibited?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "T cell expansion, differentiation and survival depend on signals that activate the MAPK and PI3K/AKT/mTOR pathways, which are favored targets for improving CAR T persistence. Inhibiting distal MAPK molecules such as ERK, pharmacologically or genetically, significantly weakens T cell proliferation in mice and humans.",
+    "expected_behavior": null,
+    "must_include": [
+      "MAPK and PI3K/AKT/mTOR pathways",
+      "ERK inhibition significantly weakens T cell proliferation"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC7188834"
+    ],
+    "relevant_chunks": [
+      "PMC7188834_0016"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m27",
+    "question": "Why does allogeneic CAR-T therapy tend to have shorter persistence than autologous CAR-T, and what drawbacks of autologous manufacturing are being addressed with faster platforms?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Allogeneic T cells can be recognized as foreign because of HLA disparities, causing graft-versus-host disease and rapid destruction by the patient's immune system, which reduces persistence. Autologous products avoid this but have 2-10% manufacturing failure rates, high cost and long production times, which automation and rapid platforms such as T-Charge aim to reduce.",
+    "expected_behavior": null,
+    "must_include": [
+      "HLA disparities cause allogeneic cells to be rejected or cause GvHD, reducing persistence",
+      "Autologous manufacturing has 2-10% failure rates, high cost and long production time"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC11343441"
+    ],
+    "relevant_chunks": [
+      "PMC11343441_0004"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m28",
+    "question": "How effective is anti-CD22 CAR-T salvage therapy in patients with relapsed or refractory DLBCL versus B-ALL who failed prior anti-CD19 CAR-T therapy?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Anti-CD22 CAR-T salvage therapy was more effective in relapsed/refractory DLBCL patients than in B-ALL patients after prior anti-CD19 CAR-T failure. It showed effective antitumor activity with controllable toxicity, though larger cohorts are needed to confirm this.",
+    "expected_behavior": null,
+    "must_include": [
+      "More effective in R/R DLBCL than in R/R B-ALL",
+      "Toxicity was controllable"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC8259947"
+    ],
+    "relevant_chunks": [
+      "PMC8259947_0020"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m29",
+    "question": "What do phase 1 findings in pediatric B-ALL show about CD19.41BBζ CAR T-cell expansion after infusion, and how does disease burden relate to outcome?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "The phase 1 study found a favorable toxicity and efficacy profile for the institutional autologous CD19.41BBζ-CAR T-cell product. Correlative studies showed that disease burden influences outcome and that CD8+ CAR T cells preferentially expand after infusion, with evidence of antigen-driven CAR T-cell differentiation.",
+    "expected_behavior": null,
+    "must_include": [
+      "preferential expansion of CD8+ CAR T cells after infusion",
+      "disease burden affects outcome"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC9647829"
+    ],
+    "relevant_chunks": [
+      "PMC9647829_0025"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m30",
+    "question": "Why is CD7 considered the most clinically advanced CAR T-cell target for T-cell acute lymphoblastic leukemia, and how common is its expression on malignant versus normal cells?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "CD7 is the most clinically advanced T-ALL CAR T target, with 20 ongoing clinical trials worldwide. It is a pan-T-cell marker expressed on about 90% of relapsed or refractory T-ALL blasts, but also on more than 99% of normal T and NK lymphocytes.",
+    "expected_behavior": null,
+    "must_include": [
+      "CD7 expressed on ~90% of relapsed/refractory T-ALL blasts",
+      "also expressed on >99% of normal T and NK cells"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13490547"
+    ],
+    "relevant_chunks": [
+      "PMC13490547_0037"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m31",
+    "question": "What are the proposed causes of non-response and early relapse after CD19 CAR-T therapy in B-cell ALL, and what strategies have been suggested to overcome each?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Proposed causes include poor CAR-T persistence (from immunity against murine CAR components, addressed by using human-derived CARs), B-cell interaction with CAR-T cells (addressed by combining with inhibitors such as ibrutinib), antigen loss or antigen-negative leukemic stem cells (addressed by a second CAR-T targeting CD22 and/or CD20), and T-cell suppression/anergy (addressed by adding checkpoint blockade such as PD-L1/PD-1 inhibitors).",
+    "expected_behavior": null,
+    "must_include": [
+      "Antigen loss can be addressed with a second CAR-T targeting CD22 or CD20",
+      "Poor persistence can be addressed by switching from murine to human-derived CARs"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC7046249"
+    ],
+    "relevant_chunks": [
+      "PMC7046249_0024"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m32",
+    "question": "How did the safety of CD19/22 dual-target CAR-T compare with CD19 CAR-T in relapsed/refractory B-ALL patients with TP53 alterations, in terms of cytokine release syndrome and neurotoxicity?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Safety was similar between the two products, with no treatment-related deaths. CRS occurred in 74.07% of the CD19 group and 67.86% of the CD19/22 group, and only one CD19/22 patient developed ICANS, which resolved with dexamethasone. None of the differences in toxicity incidence or severity were statistically significant.",
+    "expected_behavior": null,
+    "must_include": [
+      "CRS in 74.07% (CD19) vs 67.86% (CD19/22), no significant difference",
+      "Only one ICANS case (CD19/22 group), no treatment-related mortality"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13159330"
+    ],
+    "relevant_chunks": [
+      "PMC13159330_0016"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m33",
+    "question": "How was the fatty acid transporter gene SLC27A2 (FATP2) identified as a candidate driver of B-ALL resistance to CAR-T therapy?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Researchers analyzed RNA-seq data from 1104 pediatric B-ALL patients to find genes whose high expression associates with poorer chemotherapy outcomes, yielding nine candidates including five lipid metabolism genes. Filtering with DepMap screens for genes essential to B-ALL versus non-B-ALL cell lines left only SLC27A2, which encodes FATP2.",
+    "expected_behavior": null,
+    "must_include": [
+      "RNA-seq of 1104 pediatric B-ALL patients linking high expression to poor chemotherapy outcome",
+      "DepMap essentiality filtering left SLC27A2 (FATP2) as the single candidate"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13421331"
+    ],
+    "relevant_chunks": [
+      "PMC13421331_0010"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m34",
+    "question": "Why have mRNA vaccines been preferred over DNA and other platforms for SARS-CoV-2 vaccination, and what immune responses do they elicit?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "mRNA vaccines are preferred because mRNA is transient, avoids anti-vector immunity, and is delivered to the cytosol, so there is no risk of host genome integration. They induce combined humoral and cellular immunity, with antispike antibody titers above convalescent controls and expansion of spike-specific CD8+ and Th1 CD4+ T cells producing IFN-γ.",
+    "expected_behavior": null,
+    "must_include": [
+      "mRNA is transient, avoids antivector immunity, and has no risk of genome integration",
+      "induce both humoral (antispike antibodies) and cellular (CD8+ and Th1 CD4+ IFN-γ) responses"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC8473073"
+    ],
+    "relevant_chunks": [
+      "PMC8473073_0031"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m35",
+    "question": "Which leukemia-intrinsic factors, beyond poor CAR-T persistence and CD19 loss, have been linked to resistance to CD19 CAR-T therapy in B-ALL, and what gene did a genome-wide CRISPR screen identify as mediating this resistance?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "TP53 mutations in B-ALL cells increase resistance to CD19 CAR-T killing and predict inferior clinical outcomes. A genome-wide CRISPR screen identified Fatty Acid Transport Protein 2 (FATP2) as a critical mediator of CAR-T resistance in TP53-mutant B-ALL.",
+    "expected_behavior": null,
+    "must_include": [
+      "TP53 mutations increase resistance to CD19 CAR-T",
+      "FATP2 identified by CRISPR screen"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13421331"
+    ],
+    "relevant_chunks": [
+      "PMC13421331_0001"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m36",
+    "question": "How can logic-gated \"and\" CAR T-cells be built by splitting signaling domains across two receptors, and why is this useful for solid tumors?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "The CD3ζ signal 1 domain and a costimulatory domain (4-1BB or CD28) are split between two CARs with different antigen specificities, so robust killing occurs only when both target antigens are engaged on the same target cell. This logic-based approach is being explored to handle the complexity of solid tumors and to create safer products.",
+    "expected_behavior": null,
+    "must_include": [
+      "signaling domains split between two CARs with different specificities",
+      "killing requires engagement of both antigens (A and B)"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC6784091"
+    ],
+    "relevant_chunks": [
+      "PMC6784091_0077"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m37",
+    "question": "Which serum biomarkers and score thresholds are used to predict severe cytokine release syndrome or neurotoxicity after CAR-T therapy in B-ALL?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "IL-6 above 1000 pg/mL indicates risk of severe CRS, and daily IL-6 above 15.2 pg/mL predicts grade ≥3 ICANS. Ferritin above 10,000 ng/mL predicts severe toxicity and reduced survival, and an m-EASIX score (LDH×CRP/platelets) above 6.2 further refines risk stratification.",
+    "expected_behavior": null,
+    "must_include": [
+      "IL-6 >1000 pg/mL predicts severe CRS",
+      "ferritin >10,000 ng/mL and m-EASIX >6.2"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC12571805"
+    ],
+    "relevant_chunks": [
+      "PMC12571805_0023"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m38",
+    "question": "Why are syngeneic mouse models considered advantageous over xenogeneic models for studying CAR T cell trafficking, persistence, and repeated dosing?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "Syngeneic models have a fully functional immune system, allowing study of chemokine-directed trafficking into tumors (e.g., CXCR3 with CXCL9/CXCL10), CAR T phenotype, persistence, memory differentiation, and competition with recovering endogenous cells for cytokines. They also suit repeated dosing and long-term responses, which xenogeneic models limit because of GvHD and cross-species immune incompatibility.",
+    "expected_behavior": null,
+    "must_include": [
+      "Intact immune system enables study of trafficking (e.g., CXCR3/CXCL9/CXCL10) and CAR T persistence/memory",
+      "Xenogeneic models are limited for long-term/repeated dosing due to GvHD and cross-species incompatibility"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13162664"
+    ],
+    "relevant_chunks": [
+      "PMC13162664_0023"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m39",
+    "question": "What clinical outcomes and safety profile were seen in adults with severe diffuse systemic sclerosis treated with CD19-targeted CAR T cells in a small case series?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "In six adults with severe diffuse SSc, CD19 CAR T-cell therapy improved skin involvement in all patients (median 31% mRSS reduction within 100 days), reduced digital ulcers, improved hand function, and kept lung function stable. It was well tolerated, with only grade 1-2 CRS, no neurotoxicity, and no need for additional immunosuppressive or antifibrotic therapy over 487 days of follow-up.",
+    "expected_behavior": null,
+    "must_include": [
+      "median 31% mRSS reduction within 100 days",
+      "only grade 1-2 CRS and no neurotoxicity"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13204585"
+    ],
+    "relevant_chunks": [
+      "PMC13204585_0019"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  },
+  {
+    "id": "m40",
+    "question": "How is immune effector cell-associated neurotoxicity syndrome (ICANS) after CAR T therapy thought to arise, and how is moderate to severe ICANS managed?",
+    "type": "one_part",
+    "checks": [],
+    "split": "mq",
+    "answerable": true,
+    "reference_answer": "ICANS is thought to arise from blood–brain barrier disruption through endothelial injury and systemic inflammation, letting cytokines and CAR T-cells enter the CNS and damage glial cells. Moderate to severe cases are treated primarily with corticosteroids such as dexamethasone or methylprednisolone, while tocilizumab is not advised for isolated ICANS.",
+    "expected_behavior": null,
+    "must_include": [
+      "blood–brain barrier disruption allowing cytokines and CAR T-cells into the CNS",
+      "corticosteroids are first-line for moderate to severe ICANS; tocilizumab not advised for isolated ICANS"
+    ],
+    "must_not": [],
+    "relevant_papers": [
+      "PMC13204585"
+    ],
+    "relevant_chunks": [
+      "PMC13204585_0037"
+    ],
+    "added_by_method_b": [],
+    "label_quality": "approximate",
+    "generated_by": "claude-sonnet-5-5"
+  }
+]

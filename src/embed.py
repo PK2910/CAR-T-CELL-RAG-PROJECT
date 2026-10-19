@@ -3,11 +3,12 @@ Box 4: EMBED + INDEX
 Turn every chunk into a vector with bge-small, and store the vectors
 together with the chunk text and labels in a Qdrant collection.
 
-Input:  data/processed/chunks.json
+Input:  data/processed/chunks.json       (or chunks_plus.json with RAG_INDEX=plus, see index_config.py)
 Output: data/qdrant/              (Qdrant local-mode storage)
         data/processed/index_info.json  (how this index was built)
 
-Run:  python src/embed.py
+Run:  python src/embed.py                 (text index)
+      RAG_INDEX=plus python src/embed.py  (text + tables + figure captions)
 """
 
 import json
@@ -19,13 +20,12 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 from sentence_transformers import SentenceTransformer
 
-ROOT = Path(__file__).resolve().parent.parent  # project folder, wherever we run from
-CHUNKS_FILE = ROOT / "data/processed/chunks.json"
-QDRANT_PATH = ROOT / "data/qdrant"
-INFO_FILE = ROOT / "data/processed/index_info.json"
+from index_config import CHUNKS_FILE, COLLECTION, INDEX, INFO_FILE, MODEL
 
-EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"  # must match the tokenizer used in chunk.py
-COLLECTION = "cart_all_baseline"
+ROOT = Path(__file__).resolve().parent.parent  # project folder, wherever we run from
+QDRANT_PATH = ROOT / "data/qdrant"
+
+EMBEDDING_MODEL = MODEL  # bge-small (or its fine-tuned copy for RAG_INDEX=tuned); same tokenizer as chunk.py
 BATCH_SIZE = 32  # chunks embedded at once; lower it if the Mac runs out of memory
 
 # bge models work best when QUESTIONS (not chunks) get this prefix
@@ -67,7 +67,11 @@ def main():
         "embedding_model": EMBEDDING_MODEL,
         "dimensions": int(vectors.shape[1]),
         "n_chunks": len(chunks),
-        "chunking": "recursive, 400 tokens, 50 overlap",
+        "index": INDEX,
+        "chunking": "recursive, 400 tokens, 50 overlap" + ("; + tables and figure captions" if INDEX == "plus" else ""),
+        "fine_tuned": INDEX == "tuned",
+        "chunk_types": {t: sum(1 for c in chunks if c.get("chunk_type", "text") == t)
+                        for t in sorted({c.get("chunk_type", "text") for c in chunks})},
         "date_built": date.today().isoformat(),
     }, indent=2))
 

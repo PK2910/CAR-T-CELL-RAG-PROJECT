@@ -18,9 +18,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
+from index_config import CHUNKS_FILE  # noqa: E402  (same chunks as the index in use)
 from retrieve import COLLECTION, QUERY_PREFIX, load_client, load_model  # noqa: E402
 
-CHUNKS_FILE = ROOT / "data/processed/chunks.json"
 PAPERS_FILE = ROOT / "data/processed/papers.json"
 RAW_DIR = ROOT / "data/raw"
 QUESTIONS_FILE = ROOT / "eval/questions.json"

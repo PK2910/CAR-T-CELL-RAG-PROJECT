@@ -8,6 +8,8 @@ It gets: the question, the answer key, the exact 5 sources the system saw, and t
 system's answer, and returns simple pass/fail fields (JSON, enforced by a schema).
 
 Saves: eval/results/judged_<label>_<split>.json and prints the scoreboard.
+Each grade is also saved the moment it is made (judged_<label>_<split>.partial.jsonl); if a run stops
+(e.g. the API credit ran out), re-running the same command keeps those grades and only grades the rest.
 
 Run:  python eval/judge.py [--split dev] [--label baseline]
 """
@@ -25,6 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
 QUESTIONS_FILE = ROOT / "eval/questions.json"
+from question_sets import SPLITS, load_questions  # noqa: E402  (+ synthetic set if made)
 RESULTS_DIR = ROOT / "eval/results"
 JUDGE_MODEL = "claude-opus-5-5"
 JUDGE_EFFORT = "medium"
@@ -166,27 +169,51 @@ def diagnose(graded: list[dict]) -> dict:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--split", default="dev", choices=["dev", "test", "all"])
+    parser.add_argument("--split", default="dev", choices=SPLITS)
     parser.add_argument("--label", default="baseline")
     args = parser.parse_args()
 
-    questions = {q["id"]: q for q in json.loads(QUESTIONS_FILE.read_text())}
+    questions = {q["id"]: q for q in load_questions()}
     answers_file = RESULTS_DIR / f"answers_{args.label}_{args.split}.json"
     run = json.loads(answers_file.read_text())
     client = anthropic.Anthropic()
 
+    partial = RESULTS_DIR / f"judged_{args.label}_{args.split}.partial.jsonl"
+    done = {}
+    if partial.exists():
+        for line in partial.read_text().splitlines():
+            row = json.loads(line)
+            done[row["grade"]["id"]] = row
+        print(f"Resuming: {len(done)} grades already saved are kept.")
+
     graded, judge_cost = [], 0.0
     for a in run["answers"]:
+        if a["id"] in done:
+            graded.append(done[a["id"]]["grade"])
+            judge_cost += done[a["id"]]["cost"]
+            g = done[a["id"]]["grade"]
+            print(f"{a['id']}: {'✅ correct' if g['correct'] else '❌ incorrect'}"
+                  f"{'' if g['faithful'] else ' · unfaithful'} · harm {g['harm_severity']}  (saved)")
+            continue
         if "error" in a:
             print(f"{a['id']}: skipped (no answer: {a['error']})")
             continue
         q = questions[a["id"]]
-        grade, cost, problem = judge_one(client, q, a)
+        try:
+            grade, cost, problem = judge_one(client, q, a)
+        except anthropic.APIError as e:
+            if "credit balance" in str(e):
+                print(f"\nStopped at {a['id']}: the API credit ran out. Add credit and re-run the same command;"
+                      f" the {len(graded)} grades so far are saved and will be kept.")
+                return
+            raise
         judge_cost += cost
         if problem:
             print(f"{a['id']}: {problem}")
             continue
         graded.append({"id": a["id"], "type": q["type"], "answerable": q["answerable"], **grade})
+        with partial.open("a", encoding="utf-8") as f:  # saved immediately
+            f.write(json.dumps({"grade": graded[-1], "cost": cost}, ensure_ascii=False) + "\n")
         print(f"{a['id']}: {'✅ correct' if grade['correct'] else '❌ incorrect'}"
               f"{'' if grade['faithful'] else ' · unfaithful'} · harm {grade['harm_severity']}")
 
@@ -252,6 +279,7 @@ def main():
         "grades": graded,
     }, indent=2, ensure_ascii=False))
     print(f"Saved -> {out.relative_to(ROOT)}")
+    partial.unlink(missing_ok=True)  # the complete result is saved, so the progress file is no longer needed
 
 
 if __name__ == "__main__":

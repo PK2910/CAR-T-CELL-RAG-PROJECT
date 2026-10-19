@@ -89,6 +89,10 @@
     "PMC12011161_0000": {
       "relevant": false,
       "reason": "editorial on a humanized CAR; no brexu-cel response rates (seen in rerank top 5)"
+    },
+    "PMC7926700_T03_0": {
+      "relevant": true,
+      "reason": "Table 3: ZUMA-3 (brexu-cel, adults, phase I/II) CR 68% overall, 84% at RP2D (phase 1 result)"
     }
   },
   "q03": {
@@ -393,6 +397,14 @@
     "PMC11941108_0006": {
       "relevant": false,
       "reason": "adult/mixed cohorts and transplant (seen in test-set top 5)"
+    },
+    "PMC8571234_F01_0": {
+      "relevant": false,
+      "reason": "Figure caption only names 2-year OS/EFS curves (MRD-positive patients); no numbers"
+    },
+    "PMC13547739_F03_0": {
+      "relevant": false,
+      "reason": "Figure caption names EFS/OS curves for CNS leukemia; no numbers"
     }
   },
   "q09": {
@@ -689,6 +701,10 @@
     "PMC10332179_0011": {
       "relevant": false,
       "reason": "blinatumomab/inotuzumab AFTER CAR-T failure, not a comparison (seen in test-set top 5)"
+    },
+    "PMC10332179_F02_0": {
+      "relevant": false,
+      "reason": "Caption 'Responses and survival after blinatumomab' only; no CAR-T comparison"
     }
   },
   "q17": {
@@ -967,6 +983,10 @@
     "PMC13421331_0017": {
       "relevant": false,
       "reason": "high-fat diet in MICE (lab study), not patient diet advice — trap (seen in test-set top 5)"
+    },
+    "PMC8268756_0036": {
+      "relevant": false,
+      "reason": "Long-term follow-up and neurotoxicity; nothing about diet"
     }
   },
   "q24": {
@@ -1011,6 +1031,10 @@
     "PMC10134288_0018": {
       "relevant": false,
       "reason": "tocilizumab approval/prophylaxis, no dose (method B, guardrail questions)"
+    },
+    "PMC11949925_F02_0": {
+      "relevant": false,
+      "reason": "Caption on tocilizumab efficacy/CRS duration; no doses"
     }
   },
   "q30": {
@@ -1057,6 +1081,72 @@
     "PMC12468742_0005": {
       "relevant": false,
       "reason": "ZUMA-3 overview, no dose in passage (seen in test-set top 5)"
+    },
+    "PMC11049267_T03_5": {
+      "relevant": false,
+      "reason": "Table piece lists brexu-cel trial names and ZUMA-2 (lymphoma) ORR; no ZUMA-3 cell dose"
+    }
+  },
+  "q34": {
+    "PMC13544187_0000": {
+      "relevant": true,
+      "reason": "Aldoss phase 1: 18 adults >=55 in CR1, 18-month EFS 84%, OS 100%, no grade>=2 CRS or ICANS"
+    },
+    "PMC13544187_0015": {
+      "relevant": true,
+      "reason": "Aldoss results: all MRD-negative CR at day 28, 18-month EFS 84% / OS 100%"
+    },
+    "PMC13544187_0016": {
+      "relevant": true,
+      "reason": "Aldoss: cognition and function preserved in older adults after CAR-T"
+    },
+    "PMC12468742_0010": {
+      "relevant": true,
+      "reason": "FELIX post hoc: minimal differences in ORR/EFS/OS <55 vs >=55 (and >=65)"
+    },
+    "PMC13330168_0055": {
+      "relevant": true,
+      "reason": "Aldoss interim: >=55 in CR1, well tolerated, 10 of 11 in MRD-negative remission"
+    },
+    "PMC12536014_0017": {
+      "relevant": true,
+      "reason": "CAR-T consolidation in elderly B-ALL showed durable efficacy (single-center trial)"
+    },
+    "PMC11049267_0026": {
+      "relevant": false,
+      "reason": "Elderly LYMPHOMA study (median age 74), not ALL - trap"
+    },
+    "PMC10345854_0017": {
+      "relevant": false,
+      "reason": "Transplant outcomes children vs adults, not CAR-T in older adults"
+    },
+    "PMC11697943_0019": {
+      "relevant": false,
+      "reason": "Only notes transplant risk for older patients; no older-adult CAR-T results"
+    },
+    "PMC12468742_0015": {
+      "relevant": false,
+      "reason": "Says a trial is ongoing for >=55; no results"
+    },
+    "PMC12468742_0016": {
+      "relevant": false,
+      "reason": "Says a trial is ongoing for >=55; no results"
+    },
+    "PMC13544187_0001": {
+      "relevant": false,
+      "reason": "Background on older adults' poor outcomes, no CAR-T results"
+    },
+    "PMC13544187_0002": {
+      "relevant": false,
+      "reason": "Rationale only"
+    },
+    "PMC13544187_0003": {
+      "relevant": false,
+      "reason": "Study design only"
+    },
+    "PMC13544187_0026": {
+      "relevant": false,
+      "reason": "Discussion of extending the approach; no results"
     }
   }
 }

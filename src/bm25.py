@@ -13,12 +13,10 @@ Word splitting is ours to control (unlike the embedding model, which lowercases 
 import json
 import re
 from functools import lru_cache
-from pathlib import Path
 
 from rank_bm25 import BM25Okapi
 
-ROOT = Path(__file__).resolve().parent.parent
-CHUNKS_FILE = ROOT / "data/processed/chunks.json"
+from index_config import CHUNKS_FILE  # same chunks as the vector index (text, or text + tables + figures)
 
 TOKEN = re.compile(r"[A-Za-z0-9]+(?:[-/][A-Za-z0-9]+)*")
 ABBREVIATION = re.compile(r"^(?=.*[A-Z].*[A-Z]|.*[A-Z].*\d|.*\d.*[A-Z])[A-Za-z0-9/-]+$")  # 2+ capitals, or capitals + digits
