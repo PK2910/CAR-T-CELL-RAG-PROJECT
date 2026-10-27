@@ -28,7 +28,7 @@ flowchart LR
         G1 --> K[BM25 search]
         V --> R[Merge<br/>reciprocal rank fusion]
         K --> R
-        R --> T[Top 5 pieces]
+        R --> T[Top 10 pieces]
         T --> L[Claude Sonnet 5.5<br/>answers only from sources]
         L --> G2[Output guardrail<br/>no doses for personal questions]
         G2 --> OUT[Answer + PubMed links]
@@ -46,7 +46,7 @@ flowchart LR
 | Keyword index | `src/bm25.py` | BM25 with tokenization that keeps medical abbreviations exact ("ALL" ≠ "all", "CD22", "ZUMA-3") |
 | Search | `src/retrieve.py` | Hybrid search: vector + BM25 rankings merged with reciprocal rank fusion |
 | Safety | `src/guardrails.py` | Detects questions about a specific person; a code check removes doses from those answers |
-| Answer | `src/generate.py` | Claude Sonnet 5.5 answers only from the 5 retrieved pieces, citing each fact |
+| Answer | `src/generate.py` | Claude Sonnet 5.5 answers only from the 10 retrieved pieces, citing each fact |
 | Index versions | `src/index_config.py` | Switch between the text index, text + tables/figures, and the fine-tuned model (`RAG_INDEX`) |
 | LangChain version | `langchain_version/` | The same system rebuilt with LangChain, for comparison |
 | Fine-tuning | `train/` | Contrastive fine-tuning of the embedding model (experiment) |
@@ -104,6 +104,16 @@ questions, so 48% is the more honest estimate for unseen questions.
    equally, and one surfaced a pediatric dosing page that leaked into an answer to a parent's question.
 5. **Safety must not depend on retrieval.** The guardrails are code, so they hold whichever pages are found.
 6. **The framework did not change the results.** The LangChain version reproduced the plain-Python results.
+7. **Scores split by question type and by how questions were written** (`eval/slice_report.py`): on questions with
+   every answer page marked, the search finds number answers (83%) but ranks them lower than mechanism answers.
+   Script-generated questions mark only one answer page, so their low scores partly reflect the answer key.
+
+### Change after the final results: 10 pages instead of 5
+
+The results above used 5 pages. A free check read pages #6–10 for each key fact the judge found missing: 13 of 34
+were there, which could fix up to 7 of 60 answers (37 → 44 correct) if Claude uses them. Claude now gets 10 pages.
+**This is a best-case estimate, not yet confirmed with the answer test**: the extra pages also add pages that are
+about the topic without answering the question. Details: [`eval/RESULTS.md`](eval/RESULTS.md).
 
 ---
 
@@ -151,7 +161,7 @@ Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 ```bash
 python eval/eval_retrieval.py --mode hybrid --split final         # search test (free)
 python eval/run_answers.py --mode hybrid --split final --label hybrid
-python eval/judge.py --split final --label hybrid                 # answer test (~$1 per 25 questions)
+python eval/judge.py --split final --label hybrid                 # answer test (~$1 per 25 questions with 5 pages; more with 10)
 ```
 
 Other index versions: `RAG_INDEX=plus python src/embed.py` (text + tables and figures), then prefix any
@@ -173,6 +183,7 @@ and the fine-tuned model are not included in this repository.
 
 ## Possible next steps
 
+- Confirm the switch to 10 pages with the answer test on questions not used to choose it (about $1).
 - An LLM check of whether each retrieved page actually contains the answer (the idea behind Corrective RAG), since
   retrieval of the specific fact is the main weakness.
 - Fine-tuning again on all pages with question-style training data, and HyDE (searching with a hypothetical answer).

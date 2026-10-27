@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 from embed import ROOT
 from guardrails import PERSONAL_NOTE, check_answer, is_personal
-from retrieve import SEARCH_MODE, retrieve
+from retrieve import SEARCH_MODE, TOP_K, retrieve
 
 load_dotenv(ROOT / ".env")  # puts ANTHROPIC_API_KEY into the environment
 
@@ -48,7 +48,7 @@ def format_sources(chunks: list[dict]) -> str:
     return "\n\n".join(blocks)
 
 
-def answer(question: str, k: int = 5, mode: str = SEARCH_MODE) -> dict:
+def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE) -> dict:
     """Full RAG: retrieve -> build prompt -> ask Claude. Returns the answer plus everything
     needed to inspect or evaluate it (sources, token usage, cost).
     mode: "vector" (baseline), "hybrid" (vector + BM25, the default), or "rerank" (hybrid + reranker).

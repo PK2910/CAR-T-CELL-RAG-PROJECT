@@ -403,3 +403,50 @@ left as possible future work.
 - **Judge variance:** q04 (said "9%" where the source says 1/31 ≈ 3%) was graded *serious* in one
   judging and *minor* in the other → needs a human decision.
 - Small exam: each question ≈ 7 percentage points.
+
+---
+
+## Search scores by slice (2026-10-26, free)
+
+`eval/slice_report.py`: the search test split into groups, 142 questions with answer pages (practice, final,
+holdout, synthetic, confirm). "Hand-written" = written in conversation while reading the papers, with every answer
+page searched for and marked; "Claude-generated" = written by a script from one page, with only that page marked.
+Hybrid search, Hit@5 / MRR:
+
+| Question type | Hand-written (all answer pages marked) | Claude-generated (one page marked) |
+|---|---|---|
+| Mechanism | 82% / 0.78 (n=17) | 70% / 0.55 (n=30) |
+| Fact / number | 83% / 0.59 (n=23) | 20% / 0.17 (n=15) |
+| Comparison | 78% / 0.52 (n=9) | 60% / 0.44 (n=20) |
+| Side effect | 100% / 0.84 (n=8) | 50% / 0.28 (n=6) |
+
+Vector search is lower in almost every cell (overall Hit@5 61% vs hybrid 68%).
+
+- **Hand-written number questions are found (83%) but ranked lower** than mechanism questions (MRR 0.59 vs 0.78): the
+  "about the topic outranks the specific number" pattern seen in q05.
+- **Claude-generated number questions look much worse (20%), but mostly because of the answer key**: each lists only
+  the page it was written from. Reading 6 misses: in c04, c15 and c32 the top pages also answer (another trial page with
+  the CD22 dose response, the same review's cytopenia pages, the same paper's abstract); c30 and c31 are real misses
+  (one study's specific number). So the overall "fact questions are weakest" result is mostly a mix-of-questions effect.
+- Pooling hand-written and generated questions hides this, so slices are reported by writer as well as by type.
+
+---
+
+## Would 10 pages instead of 5 help? (2026-10-26, free check)
+
+For every key fact the judge marked as missing from the 5 pages (current version: final, holdout and practice runs),
+pages #6–10 of the same hybrid search were read for that fact. The top 5 today were checked to be identical to the
+pages used in the runs (25 of 25 on the final set).
+
+| Set | Missing facts | Found on pages #6–10 | Answers that would become fully correct (best case) |
+|---|---|---|---|
+| Final | 13 | 4 (q37, q43, q44, q50) | 10 → 14 of 21 |
+| Holdout | 6 | 2 (both q64 facts) | 12 → 13 of 16 |
+| Practice | 15 | 7 (q05 ×2, q13, q16, q17 ×3) | 15 → 17 of 23 |
+| **Total** | **34** | **13 (38%)** | **37 → 44 of 60** |
+
+- Best case only: it assumes Claude uses each found fact and is not misled by the extra pages, which are mostly "about
+  the topic" pages (e.g. q45: Ph+ case reports; q14: chemotherapy survival). 21 facts are still further down or not in
+  the papers.
+- These three sets were used to make this check, so a confirming answer test should use other questions (e.g. the
+  generated `confirm` set) before switching the default.

@@ -26,7 +26,7 @@ from bm25 import bm25_ranking
 # Reuse the exact settings the index was built with
 from embed import CHUNKS_FILE, COLLECTION, EMBEDDING_MODEL, QDRANT_PATH, QUERY_PREFIX
 
-TOP_K = 5
+TOP_K = 10  # pages given to Claude; was 5. 13 of 34 missing facts were on pages #6-10 (eval/RESULTS.md)
 SEARCH_MODE = "hybrid"  # best configuration (see eval/RESULTS.md); "vector" = baseline, "rerank" = tested, not kept
 RRF_K = 60              # the standard RRF constant: keeps #1 from counting far more than #2, #3...
 # General reranker trained on question -> answer-passage pairs (does this passage ANSWER the question?).

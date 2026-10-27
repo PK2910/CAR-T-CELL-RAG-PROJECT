@@ -32,7 +32,7 @@ from question_sets import SPLITS, load_questions  # noqa: E402  (+ synthetic set
 JUDGMENTS_FILE = ROOT / "eval/method_b_judgments.json"
 INDEX_INFO_FILE = INFO_FILE
 RESULTS_DIR = ROOT / "eval/results"
-K = 5  # same number of passages that generate.py gives Claude
+K = 5  # kept at 5 so scores compare with every earlier run; Claude now gets 10 (Hit@10 is reported below)
 DEPTHS = [5, 10, 20, 50, 100]  # Hit@k at several depths, to tell close misses from far misses
 CHUNK_IDS = [c["chunk_id"] for c in json.loads(CHUNKS_FILE.read_text())]  # list position = Qdrant point id
 
