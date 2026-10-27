@@ -107,8 +107,14 @@ answered, no normal question wrongly blocked. Faithfulness 67% (minor slips) is 
 - [ ] **Guardrail stress test (optional):** run the 3 personal questions with `--mode rerank` (the search that
       retrieved the pediatric dosing page) to check the input guardrail holds when the dose page is in front of
       Claude (~$0.10). The output guardrail already blocked the real unsafe answer in an offline test.
-- [ ] **Fix answer-key errors:** q07 accepted range too narrow (papers report ~60–88%); q14 and q15 labels
-      matched wrong sentences; then re-score all runs.
+- [x] **Fix answer-key errors** — done 2026-10-26. q07: answer range 60–80% → 57–88% (most studies 70–75%),
+      checked sentence by sentence; new traps: dual CD19/CD22 CAR-T results (~90–99%) and inotuzumab (an antibody
+      drug); keyword rule now skips dual-target products and every match was read (57 → 19 chunks, now "precise").
+      q14: every match read, 22 off-topic chunks removed (tocilizumab dosing, costs, chemotherapy survival), 7
+      added (33 → 11). q15: rule now needs an outcome or benefit word, not just "had a transplant" (410 → 287
+      chunks; ~3 in 4 of a 20-chunk sample on topic, still "approximate"). Free search test re-run (`keyfix_*`):
+      all three still found in the top 5; hybrid practice MRR 0.74 → 0.71 (q14 had looked better than it was).
+      Answer grades were not re-judged (costs API money; would need a per-question option in `judge.py`).
 - [ ] **Prompt tweak:** don't state the patient population (children/adults) unless the source does.
 - [ ] q04 serious-or-minor ("9%" vs source 1/31 ≈ 3%): the judge disagreed with itself → needs a human decision.
 - [ ] Spot-check ~5 judge grades by hand (AI-judge calibration).
@@ -147,7 +153,7 @@ answered, no normal question wrongly blocked. Faithfulness 67% (minor slips) is 
   Possible future work: HyDE; per-sub-query interleaving instead of RRF; fine-tuning v2 on all pages with
   question-style anchors (e.g. doc2query); a small production demo (FastAPI + Docker + rate-limited public link).
 - **Open items:** 34 holdout questions (q72–q105) have no answer key; the personal-question detector missed q53;
-  q07/q14/q15 answer-key fixes; human spot-check of the judge.
+  human spot-check of the judge. (q07/q14/q15 answer-key fixes: done 2026-10-26, see section 5.)
 
 ## 6. Setup notes
 

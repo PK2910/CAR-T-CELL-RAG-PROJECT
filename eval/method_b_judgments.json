@@ -347,6 +347,66 @@
     "PMC10786140_0020": {
       "relevant": false,
       "reason": "CD22 as a target, no remission rates (seen in general-reranker top 5)"
+    },
+    "PMC10134288_0009": {
+      "relevant": false,
+      "reason": "combined CD19 + CD22 CAR-T (89%), not CD22 alone (read when fixing the answer key)"
+    },
+    "PMC10345854_0016": {
+      "relevant": false,
+      "reason": "transplant outcomes after CD19 or CD22 CAR-T, no CD22 remission rate (read when fixing the answer key)"
+    },
+    "PMC10786140_0029": {
+      "relevant": false,
+      "reason": "AUTO1/22 dual-target product (read when fixing the answer key)"
+    },
+    "PMC10786140_0035": {
+      "relevant": false,
+      "reason": "transplant after CD19 or CD22 CAR-T (read when fixing the answer key)"
+    },
+    "PMC11697943_0017": {
+      "relevant": false,
+      "reason": "B-cell aplasia and immunoglobulin recovery after CD22 CAR-T, no remission rate (read when fixing the answer key)"
+    },
+    "PMC12341234_0014": {
+      "relevant": false,
+      "reason": "laboratory cell-killing experiment (read when fixing the answer key)"
+    },
+    "PMC13250228_0016": {
+      "relevant": false,
+      "reason": "not CD22-specific remission data (read when fixing the answer key)"
+    },
+    "PMC13330168_0054": {
+      "relevant": false,
+      "reason": "sequential CD19/CD22 CAR-T as first-line therapy, not after CD19 relapse (read when fixing the answer key)"
+    },
+    "PMC7902522_0022": {
+      "relevant": false,
+      "reason": "CD19 and CD22 CAR-T rates pooled together (57-93%) (read when fixing the answer key)"
+    },
+    "PMC7902522_0041": {
+      "relevant": false,
+      "reason": "transplant after CD22 CAR-T, not the remission rate (read when fixing the answer key)"
+    },
+    "PMC9004014_0011": {
+      "relevant": false,
+      "reason": "response to CD19 CAR-T by prior CD22 exposure (read when fixing the answer key)"
+    },
+    "PMC9006258_0001": {
+      "relevant": false,
+      "reason": "CD19 and CD22 CAR-T rates pooled together (60-90%) (read when fixing the answer key)"
+    },
+    "PMC5774642_0013": {
+      "relevant": false,
+      "reason": "inotuzumab ozogamicin (antibody drug), not CAR-T (read when fixing the answer key)"
+    },
+    "PMC10345854_0021": {
+      "relevant": true,
+      "reason": "NCI CD22 CAR: 73% at higher doses, 70% in 55-patient update; 80% after CD19 CAR failure (read when fixing the answer key)"
+    },
+    "PMC13330168_0051": {
+      "relevant": true,
+      "reason": "CD22 CAR-T remission ~60-80% after CD19-negative relapse, limited by CD22 downregulation (read when fixing the answer key)"
     }
   },
   "q08": {
@@ -597,6 +657,122 @@
     "PMC7480185_0002": {
       "relevant": false,
       "reason": "chemotherapy survival in children vs adults, not CAR-T (seen in general-reranker top 5)"
+    },
+    "PMC10345854_0017": {
+      "relevant": false,
+      "reason": "transplant outcomes in children vs adults, not CAR-T outcomes (read when fixing the answer key)"
+    },
+    "PMC10345854_0022": {
+      "relevant": false,
+      "reason": "dual CD19/CD22 CAR-T trials (read when fixing the answer key)"
+    },
+    "PMC10786140_0011": {
+      "relevant": false,
+      "reason": "one mixed-age trial, no children vs adults comparison (read when fixing the answer key)"
+    },
+    "PMC10786140_0013": {
+      "relevant": false,
+      "reason": "low vs high disease burden, not age (read when fixing the answer key)"
+    },
+    "PMC11108586_0026": {
+      "relevant": false,
+      "reason": "lymphodepletion (read when fixing the answer key)"
+    },
+    "PMC11941108_0022": {
+      "relevant": false,
+      "reason": "transplant after CAR-T in children vs adults, not CAR-T outcomes (read when fixing the answer key)"
+    },
+    "PMC12999291_0003": {
+      "relevant": false,
+      "reason": "product approvals (read when fixing the answer key)"
+    },
+    "PMC12999291_0024": {
+      "relevant": false,
+      "reason": "pre-emptive tocilizumab (read when fixing the answer key)"
+    },
+    "PMC12999291_0025": {
+      "relevant": false,
+      "reason": "ICANS treatment (read when fixing the answer key)"
+    },
+    "PMC12999291_0037": {
+      "relevant": false,
+      "reason": "donor-derived CAR-T (read when fixing the answer key)"
+    },
+    "PMC13618174_0002": {
+      "relevant": false,
+      "reason": "chemotherapy survival in children vs adults, not CAR-T (read when fixing the answer key)"
+    },
+    "PMC13630001_0002": {
+      "relevant": false,
+      "reason": "general ALL prognosis, not CAR-T (read when fixing the answer key)"
+    },
+    "PMC6237143_0023": {
+      "relevant": false,
+      "reason": "tocilizumab dose by weight (read when fixing the answer key)"
+    },
+    "PMC6237143_0024": {
+      "relevant": false,
+      "reason": "tocilizumab dose by weight (read when fixing the answer key)"
+    },
+    "PMC6237143_0029": {
+      "relevant": false,
+      "reason": "childhood ALL survival and quality of life, not CAR-T (read when fixing the answer key)"
+    },
+    "PMC7480185_0016": {
+      "relevant": false,
+      "reason": "T-cell aging in donors; general remark on ALL survival (read when fixing the answer key)"
+    },
+    "PMC7480185_0017": {
+      "relevant": false,
+      "reason": "T-cell aging in donors; general remark on ALL survival (read when fixing the answer key)"
+    },
+    "PMC7497522_0001": {
+      "relevant": false,
+      "reason": "pediatric response only, no adult comparison (read when fixing the answer key)"
+    },
+    "PMC8047987_0020": {
+      "relevant": false,
+      "reason": "costs (read when fixing the answer key)"
+    },
+    "PMC8905689_0003": {
+      "relevant": false,
+      "reason": "says adult results may differ, no specifics (read when fixing the answer key)"
+    },
+    "PMC9004014_0008": {
+      "relevant": false,
+      "reason": "cohort description (read when fixing the answer key)"
+    },
+    "PMC9006258_0001": {
+      "relevant": false,
+      "reason": "children vs adults with lymphoma, not B-ALL (read when fixing the answer key)"
+    },
+    "PMC10647582_0007": {
+      "relevant": true,
+      "reason": "pooled CR ~80%, similar in children and adults (read when fixing the answer key)"
+    },
+    "PMC7926700_0017": {
+      "relevant": true,
+      "reason": "meta-analysis: CAR-T activity similar in adults and children (read when fixing the answer key)"
+    },
+    "PMC12011161_0000": {
+      "relevant": true,
+      "reason": "prolonged remissions in fewer than half of adults (read when fixing the answer key)"
+    },
+    "PMC8905689_0014": {
+      "relevant": true,
+      "reason": "adult 12-month PFS/OS lower than pediatric series (read when fixing the answer key)"
+    },
+    "PMC9528944_0028": {
+      "relevant": true,
+      "reason": "ICANS 40% (13% severe) in children/young adults vs 50% (50% severe) in adults (read when fixing the answer key)"
+    },
+    "PMC10604728_0008": {
+      "relevant": true,
+      "reason": "relapse after CAR-T less common in children than adults (read when fixing the answer key)"
+    },
+    "PMC10604728_0009": {
+      "relevant": true,
+      "reason": "relapse after CAR-T less common in children than adults (read when fixing the answer key)"
     }
   },
   "q15": {

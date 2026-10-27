@@ -27,7 +27,7 @@ SEED = 42
 
 # "precise": the rule finds the papers that state the specific answer (checked by reading samples)
 # "approximate": broad topic; the rule catches most relevant papers but also some loosely related ones
-PRECISE = {"q01", "q02", "q03", "q06", "q21", "q29", "q30", "q31", "q38", "q47"}
+PRECISE = {"q01", "q02", "q03", "q06", "q07", "q21", "q29", "q30", "q31", "q38", "q47"}
 
 LABELS = {
     "q01": dict(
@@ -66,10 +66,16 @@ LABELS = {
         must_include=["real-world CR around 85% vs about 81% in ELIANA", "outcomes broadly comparable",
                       "real-world data are registry/retrospective"]),
     "q07": dict(
-        reference_answer="CD22 CAR-T cells induce remission in roughly 60%-80% of patients relapsing after CD19 CAR-T "
-                         "(including CD19-negative relapse), but responses are often short-lived because CD22 expression "
+        reference_answer="Single-target CD22 CAR-T cells induce complete remission in roughly 57%-88% of patients, most of "
+                         "whom had relapsed after CD19 CAR-T (including CD19-negative or CD19-dim disease); most studies report "
+                         "about 70%-75%: 73% at effective doses in the NCI phase 1 trial (70% in its 55-patient update), "
+                         "70%-80% after CD19 CAR-T failure in a Chinese study, 75% and 74% in the Stanford and Penn trials. "
+                         "Responses are often short-lived (median remission about 6 months), partly because CD22 expression "
                          "is downregulated.",
-        must_include=["remission in roughly 60%-80%", "limited durability due to CD22 downregulation"]),
+        must_include=["a remission rate or range within roughly 57%-88% (most studies about 70%-75%)",
+                      "limited durability (short remissions or CD22 downregulation)"],
+        must_not=["giving dual CD19/CD22 CAR-T results (about 90%-99%) as CD22 CAR-T results",
+                  "giving inotuzumab ozogamicin (an anti-CD22 antibody drug, not a CAR-T) results as CAR-T results"]),
     "q08": dict(
         reference_answer="In ELIANA, 12-month EFS was about 50% and OS about 76%; relapse-free survival was about 58% at "
                          "24 months and 52% at 36 months, with 3-year OS about 63%. Real-world 12-month EFS was about 52%. "

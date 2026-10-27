@@ -397,7 +397,9 @@ left as possible future work.
 
 - **Answer-key errors:** q07 range too narrow (key 60–80%; sources also report 73–88%);
   q14 (and possibly q15) have keyword-rule labels that matched the wrong sentences, which makes
-  Hit@5 slightly generous.
+  Hit@5 slightly generous. **Fixed 2026-10-26** (details in PROGRESS.md section 5). Free search re-test, practice
+  set: Hit@5 unchanged (vector 92%, hybrid 92%); MRR vector 0.70 → 0.68, hybrid 0.74 → 0.71; P@5 and R@5 down
+  about 1 point. Answer grades in earlier runs still use the old q07 key.
 - **Judge variance:** q04 (said "9%" where the source says 1/31 ≈ 3%) was graded *serious* in one
   judging and *minor* in the other → needs a human decision.
 - Small exam: each question ≈ 7 percentage points.

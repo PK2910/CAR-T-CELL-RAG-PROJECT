@@ -28,7 +28,10 @@ RULES = {
                           r"incidence|occurred|occurs|developed|experienced|reported|rate|range", PCT],
              "context": [ALL_CONTEXT]}],
     "q06": [{"sentence": [r"real.world|real.life|cibmtr|prwcc|registry"], "context": [PROD_TISA, r"real.world|real.life|cibmtr|prwcc"]}],
-    "q07": [{"sentence": [r"CD22", r"\bCR\b|remission|response", PCT], "context": [r"CAR"]}],
+    # Single-target CD22 CARs only: dual CD19/CD22 products (co-administered, sequential, tandem...) report ~90-99%
+    "q07": [{"sentence": [r"^(?!.*(CD19\s*/\s*CD22|CD19\s*(and|\+|-)\s*(anti-)?CD22|CD19.{0,4}22\b|tandem|bispecific"
+                          r"|dual|sequential|bicistronic|co-?administ|AUTO3))",
+                          r"CD22", r"\bCR\b|remission|respon", PCT], "context": [r"CAR"]}],
     "q08": [{"sentence": [r"event.free|\bEFS\b|relapse.free|\bRFS\b", PCT, r"month|year"],
              "context": [PROD_TISA + r"|pediatric|paediatric|children"]}],
     "q09": [{"sentence": [r"CD19.?(negative|neg\b|-\s|loss)|antigen\s+(loss|escape)|CD19\s+escape",
@@ -42,8 +45,11 @@ RULES = {
     "q14": [{"sentence": [r"(?<!young )adults?\b", r"pediatric|paediatric|children|younger patients",
                           r"CRS|toxicit|remission|survival|outcome|relapse|\bEFS\b|\bCR\b",
                           r"compar|whereas|than|versus|\bvs\b|differ|higher|lower|similar"]}],
+    # The sentence must say something about outcome or benefit, not just mention that patients had a transplant
     "q15": [{"sentence": [r"transplant|HSCT|allo-?HCT|allo-?SCT|\bHCT\b|\bSCT\b",
-                          r"consolidat|after CAR|post-CAR|following CAR|bridge to|subsequent"],
+                          r"consolidat|after CAR|post-CAR|following CAR|bridg\w*\s+(in)?to\s+(allo|transplant|HSCT|HCT|SCT)",
+                          r"surviv|\bEFS\b|\bLFS\b|\bOS\b|relapse|benefit|outcome|durab|similar|improv"
+                          r"|no (significant )?difference|recommend|debat|controvers|unclear|remain|role|whether|without"],
              "context": [r"CAR"]}],
     "q16": [{"sentence": [r"blinatumomab|inotuzumab", r"CAR", r"compar|versus|\bvs\.?|than|whereas|prior (exposure|treatment|blinatumomab|inotuzumab)"]}],
     "q17": [{"sentence": [r"fratricide|t.cell aplasia|contaminat|shared antigen|CD7|CD5"],
