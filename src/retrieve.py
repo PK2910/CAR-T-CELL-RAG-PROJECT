@@ -25,6 +25,7 @@ from sentence_transformers import CrossEncoder, SentenceTransformer
 from bm25 import bm25_ranking
 # Reuse the exact settings the index was built with
 from embed import CHUNKS_FILE, COLLECTION, EMBEDDING_MODEL, QDRANT_PATH, QUERY_PREFIX
+from index_config import PARENT_CHILD, UNITS_FILE  # parent-child: the indexes hold children, results are parents
 
 TOP_K = 10  # pages given to Claude; was 5. 13 of 34 missing facts were on pages #6-10 (eval/RESULTS.md)
 SEARCH_MODE = "hybrid"  # best configuration (see eval/RESULTS.md); "vector" = baseline, "rerank" = tested, not kept
@@ -61,26 +62,51 @@ def load_client() -> QdrantClient:
 
 @lru_cache(maxsize=1)
 def load_chunks() -> list[dict]:
-    """All chunks; list position = Qdrant point id = BM25 position."""
+    """All chunks (the parents, in parent-child); list position = what the rankings return."""
     return json.loads(CHUNKS_FILE.read_text(encoding="utf-8"))
 
 
-def vector_ranking(question: str) -> list[int]:
-    """All chunk positions, closest in meaning first."""
+@lru_cache(maxsize=1)
+def load_units() -> list[dict]:
+    """What the indexes hold: the chunks, or their children. List position = Qdrant point id = BM25 position."""
+    return load_chunks() if not PARENT_CHILD else json.loads(UNITS_FILE.read_text(encoding="utf-8"))
+
+
+def to_parents(scored: list[tuple[int, float]]) -> list[tuple[int, float]]:
+    """Parent-child: turn a ranking of children into a ranking of parents.
+    Each parent takes the place (and score) of its best child; its other children are skipped."""
+    if not PARENT_CHILD:
+        return scored
+    units, seen, parents = load_units(), set(), []
+    for pos, score in scored:
+        parent = units[pos]["parent_pos"]
+        if parent not in seen:
+            seen.add(parent)
+            parents.append((parent, score))
+    return parents
+
+
+def vector_hits(question: str, limit: int) -> list[tuple[int, float]]:
+    """(unit position, cosine similarity), closest in meaning first."""
     q_vec = load_model().encode(QUERY_PREFIX + question, normalize_embeddings=True)
-    hits = load_client().query_points(COLLECTION, query=q_vec.tolist(), limit=len(load_chunks()),
-                                      with_payload=False).points
-    return [h.id for h in hits]
+    hits = load_client().query_points(COLLECTION, query=q_vec.tolist(), limit=limit, with_payload=False).points
+    return [(h.id, h.score) for h in hits]
+
+
+def vector_ranking(question: str) -> list[int]:
+    """All unit positions (chunks, or children in parent-child), closest in meaning first."""
+    return [pos for pos, _ in vector_hits(question, len(load_units()))]
 
 
 def hybrid_ranking(question: str) -> list[tuple[int, float]]:
     """Reciprocal Rank Fusion of the vector and BM25 rankings: (chunk position, RRF score), best first.
-    Both full rankings are fused; at our size (5,354 chunks) that takes milliseconds."""
+    Both full rankings are fused; at our size (5,354 chunks, 25,657 children) that takes milliseconds.
+    In parent-child the fusion runs over children, then each parent ranks by its best child."""
     scores = {}
     for ranking in (vector_ranking(question), bm25_ranking(question)):
         for rank, pos in enumerate(ranking, 1):
             scores[pos] = scores.get(pos, 0.0) + 1 / (RRF_K + rank)
-    return sorted(scores.items(), key=lambda x: -x[1])
+    return to_parents(sorted(scores.items(), key=lambda x: -x[1]))
 
 
 def reranked(question: str) -> list[tuple[int, float]]:
@@ -96,7 +122,7 @@ def ranking(question: str, mode: str = SEARCH_MODE) -> list[int]:
     """All chunk positions in the order the given search mode ranks them (used by the evaluation).
     For "rerank": the re-sorted top 50, followed by the rest in hybrid order."""
     if mode == "vector":
-        return vector_ranking(question)
+        return [pos for pos, _ in to_parents(vector_hits(question, len(load_units())))]
     hybrid = [pos for pos, _ in hybrid_ranking(question)]
     if mode == "hybrid":
         return hybrid
@@ -108,12 +134,15 @@ def retrieve(question: str, k: int = TOP_K, mode: str = SEARCH_MODE) -> list[dic
     """Return the k best chunks for the question, best first.
     Each result is the chunk's text + labels, plus its score
     (cosine similarity for "vector", RRF score for "hybrid", reranker score for "rerank")."""
-    if mode == "vector":
+    if mode == "vector" and not PARENT_CHILD:
         q_vec = load_model().encode(QUERY_PREFIX + question, normalize_embeddings=True)
         hits = load_client().query_points(COLLECTION, query=q_vec.tolist(), limit=k).points
         return [{"score": round(h.score, 3), **h.payload} for h in hits]
     chunks = load_chunks()
-    ranked = hybrid_ranking(question) if mode == "hybrid" else reranked(question)
+    if mode == "vector":
+        ranked = to_parents(vector_hits(question, len(load_units())))
+    else:
+        ranked = hybrid_ranking(question) if mode == "hybrid" else reranked(question)
     return [{"score": round(score, 4), **chunks[pos]} for pos, score in ranked[:k]]
 
 

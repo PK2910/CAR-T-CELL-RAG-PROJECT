@@ -4,15 +4,18 @@ Split each paper into ~400-token chunks with recursive splitting,
 and attach labels (metadata) to every chunk for citations.
 
 Input:  data/processed/papers.json
-Output: data/processed/chunks.json
+Output: data/processed/chunks.json           whole paper split as one text (chunks can cross sections)
+        data/processed/chunks_section.json   --by-section: each section split on its own, plus a
+                                             contextual header ("Paper: ..., Section: ...") per chunk
 
-Run:  python src/chunk.py
+Run:  python src/chunk.py [--by-section]
 """
 
 import bisect
 import json
 import re
 import statistics
+import sys
 from pathlib import Path
 
 from tokenizers import Tokenizer
@@ -20,6 +23,7 @@ from tokenizers import Tokenizer
 ROOT = Path(__file__).resolve().parent.parent  # project folder, wherever we run from
 PAPERS_FILE = ROOT / "data/processed/papers.json"
 OUT_FILE = ROOT / "data/processed/chunks.json"
+SECTION_OUT_FILE = ROOT / "data/processed/chunks_section.json"  # --by-section
 
 # Count tokens with the SAME tokenizer the embedding model uses
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
@@ -148,16 +152,59 @@ def chunk_paper(paper: dict) -> list[dict]:
     return chunks
 
 
+def header(paper: dict, section: str) -> str:
+    """Contextual chunk header: tells the SEARCH which paper and section a chunk comes from.
+    Claude already sees these labels, so the header is only added to the text that gets indexed."""
+    return f"Paper: {paper['title']} ({paper['first_author']}, {paper['year']})\nSection: {section}\n\n"
+
+
+def chunk_paper_by_section(paper: dict) -> list[dict]:
+    """Section-based chunking: each section (the abstract counts as one) is split on its own,
+    so no chunk mixes two sections. Same recursive splitting and overlap inside a section."""
+    sections = ([("Abstract", [paper["abstract"]])] if paper["abstract"] else []) + [
+        (sec["title"], sec["paragraphs"]) for sec in paper["sections"]
+    ]
+    chunks = []
+    for title, paras in sections:
+        text = "\n\n".join(paras)
+        for s, e in merge(text, pieces(text, 0, len(text))):
+            chunk_text = text[s:e].strip()
+            chunks.append({
+                "chunk_id": f"{paper['pmcid']}_s{len(chunks):04d}",
+                "text": chunk_text,
+                "n_tokens": n_tokens(chunk_text),
+                "header": header(paper, title),
+                # ----- labels (metadata) -----
+                "pmcid": paper["pmcid"],
+                "pmid": paper["pmid"],
+                "doi": paper["doi"],
+                "title": paper["title"],
+                "first_author": paper["first_author"],
+                "journal": paper["journal"],
+                "year": paper["year"],
+                "article_type": paper["article_type"],
+                "sections": [title],
+            })
+    return chunks
+
+
 def main():
+    by_section = "--by-section" in sys.argv
+    out_file = SECTION_OUT_FILE if by_section else OUT_FILE
     papers = json.loads(PAPERS_FILE.read_text(encoding="utf-8"))
-    chunks = [c for paper in papers for c in chunk_paper(paper)]
-    OUT_FILE.write_text(json.dumps(chunks, indent=2, ensure_ascii=False), encoding="utf-8")
+    chunk_fn = chunk_paper_by_section if by_section else chunk_paper
+    chunks = [c for paper in papers for c in chunk_fn(paper)]
+    out_file.write_text(json.dumps(chunks, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # ---------- Report ----------
     sizes = [c["n_tokens"] for c in chunks]
     per_paper = [sum(1 for c in chunks if c["pmcid"] == p["pmcid"]) for p in papers]
     crossing = sum(1 for c in chunks if len(c["sections"]) > 1)
-    print(f"Chunks:            {len(chunks):,} from {len(papers)} papers -> {OUT_FILE}")
+    print(f"Chunks:            {len(chunks):,} from {len(papers)} papers -> {out_file}")
+    if by_section:
+        with_header = [n_tokens(c["header"] + c["text"]) for c in chunks]
+        print(f"With header:       median {statistics.median(with_header):.0f} tokens, "
+              f"over model limit: {sum(1 for n in with_header if n > MODEL_MAX_TOKENS - 2)} (must be 0)")
     print(f"Tokens per chunk:  median {statistics.median(sizes):.0f}, min {min(sizes)}, max {max(sizes)}")
     print(f"Over model limit:  {sum(1 for n in sizes if n > MODEL_MAX_TOKENS - 2)} chunks (must be 0)")
     print(f"Tiny (<50 tokens): {sum(1 for n in sizes if n < 50)} chunks")

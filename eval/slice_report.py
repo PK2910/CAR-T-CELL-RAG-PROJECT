@@ -25,6 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "eval"))
 from eval_retrieval import RESULTS_DIR, grade, search  # noqa: E402
+from index_config import INDEX  # noqa: E402
 from question_sets import load_questions  # noqa: E402
 
 HAND_WRITTEN = {"dev", "test", "final", "holdout"}
@@ -56,7 +57,7 @@ def main():
                      "hit": r["hit"], "hit_at_10": r["hit_at_10"], "mrr": r["mrr"], "best_rank": r["best_rank"]})
 
     overall = (statistics.mean(r["hit"] for r in rows), statistics.mean(r["mrr"] for r in rows))
-    print(f"\nSearch scores by slice | mode={args.mode} | {len(rows)} questions with answer pages")
+    print(f"\nSearch scores by slice | mode={args.mode} | index={INDEX} | {len(rows)} questions with answer pages")
     print(f"Overall: Hit@5 {overall[0]:.0%}, MRR {overall[1]:.2f}\n")
     report = {}
     for group in ("question type", "written by", "asks for a number"):
@@ -78,7 +79,7 @@ def main():
         if s["missed_top5"]:
             print(f"  {name:18} {', '.join(s['missed_top5'])}")
 
-    out = RESULTS_DIR / f"slices_{args.mode}.json"
+    out = RESULTS_DIR / (f"slices_{args.mode}.json" if INDEX == "text" else f"slices_{INDEX}_{args.mode}.json")
     out.write_text(json.dumps({"mode": args.mode, "slices": report, "questions": rows}, indent=2, ensure_ascii=False))
     print(f"\nSaved -> {out.relative_to(ROOT)}")
 

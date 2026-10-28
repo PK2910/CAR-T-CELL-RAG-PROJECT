@@ -14,7 +14,8 @@ from dotenv import load_dotenv
 
 from embed import ROOT
 from guardrails import PERSONAL_NOTE, check_answer, is_personal
-from retrieve import SEARCH_MODE, TOP_K, retrieve
+from relevance_check import NOT_FOUND_ANSWER, PARTLY_NOTE, select
+from retrieve import SEARCH_MODE, TOP_K, load_chunks, retrieve
 
 load_dotenv(ROOT / ".env")  # puts ANTHROPIC_API_KEY into the environment
 
@@ -48,14 +49,18 @@ def format_sources(chunks: list[dict]) -> str:
     return "\n\n".join(blocks)
 
 
-def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE) -> dict:
+def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[dict] | None = None,
+           extra_note: str = "") -> dict:
     """Full RAG: retrieve -> build prompt -> ask Claude. Returns the answer plus everything
     needed to inspect or evaluate it (sources, token usage, cost).
     mode: "vector" (baseline), "hybrid" (vector + BM25, the default), or "rerank" (hybrid + reranker).
+    chunks: answer from these chunks instead of searching (used by the relevance check, answer_checked).
     Safety guardrails (src/guardrails.py) run on the question before and on the answer after Claude."""
-    chunks = retrieve(question, k=k, mode=mode)
+    if chunks is None:
+        chunks = retrieve(question, k=k, mode=mode)
     personal = is_personal(question)  # input guardrail
     note = f"\n\n{PERSONAL_NOTE}" if personal else ""
+    note += f"\n\n{extra_note}" if extra_note else ""
     prompt = f"<sources>\n{format_sources(chunks)}\n</sources>\n\nQuestion: {question}{note}"
 
     client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY; retries 429/5xx errors automatically
@@ -93,6 +98,21 @@ def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE) -> dict:
         "output_tokens": usage.output_tokens,
         "cost_usd": round(cost, 5),
     }
+
+
+def answer_checked(question: str, verdicts: list[dict]) -> dict:
+    """Answer after the LLM relevance check (src/relevance_check.py), given the checker's verdicts:
+    "yes" chunks -> normal answer; only "partly" -> answer with a may-only-partly-answer note;
+    nothing related -> guardrail: a fixed reply, no answer is written (no API call)."""
+    result, chunks = select(verdicts, {c["chunk_id"]: c for c in load_chunks()})
+    if result == "nothing":
+        guard = check_answer(question, NOT_FOUND_ANSWER)
+        return {"question": question, "answer": NOT_FOUND_ANSWER, "original_answer": None,
+                "guardrail": {"personal": guard["personal"], "doses_found": [], "action": "not_found"},
+                "sources": [], "model": None, "stop_reason": None, "input_tokens": 0, "output_tokens": 0,
+                "cost_usd": 0.0, "checker_outcome": result}
+    out = answer(question, chunks=chunks, extra_note=PARTLY_NOTE if result == "unsure" else "")
+    return {**out, "checker_outcome": result}
 
 
 def show(result: dict) -> None:

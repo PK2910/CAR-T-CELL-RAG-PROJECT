@@ -20,7 +20,8 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 from sentence_transformers import SentenceTransformer
 
-from index_config import CHUNKS_FILE, COLLECTION, INDEX, INFO_FILE, MODEL
+from index_config import (CHUNKS_FILE, COLLECTION, INDEX, INFO_FILE, MODEL, PARENT_CHILD, UNITS_FILE, USE_HEADER,
+                          search_text)
 
 ROOT = Path(__file__).resolve().parent.parent  # project folder, wherever we run from
 QDRANT_PATH = ROOT / "data/qdrant"
@@ -33,14 +34,14 @@ QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 
 def main():
-    chunks = json.loads(CHUNKS_FILE.read_text(encoding="utf-8"))
+    chunks = json.loads(UNITS_FILE.read_text(encoding="utf-8"))  # the chunks, or their children (parent-child)
 
     # ---------- Embed ----------
     device = "mps" if torch.backends.mps.is_available() else "cpu"  # M1 GPU if available
     model = SentenceTransformer(EMBEDDING_MODEL, device=device)
     print(f"Embedding {len(chunks):,} chunks with {EMBEDDING_MODEL} on {device}...")
     vectors = model.encode(
-        [c["text"] for c in chunks],
+        [search_text(c) for c in chunks],
         batch_size=BATCH_SIZE,
         normalize_embeddings=True,  # length 1, so cosine similarity = a simple dot product
         show_progress_bar=True,
@@ -68,7 +69,11 @@ def main():
         "dimensions": int(vectors.shape[1]),
         "n_chunks": len(chunks),
         "index": INDEX,
-        "chunking": "recursive, 400 tokens, 50 overlap" + ("; + tables and figure captions" if INDEX == "plus" else ""),
+        "chunking": ("section-based, " if INDEX.startswith("section") else "")
+                    + "recursive, 400 tokens, 50 overlap" + ("; + tables and figure captions" if INDEX == "plus" else "")
+                    + ("; parent-child: children of 1-3 sentences are indexed, parents returned" if PARENT_CHILD
+                       else "")
+                    + (f"; contextual header indexed ({USE_HEADER})" if USE_HEADER else ""),
         "fine_tuned": INDEX == "tuned",
         "chunk_types": {t: sum(1 for c in chunks if c.get("chunk_type", "text") == t)
                         for t in sorted({c.get("chunk_type", "text") for c in chunks})},
@@ -82,7 +87,8 @@ def main():
     print(f"\nTest question: {question}")
     for h in hits:
         p = h.payload
-        print(f"  {h.score:.3f}  {p['first_author']} {p['year']} ({p['article_type']}) {p['sections']}")
+        label = p.get("parent_id") or f"{p['first_author']} {p['year']} ({p['article_type']}) {p['sections']}"
+        print(f"  {h.score:.3f}  {label}")
         print(f"         {p['text'][:150]}...")
     client.close()
 

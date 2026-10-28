@@ -16,7 +16,7 @@ from functools import lru_cache
 
 from rank_bm25 import BM25Okapi
 
-from index_config import CHUNKS_FILE  # same chunks as the vector index (text, or text + tables + figures)
+from index_config import UNITS_FILE, search_text  # same chunks/children (and header setting) as the vector index
 
 TOKEN = re.compile(r"[A-Za-z0-9]+(?:[-/][A-Za-z0-9]+)*")
 ABBREVIATION = re.compile(r"^(?=.*[A-Z].*[A-Z]|.*[A-Z].*\d|.*\d.*[A-Z])[A-Za-z0-9/-]+$")  # 2+ capitals, or capitals + digits
@@ -44,8 +44,8 @@ def tokenize(text: str) -> list[str]:
 def load_bm25() -> BM25Okapi:
     """Build the BM25 index from chunks.json (a second or two; done once per run).
     k1=1.5 (how fast repeated words stop adding score), b=0.75 (how much long chunks are evened out)."""
-    chunks = json.loads(CHUNKS_FILE.read_text(encoding="utf-8"))
-    return BM25Okapi([tokenize(c["text"]) for c in chunks], k1=1.5, b=0.75)
+    chunks = json.loads(UNITS_FILE.read_text(encoding="utf-8"))
+    return BM25Okapi([tokenize(search_text(c)) for c in chunks], k1=1.5, b=0.75)
 
 
 def bm25_ranking(question: str) -> list[int]:

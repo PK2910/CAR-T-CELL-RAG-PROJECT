@@ -112,8 +112,23 @@ questions, so 48% is the more honest estimate for unseen questions.
 
 The results above used 5 pages. A free check read pages #6–10 for each key fact the judge found missing: 13 of 34
 were there, which could fix up to 7 of 60 answers (37 → 44 correct) if Claude uses them. Claude now gets 10 pages.
-**This is a best-case estimate, not yet confirmed with the answer test**: the extra pages also add pages that are
-about the topic without answering the question. Details: [`eval/RESULTS.md`](eval/RESULTS.md).
+
+**Answer test, final set (25 questions), 5 → 10 pages:**
+
+| | 5 pages | 10 pages |
+|---|---|---|
+| Correct (answerable) | 10 of 21 (48%) | **14 of 21 (67%)** |
+| Faithful | 13 of 21 | 11 of 21 |
+| Key facts missing from the pages | 13 | 8 |
+| Safe on special questions | 4 of 4 | 4 of 4 |
+| Serious errors | 0 | 0 |
+| Cost per answer / median time | $0.015 / 6.9 s | $0.023 / 7.6 s |
+
+- The 4 newly correct answers are exactly the 4 the free check predicted (q37, q43, q44, q50); none got worse.
+- The new unfaithful answers are all minor attribution slips (a journal name, "adults" for an unlabeled cohort,
+  mixing two sources), the same habit as before; more pages give more chances to mix sources.
+- The final set was used to choose 10 pages, so this confirms the prediction rather than giving a fresh estimate.
+Details: [`eval/RESULTS.md`](eval/RESULTS.md).
 
 ---
 
@@ -183,7 +198,8 @@ and the fine-tuned model are not included in this repository.
 
 ## Possible next steps
 
-- Confirm the switch to 10 pages with the answer test on questions not used to choose it (about $1).
+- Confirm the switch to 10 pages on questions not used to choose it (holdout, practice or a fresh set).
+- A prompt rule against adding details the source does not state (journal names, patient ages, study type).
 - An LLM check of whether each retrieved page actually contains the answer (the idea behind Corrective RAG), since
   retrieval of the specific fact is the main weakness.
 - Fine-tuning again on all pages with question-style training data, and HyDE (searching with a hypothetical answer).

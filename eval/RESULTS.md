@@ -450,3 +450,152 @@ pages used in the runs (25 of 25 on the final set).
   the papers.
 - These three sets were used to make this check, so a confirming answer test should use other questions (e.g. the
   generated `confirm` set) before switching the default.
+
+### Answer test with 10 pages, final set (2026-10-26, user-run, $0.57 answers + $1.42 judge)
+
+Run `final_hybrid_k10` vs `final_hybrid` (same 25 questions, same prompt, same judge):
+
+| | 5 pages | 10 pages |
+|---|---|---|
+| Correct (21 answerable) | 10 | **14** |
+| Faithful | 13 | 11 |
+| Citations check out | 19 | 18 |
+| Key facts missing from the pages | 13 | 8 |
+| Special questions handled correctly | 4 / 4 | 4 / 4 |
+| Harm: none / minor / serious | 12 / 13 / 0 | 10 / 15 / 0 |
+| Median time per answer | 6.9 s | 7.6 s |
+
+- Newly correct: q37, q43, q44, q50, exactly the four predicted by the free check. No answer went from right to wrong.
+- Faithfulness changed in both directions (5 better, 7 worse; net −2). Every new unsupported claim is a minor
+  attribution slip: journal names not in the sources (q43), "adults" for an unlabeled cohort (q32), mixing up which
+  source said what (q38, q50, q51), an over-broad summary (q46). Same habit as Run 4; candidate prompt fix.
+- q53 (personal, missed by the input detector) still declined to choose a product; q55 still said the sources do not
+  answer. Both "minor" grades are misattributions inside otherwise correct answers.
+- Caveat: the final set was used to choose 10 pages, so this confirms the prediction; 21 questions (±1 ≈ ±5 points).
+
+**Decision:** keep 10 pages.
+
+---
+
+## Section-based chunking and contextual chunk headers (2026-10-27, free search test)
+
+- `python src/chunk.py --by-section`: each section (abstract included) is split on its own, 5,532 chunks, none crosses
+  a section boundary. Each chunk also gets a header "Paper: <title> (<author>, <year>) / Section: <name>".
+- Two indexes: `section` (section-based, header not indexed) and `section_hdr` (header indexed by both the vector and
+  the keyword search). Claude is shown the same chunk text either way.
+- The answer key was translated to the new chunk ids (`eval/section_labels.py`): a new chunk is relevant if it holds a
+  sentence that matches the question's answer rules, or, for questions without rules (reading-judged labels and
+  generated questions), at least 30% of the original chunk's sentences. Translating onto the original chunks gives back
+  the original key (100% kept, 50 extra neighbouring chunks over 182 questions).
+
+Hybrid search, 142 questions (`eval/slice_report.py`), Hit@5 / Hit@10 / MRR:
+
+| | Original chunks | Section-based | Section-based + header |
+|---|---|---|---|
+| All | 68% / 80% / 0.52 | 68% / 76% / 0.50 | **74% / 85% / 0.55** |
+| Hand-written (all answer pages marked) | 84% / 94% / 0.66 | 85% / 95% / 0.65 | 85% / 90% / 0.67 |
+| Claude-generated (one page, approximate translation) | 55% / 69% / 0.41 | 55% / 61% / 0.38 | **65% / 80% / 0.46** |
+| Asks for a number (21) | 62% / 76% / 0.38 | 71% / 76% / 0.46 | 76% / 86% / 0.54 |
+
+- **Section-based alone: no change.**
+- **Headers help questions about a specific study** (generated questions: Hit@10 61% → 80% vs section-based alone),
+  most likely because the paper title in the header matches the study the question names.
+- **On the hand-written questions, headers are mixed:** top-10 lost q08 (#6 → #16), q17 (#8 → #26), q67 (#5 → #20),
+  q71 (#6 → #15) and gained q33 (#14 → #5), q69 (#11 → #6). q17 is one of the answers the switch to 10 pages fixed.
+- Not adopted yet: the trusted (hand-written) set does not improve; the generated-set gain rests on approximate labels.
+
+---
+
+## Parent-child chunking (2026-10-27, free search test)
+
+`python src/chunk_children.py`: every original chunk (the parent, which Claude reads) is cut into children of 1-3
+sentences, up to 100 tokens, never crossing a paragraph (25,657 children, median 69 tokens, ~5 per parent). The
+sentence splitter also cuts after citation numbers ("...severe).10,24 Risk..."). The search fuses the vector and BM25
+rankings of the children, and each parent ranks by its best child (`to_parents` in `src/retrieve.py`). The parents are
+the original chunks, so the answer key is used as is (no translation). Three versions: no header (`child`),
+"Section: <name>" (`child_sec`), "Paper: <title> (<author>, <year>) / Section: <name>" (`child_hdr`).
+
+Hybrid search, Hit@5 / Hit@10 / MRR:
+
+| | All (142) | Hand-written (62) | Claude-generated (80) |
+|---|---|---|---|
+| Original chunks | 68% / 80% / 0.52 | 84% / 94% / 0.66 | 55% / 69% / 0.41 |
+| Section-based + header | 74% / 85% / 0.55 | 85% / 90% / 0.67 | 65% / 80% / 0.46 |
+| Parent-child, no header | 68% / 77% / 0.49 | 87% / 94% / 0.63 | 52% / 64% / 0.38 |
+| Parent-child, section header | 68% / 77% / 0.51 | 85% / 92% / 0.65 | 55% / 65% / 0.39 |
+| **Parent-child, full header** | 73% / 84% / **0.57** | **87% / 94% / 0.69** | 61% / 76% / **0.48** |
+
+- Parent-child + full header has the best MRR on both kinds of questions. On hand-written questions it adds 2 questions
+  to the top 5 and keeps the top 10 (94%), which is what Claude reads now.
+- Rank of the first correct chunk, hand-written, original → parent-child + full header: 31 same, 17 better, 14 worse.
+  Large drops: q17 (#8 → #46) and q67 (#5 → #92); q33 (#14 → #4) and q69 (#11 → #3) entered the top 10.
+- **It does not fix the motivating example.** The chunk with "ICANS ... in 40% of children" ranks #13 (original), #29
+  (children, no header) and #45 (children + header) for q05. Single sentences that are only about ICANS, without a
+  number, now compete directly with the answer sentence. Smaller units sharpen "about the topic" matching; they do not
+  teach the search that the question wants a frequency.
+- Headers: the paper title boosts every child of a paper whose title shares the question's words. For q17 (T-cell ALL vs
+  B-ALL) the top 3 are all from a review titled "Challenges and advances in CAR-T cell therapy for B-ALL".
+- Not adopted (default stays "text"): no top-10 gain on the trusted set, and the remaining weakness is the
+  "about vs answers" gap, which needs a step that reads the question and the chunk together.
+
+---
+
+## LLM relevance check, Step A (2026-10-27, user-run, $0.42)
+
+A Corrective-RAG-style check (not the full CRAG method: no web search, no sentence-level refinement).
+`eval/check_chunks.py`: Claude Haiku 5.5 (effort low, structured output) reads each question with its top 30 hybrid
+chunks and marks every chunk yes / partly / no; questions with no "yes" but some "partly" also get chunks #31-60 checked.
+`eval/checker_report.py` (free) compares the "yes" chunks (search order, at most 10) with today's top 10.
+151 questions, $0.0028 each.
+
+| | Today: correct chunk in Claude's 10 | With checker | Share of Claude's chunks that are correct | Chunks Claude reads (median) |
+|---|---|---|---|---|
+| Hand-written (62) | 58 (94%) | 57 (92%) | 47% → **70%** | 10 → 8 |
+| Claude-generated (80) | 55 (69%) | **67 (84%)** | 7% → **34%** | 10 → 4 |
+
+- q05 example: the "ICANS ... in 40% of children" chunk (#13) is marked yes; topic-only ICANS chunks (#1, #2) are
+  marked partly ("describes ICANS ... but gives no actual rate"). q02: the pediatric ZUMA-4 chunk and the mantle cell
+  lymphoma chunk are marked no.
+- Hand-written questions lost: q65 (the checker's "yes" chunks state the mechanism but are not in the answer key: a
+  label gap), q40 (exhaustion evidence from CLL/NHL marked partly as "not ALL": the checker is too strict for mechanism
+  questions; it still finds two "yes" chunks at #13 and #19), q08 (12-month EFS of a dual-target product marked partly;
+  a long-term remission chunk at #15 marked yes), q23 (diet: "no specific diet recommendation", so unsure). Gained:
+  q33, q54, q69.
+- 94% of answer-key chunks in the top 30 are marked yes or partly, but only 55% yes: the hand-written keys include broad
+  topic chunks, and the checker is stricter. Generated questions: 96% of their source chunks are marked yes.
+- Outcomes: answerable questions 140 good, 2 unsure, 0 nothing (the guardrail would block no real question). Special
+  questions: off-topic q24 → nothing; unanswerable q22 and q55 → unsure (answer with a warning); personal questions →
+  good (they are handled by the existing personal-question guardrail).
+- **Decision: go to Step B** (answer test on the final set) without changing the checker prompt, so the test measures
+  the checker as tested here. Known weakness to revisit: evidence from other diseases for mechanism questions.
+
+### LLM relevance check, Step B: answer test, final set (2026-10-27, user-run, $0.50 answers + $1.26 judge)
+
+`python eval/run_answers.py --mode checked --split final --label final_checked`: Claude answers from the checker's
+"yes" chunks (saved in Step A; `src/relevance_check.py`, `generate.answer_checked`). Compared with `final_hybrid_k10`
+(the current version: top 10 chunks), same prompt and judge:
+
+| | Top 10 chunks (current) | With the relevance check |
+|---|---|---|
+| Correct (21 answerable) | 14 | **17** |
+| Faithful | 11 | 11 |
+| Citations check out | 18 | 15 |
+| Key facts missing from Claude's chunks | 8 | **4** |
+| Special questions handled correctly | 4 / 4 | 4 / 4 |
+| Serious errors | 0 | 0 |
+| Chunks Claude reads (median) | 10 | 9 |
+| Answer cost (25 questions) | $0.57 | $0.50 (+ checker ≈ $0.07) |
+
+- Wrong → right: q33, q36, q41, q45, q47. Right → wrong: q31, q40.
+- q40 (T-cell exhaustion): the checker kept only 2 chunks and marked the naive/memory T-cell chunks "partly"
+  (evidence from other diseases), so that key point was missing. The "too strict for mechanism questions" weakness
+  from Step A, now confirmed on an answer.
+- q31 (what MRD-negative means, and how often): a two-part question; the checker marked the definition chunks
+  "partly" because they give no rate, and kept the rate chunks. Neither run's chunks had the numeric threshold; the judge
+  accepted the definition in one run and not the other, so this flip is partly judge variance.
+- The 5 new citation/faithfulness slips are all minor attribution slips (study type, population label), the same habit
+  as before.
+- Caveats: 21 questions (±1 ≈ ±5 points); 5 gained vs 2 lost. The checker prompt was not tuned on this set. The checker
+  adds one Haiku call per question (not timed here: its verdicts were saved in Step A).
+- **Next:** fix the checker prompt for multi-part and mechanism questions, re-check, and confirm on other questions
+  before making it the default.
