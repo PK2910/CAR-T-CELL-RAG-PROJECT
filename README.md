@@ -13,6 +13,27 @@ LLM relevance check before answering.
 
 ---
 
+## Requirements
+
+Targets the system is built and checked against (set 2026-10-28). Every later change has to keep them.
+
+| Goal | Target | Measured now |
+|---|---|---|
+| Search speed | under 1 s | ~0.07 s (median, hybrid search) |
+| First words of the answer | under 3 s (needs streaming) | not measured yet: no streaming |
+| Full answer | 95% of answers under 15 s | ~7.6 s median before the relevance check; the check's time is not measured yet |
+| Cost | under 5 cents per question, at most $1 per day in total | ~2.3–2.7 cents per question; no daily cap yet |
+| Usage limit | public demo: at most 10 questions per user per day (the owner's key is not limited) | not built yet |
+| Quality | test scores stay at least as good as now | final set: 17 of 21 correct |
+| Safety | 100% of special questions handled safely, zero serious errors | 4 of 4, 0 serious errors |
+
+The speed and cost targets are a deliberate trade-off: the relevance check adds a second model call (a few seconds and
+~0.3 cents per question) and raised correctness from 14 to 17 of 21. Streaming covers the "feels fast" part.
+Expected use is a small demo, so one server is enough; more servers or a load balancer only if monitoring shows the
+need.
+
+---
+
 ## How it works
 
 **Built once (offline):**
@@ -68,6 +89,7 @@ flowchart LR
 | Relevance check | `src/relevance_check.py` | Claude Haiku 5.5 marks the top 30 pieces yes / partly / no; only "yes" pieces (up to 10) go to the answer |
 | Safety | `src/guardrails.py` | Input: detects questions about a specific person and tells Claude not to give doses. Output: if a dose appears in such an answer anyway, code replaces the answer with a safe message |
 | Answer | `src/generate.py` | Puts it together: search, relevance check, guardrails, and Claude Sonnet 5.5 answering only from the kept pieces, citing each fact |
+| API | `api/main.py`, `api/usage.py` | FastAPI: `/ask` (full answer), `/ask/stream` (piece by piece), `/health`; public demo limits: 10 questions per user per day, $1 per day |
 | Index versions | `src/index_config.py` | Switch between index versions with `RAG_INDEX`: text (default), text + tables/figures, fine-tuned model, section-based, parent-child (experiments) |
 | Parent-child chunks | `src/chunk_children.py` | Cuts each piece into 1–3-sentence children for the parent-child experiment |
 | LangChain version | `langchain_version/` | The same system rebuilt with LangChain, for comparison |
@@ -247,6 +269,23 @@ python src/chunk.py
 python src/embed.py
 python src/generate.py "What drugs are used to manage cytokine release syndrome after CAR-T?"
 ```
+
+The API (after the steps above):
+
+```bash
+echo "RAG_OWNER_KEY=choose-a-password" >> .env   # optional: your own key, which skips the demo limits
+uvicorn api.main:app                            # then open http://localhost:8000/docs to try it in the browser
+```
+
+- `POST /ask` with `{"question": "..."}` returns the answer and its sources (title, year, section, PubMed link).
+- `POST /ask/stream` sends progress messages, then the answer as it is written (Server-Sent Events), then a final
+  `done` event with the complete answer and sources. Personal questions arrive in one piece: the dose guardrail checks
+  the whole answer before anyone sees it.
+- Limits: 10 questions per user per day and $1 per day for public questions (`api/usage.py`); users are counted by a
+  salted hash of their IP address, not the address itself. A question that fails because the model service is down is
+  not counted. Send the owner key in the `X-Owner-Key` header to skip the limits.
+- Behind a hosting service's proxy, set `TRUST_PROXY=1` so users are counted by their own address.
+- Only one process can open the local Qdrant index at a time: stop evaluation scripts before starting the API.
 
 Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 

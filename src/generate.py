@@ -59,17 +59,11 @@ def not_found(question: str, checker: dict) -> dict:
             "cost_usd": checker.get("checker_cost_usd", 0.0), **checker}
 
 
-def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[dict] | None = None,
-           extra_note: str = "", check: bool = True) -> dict:
-    """Full RAG: retrieve -> relevance check -> build prompt -> ask Claude. Returns the answer plus everything
-    needed to inspect or evaluate it (sources, token usage, cost).
-    mode: "vector" (baseline), "hybrid" (vector + BM25, the default), or "rerank" (hybrid + reranker).
-    check: run the LLM relevance check (src/relevance_check.py) on the top 30 chunks (and #31-60 when unsure),
-           and answer only from the chunks it keeps. check=False: answer from the top k chunks (the tests before
-           2026-10-27). If the check itself fails, the answer falls back to the top k chunks.
-    chunks: answer from these chunks instead of searching (used by answer_checked).
-    Safety guardrails (src/guardrails.py) run on the question before and on the answer after Claude."""
-    client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY; retries 429/5xx errors automatically
+def prepare(client, question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[dict] | None = None,
+            extra_note: str = "", check: bool = True) -> dict:
+    """Everything before Claude writes: search, relevance check, input guardrail, prompt.
+    Returns {"done": <final result>} when no answer is written (nothing related was found),
+    else {"chunks", "prompt", "checker"}. Shared by answer() and answer_stream()."""
     checker = {}
     if chunks is None and check:
         ranked = retrieve(question, k=2 * BATCH, mode=mode)
@@ -83,7 +77,7 @@ def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[
             result, chunks = "check_failed", ranked[:k]
             checker = {"checker_outcome": result, "checker_error": f"{type(e).__name__}: {e}", "checker_cost_usd": 0.0}
         if result == "nothing":
-            return not_found(question, checker)
+            return {"done": not_found(question, checker)}
         if result == "unsure":
             extra_note = PARTLY_NOTE
     elif chunks is None:
@@ -92,8 +86,12 @@ def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[
     note = f"\n\n{PERSONAL_NOTE}" if personal else ""
     note += f"\n\n{extra_note}" if extra_note else ""
     prompt = f"<sources>\n{format_sources(chunks)}\n</sources>\n\nQuestion: {question}{note}"
+    return {"chunks": chunks, "prompt": prompt, "checker": checker}
 
-    response = client.beta.messages.create(
+
+def request(prompt: str) -> dict:
+    """The answer request to Claude (the same for a normal and a streamed answer)."""
+    return dict(
         model=MODEL,
         max_tokens=16000,
         system=SYSTEM_PROMPT,
@@ -104,6 +102,10 @@ def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[
         fallbacks="default",
     )
 
+
+def finish(question: str, response, prepared: dict) -> dict:
+    """Everything after Claude writes: output guardrail, cost, and the result record."""
+    checker, chunks = prepared["checker"], prepared["chunks"]
     if response.stop_reason == "refusal":  # a decline arrives as a normal response, not an error
         category = response.stop_details.category if response.stop_details else None
         text = f"[The model declined to answer this question (category: {category}).]"
@@ -128,6 +130,49 @@ def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[
         "cost_usd": round(cost, 5),  # answer + relevance check
         **checker,
     }
+
+
+def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[dict] | None = None,
+           extra_note: str = "", check: bool = True) -> dict:
+    """Full RAG: retrieve -> relevance check -> build prompt -> ask Claude. Returns the answer plus everything
+    needed to inspect or evaluate it (sources, token usage, cost).
+    mode: "vector" (baseline), "hybrid" (vector + BM25, the default), or "rerank" (hybrid + reranker).
+    check: run the LLM relevance check (src/relevance_check.py) on the top 30 chunks (and #31-60 when unsure),
+           and answer only from the chunks it keeps. check=False: answer from the top k chunks (the tests before
+           2026-10-27). If the check itself fails, the answer falls back to the top k chunks.
+    chunks: answer from these chunks instead of searching (used by answer_checked).
+    Safety guardrails (src/guardrails.py) run on the question before and on the answer after Claude."""
+    client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY; retries 429/5xx errors automatically
+    prepared = prepare(client, question, k, mode, chunks, extra_note, check)
+    if "done" in prepared:
+        return prepared["done"]
+    return finish(question, client.beta.messages.create(**request(prepared["prompt"])), prepared)
+
+
+def answer_stream(question: str):
+    """The same answer as answer(), sent piece by piece. Yields events:
+      {"type": "status", "text": ...}   progress before the answer starts
+      {"type": "text", "text": ...}     the next piece of the answer
+      {"type": "done", "result": ...}   the full result record (as answer() returns it)
+    Personal questions are NOT streamed: the output guardrail must check the whole answer for doses before
+    anyone sees it, so their answer arrives in one piece after the check."""
+    client = anthropic.Anthropic()
+    yield {"type": "status", "text": "Searching the papers and checking which passages answer the question..."}
+    prepared = prepare(client, question)
+    if "done" in prepared:
+        yield {"type": "text", "text": prepared["done"]["answer"]}
+        yield {"type": "done", "result": prepared["done"]}
+        return
+    yield {"type": "status", "text": f"Writing the answer from {len(prepared['chunks'])} passages..."}
+    if is_personal(question):
+        result = finish(question, client.beta.messages.create(**request(prepared["prompt"])), prepared)
+        yield {"type": "text", "text": result["answer"]}
+    else:
+        with client.beta.messages.stream(**request(prepared["prompt"])) as stream:
+            for piece in stream.text_stream:
+                yield {"type": "text", "text": piece}
+            result = finish(question, stream.get_final_message(), prepared)
+    yield {"type": "done", "result": result}
 
 
 def answer_checked(question: str, verdicts: list[dict]) -> dict:
