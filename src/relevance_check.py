@@ -14,11 +14,15 @@ mechanism evidence from other diseases (q40), and two-part questions can lose th
 """
 
 import json
+import os
 
 from retrieve import TOP_K
 
 MODEL = "claude-haiku-5-5"
 EFFORT = "low"
+# Time limit per checker call, in seconds, with one retry; if it runs out, the answer uses the top chunks instead.
+# CHECK_TIMEOUT_S in the environment overrides it (e.g. a tiny value to test the fallback).
+TIMEOUT_S = float(os.environ.get("CHECK_TIMEOUT_S", 20))
 PRICE_PER_MTOK = {"input": 0.10, "output": 0.50}  # Haiku 5.5, prompts up to 100K tokens; USD per million tokens
 BATCH = 30          # chunks checked per call: #1-30, and #31-60 for "unsure" questions
 
@@ -58,7 +62,7 @@ PARTLY_NOTE = ("Note: an automatic check found that these sources are related to
 
 def check_batch(client, question: str, sources_text: str, n: int) -> tuple[list[dict], object]:
     """One checker call for n numbered chunks (already formatted): their verdicts in input order, and the usage."""
-    response = client.messages.create(
+    response = client.with_options(timeout=TIMEOUT_S, max_retries=1).messages.create(
         model=MODEL, max_tokens=8000, system=INSTRUCTIONS,
         messages=[{"role": "user", "content": f"Question: {question}\n\n<excerpts>\n{sources_text}\n</excerpts>"}],
         output_config={"effort": EFFORT, "format": {"type": "json_schema", "schema": SCHEMA}},

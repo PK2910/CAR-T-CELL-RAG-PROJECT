@@ -7,6 +7,7 @@ Run:  python src/generate.py "your question here"
 Needs ANTHROPIC_API_KEY in the project's .env file.
 """
 
+import os
 import sys
 
 import anthropic
@@ -23,6 +24,16 @@ load_dotenv(ROOT / ".env")  # puts ANTHROPIC_API_KEY into the environment
 MODEL = "claude-sonnet-5-5"
 EFFORT = "low"  # how much the model thinks before answering; comparing levels is a later experiment
 PRICE_PER_MTOK = {"input": 2.00, "output": 10.00}  # Sonnet 5.5, USD per million tokens
+# Time limit for the answer call, in seconds, with one retry. If it runs out (or the model service is down, or the
+# credit has run out), the user gets the passages that were found instead (unavailable()).
+# ANSWER_TIMEOUT_S in the environment overrides it (e.g. a tiny value to test the fallback).
+ANSWER_TIMEOUT_S = float(os.environ.get("ANSWER_TIMEOUT_S", 45))
+
+UNAVAILABLE_SOURCES = ("A summary could not be written right now, so here are the passages most relevant to your "
+                       "question, with links to the papers. This is a research and education tool, not medical advice.")
+# Personal questions get no raw passages: they could contain doses, which the dose guardrail exists to block
+UNAVAILABLE_PERSONAL = ("The answer service is unavailable right now. For questions about a specific person's care, "
+                        "please contact the treating team. This is a research and education tool, not medical advice.")
 
 SYSTEM_PROMPT = """You are a research assistant that answers questions about CAR-T cell therapy \
 in acute lymphoblastic leukemia (ALL) using excerpts from published papers.
@@ -132,8 +143,21 @@ def finish(question: str, response, prepared: dict) -> dict:
     }
 
 
+def unavailable(question: str, prepared: dict, error: Exception) -> dict:
+    """Fail gracefully when no answer can be written (model service down, too slow, credit used up): return the
+    passages that were found, so the user can still read them. Personal questions get a safe message instead."""
+    personal = is_personal(question)
+    checker = prepared["checker"]
+    return {"question": question, "answer": UNAVAILABLE_PERSONAL if personal else UNAVAILABLE_SOURCES,
+            "original_answer": None,
+            "guardrail": {"personal": personal, "doses_found": [], "action": "unavailable"},
+            "sources": [] if personal else prepared["chunks"], "model": None, "stop_reason": None,
+            "input_tokens": 0, "output_tokens": 0, "cost_usd": checker.get("checker_cost_usd", 0.0),
+            "degraded": True, "error": f"{type(error).__name__}: {error}", **checker}
+
+
 def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[dict] | None = None,
-           extra_note: str = "", check: bool = True) -> dict:
+           extra_note: str = "", check: bool = True, fallback: bool = True) -> dict:
     """Full RAG: retrieve -> relevance check -> build prompt -> ask Claude. Returns the answer plus everything
     needed to inspect or evaluate it (sources, token usage, cost).
     mode: "vector" (baseline), "hybrid" (vector + BM25, the default), or "rerank" (hybrid + reranker).
@@ -141,12 +165,21 @@ def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[
            and answer only from the chunks it keeps. check=False: answer from the top k chunks (the tests before
            2026-10-27). If the check itself fails, the answer falls back to the top k chunks.
     chunks: answer from these chunks instead of searching (used by answer_checked).
+    fallback: if the answer cannot be written, return the found passages instead (unavailable()).
+              The evaluation scripts set it to False, so a failure shows up as an error, not as a weak answer.
     Safety guardrails (src/guardrails.py) run on the question before and on the answer after Claude."""
     client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY; retries 429/5xx errors automatically
     prepared = prepare(client, question, k, mode, chunks, extra_note, check)
     if "done" in prepared:
         return prepared["done"]
-    return finish(question, client.beta.messages.create(**request(prepared["prompt"])), prepared)
+    try:
+        response = client.with_options(timeout=ANSWER_TIMEOUT_S, max_retries=1).beta.messages.create(
+            **request(prepared["prompt"]))
+    except anthropic.APIError as e:  # includes timeouts, connection errors, and a used-up credit
+        if not fallback:
+            raise
+        return unavailable(question, prepared, e)
+    return finish(question, response, prepared)
 
 
 def answer_stream(question: str):
@@ -155,8 +188,11 @@ def answer_stream(question: str):
       {"type": "text", "text": ...}     the next piece of the answer
       {"type": "done", "result": ...}   the full result record (as answer() returns it)
     Personal questions are NOT streamed: the output guardrail must check the whole answer for doses before
-    anyone sees it, so their answer arrives in one piece after the check."""
+    anyone sees it, so their answer arrives in one piece after the check.
+    The answer in the "done" event is the final one: it replaces the streamed pieces (e.g. if the model service
+    failed halfway, it is the fallback message, and the sources are the found passages)."""
     client = anthropic.Anthropic()
+    timed = client.with_options(timeout=ANSWER_TIMEOUT_S, max_retries=1)
     yield {"type": "status", "text": "Searching the papers and checking which passages answer the question..."}
     prepared = prepare(client, question)
     if "done" in prepared:
@@ -164,14 +200,17 @@ def answer_stream(question: str):
         yield {"type": "done", "result": prepared["done"]}
         return
     yield {"type": "status", "text": f"Writing the answer from {len(prepared['chunks'])} passages..."}
-    if is_personal(question):
-        result = finish(question, client.beta.messages.create(**request(prepared["prompt"])), prepared)
-        yield {"type": "text", "text": result["answer"]}
-    else:
-        with client.beta.messages.stream(**request(prepared["prompt"])) as stream:
-            for piece in stream.text_stream:
-                yield {"type": "text", "text": piece}
-            result = finish(question, stream.get_final_message(), prepared)
+    try:
+        if is_personal(question):
+            result = finish(question, timed.beta.messages.create(**request(prepared["prompt"])), prepared)
+            yield {"type": "text", "text": result["answer"]}
+        else:
+            with timed.beta.messages.stream(**request(prepared["prompt"])) as stream:
+                for piece in stream.text_stream:
+                    yield {"type": "text", "text": piece}
+                result = finish(question, stream.get_final_message(), prepared)
+    except anthropic.APIError as e:  # fail gracefully: the found passages instead of an error
+        result = unavailable(question, prepared, e)
     yield {"type": "done", "result": result}
 
 
@@ -181,7 +220,7 @@ def answer_checked(question: str, verdicts: list[dict]) -> dict:
     result, chunks = select(verdicts, {c["chunk_id"]: c for c in load_chunks()})
     if result == "nothing":
         return not_found(question, {"checker_outcome": result})
-    out = answer(question, chunks=chunks, extra_note=PARTLY_NOTE if result == "unsure" else "")
+    out = answer(question, chunks=chunks, extra_note=PARTLY_NOTE if result == "unsure" else "", fallback=False)
     return {**out, "checker_outcome": result}
 
 
@@ -194,6 +233,8 @@ def show(result: dict) -> None:
               f"https://pubmed.ncbi.nlm.nih.gov/{c['pmid']}/")
     print(f"\n({result['model']}, {result['input_tokens']:,} tokens in / {result['output_tokens']:,} out, "
           f"~${result['cost_usd']:.4f} incl. relevance check)")
+    if result.get("degraded"):
+        print(f"[fallback] no answer could be written ({result['error']}); the found passages are shown instead")
     if "checker_outcome" in result:
         print(f"[relevance check] {result['checker_outcome']}"
               + (f" ({result['checker_error']}; answered from the top chunks instead)" if "checker_error" in result

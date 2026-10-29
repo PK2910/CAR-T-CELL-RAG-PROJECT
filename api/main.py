@@ -31,14 +31,26 @@ sys.path.insert(0, str(ROOT / "api"))
 from generate import answer, answer_stream  # noqa: E402  (also loads .env)
 from index_config import INFO_FILE  # noqa: E402
 from retrieve import retrieve  # noqa: E402
+from startup_check import fatal_problems, run_checks  # noqa: E402
 import usage  # noqa: E402
 
 DISCLAIMER = "Research and education tool that summarizes published studies. Not medical advice."
 UNAVAILABLE = "The answer service is unavailable right now. Please try again later."
 
 
+CHECKS: list[dict] = []
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Startup check (src/startup_check.py): refuse to start if the search would not match the index
+    CHECKS[:] = run_checks()
+    problems = fatal_problems(CHECKS)
+    if problems:
+        raise RuntimeError("Startup check failed, not starting:\n  " + "\n  ".join(problems))
+    for c in CHECKS:
+        if not c["ok"]:
+            print(f"WARNING (startup check) {c['name']}: {c['detail']}")
     retrieve("warm-up", k=1)  # load the search model and indexes once, before the first question
     yield
 
@@ -80,9 +92,11 @@ def public(result: dict) -> dict:
         "answer": result["answer"],
         "sources": [{"n": n, "title": s["title"], "first_author": s["first_author"], "year": s["year"],
                      "journal": s["journal"], "section": ", ".join(s.get("sections", [])),
+                     "excerpt": s["text"][:400] + ("..." if len(s["text"]) > 400 else ""),
                      "link": f"https://pubmed.ncbi.nlm.nih.gov/{s['pmid']}/" if s.get("pmid") else None}
                     for n, s in enumerate(result["sources"], 1)],
         "relevance_check": result.get("checker_outcome"),
+        "fallback": bool(result.get("degraded")),  # True: no summary could be written; the passages are shown
         "disclaimer": DISCLAIMER,
     }
 
@@ -94,7 +108,8 @@ def home():
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "index": json.loads(INFO_FILE.read_text()) if INFO_FILE.exists() else None}
+    return {"status": "ok" if all(c["ok"] for c in CHECKS) else "degraded", "checks": CHECKS,
+            "index": json.loads(INFO_FILE.read_text()) if INFO_FILE.exists() else None}
 
 
 @app.post("/ask")
@@ -108,6 +123,8 @@ def ask(body: Question, request: Request, x_owner_key: str | None = Header(defau
         raise HTTPException(status_code=503, detail=UNAVAILABLE)
     if user:
         usage.add_spend(result["cost_usd"])
+        if result.get("degraded"):
+            usage.refund(user)  # no summary was written, so the question is not counted
     return public(result)
 
 
@@ -121,6 +138,8 @@ def ask_stream(body: Question, request: Request, x_owner_key: str | None = Heade
                 if event["type"] == "done":
                     if user:
                         usage.add_spend(event["result"]["cost_usd"])
+                        if event["result"].get("degraded"):
+                            usage.refund(user)
                     event = {"type": "done", **public(event["result"])}
                 yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
         except anthropic.APIError:

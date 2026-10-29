@@ -89,9 +89,9 @@ def main():
             elif args.mode == "checked":
                 result = answer_checked(q["question"], checks[q["id"]]["chunks"])
             elif args.mode == "live":
-                result = answer(q["question"], mode="hybrid", check=True)
+                result = answer(q["question"], mode="hybrid", check=True, fallback=False)
             else:
-                result = answer(q["question"], mode=args.mode, check=False)
+                result = answer(q["question"], mode=args.mode, check=False, fallback=False)
         except anthropic.APIError as e:  # keep going; one failed call shouldn't lose the whole run
             if "credit balance" in str(e):  # no point continuing: every further call would fail too
                 print(f"\nStopped at {q['id']}: the API credit ran out. Add credit and re-run the same command;"

@@ -287,6 +287,18 @@ uvicorn api.main:app                            # then open http://localhost:800
 - Behind a hosting service's proxy, set `TRUST_PROXY=1` so users are counted by their own address.
 - Only one process can open the local Qdrant index at a time: stop evaluation scripts before starting the API.
 
+**Failing gracefully and the startup check** (`src/startup_check.py`):
+- Time limits: 20 s per relevance-check call and 45 s for the answer, one retry each (`CHECK_TIMEOUT_S`,
+  `ANSWER_TIMEOUT_S` override them).
+- If the relevance check fails, the answer uses the top 10 passages. If the answer cannot be written (model service
+  down, too slow, credit used up), the user gets the passages that were found, with excerpts and PubMed links
+  (`"fallback": true`), and the question is not counted. Personal questions get a safe message instead of raw
+  passages, which could contain doses.
+- At startup the API checks that the embedding model and vector size match the index, and that the chunk count in the
+  chunks file, the index and the index's build record agree; if not, it refuses to start (a mismatch would give
+  wrong results without any error). A missing API key is a warning. `/health` shows the checks;
+  `python src/startup_check.py` runs them on their own.
+
 Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 
 ```bash
