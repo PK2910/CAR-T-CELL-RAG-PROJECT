@@ -5,7 +5,8 @@ acute lymphoblastic leukemia (ALL)**. It answers questions from 194 open-access 
 source of every fact.
 
 The project focuses on **measurement**: every change was tested on fixed question sets and kept only if it helped.
-Seven improvements were tried; two were kept.
+Twelve improvements were tried; four were kept: hybrid search, safety guardrails, 10 chunks instead of 5, and an
+LLM relevance check before answering.
 
 > **Research and education prototype — not medical advice.** It summarizes published studies and is not
 > designed or validated to guide the care of any individual patient.
@@ -28,8 +29,10 @@ flowchart LR
         G1 --> K[BM25 search]
         V --> R[Merge<br/>reciprocal rank fusion]
         K --> R
-        R --> T[Top 10 pieces]
-        T --> L[Claude Sonnet 5.5<br/>answers only from sources]
+        R --> T[Top 30 pieces]
+        T --> RC[Relevance check<br/>Claude Haiku keeps the pieces<br/>that answer the question]
+        RC -->|nothing related| NF[Reply: the papers<br/>don't answer this]
+        RC --> L[Claude Sonnet 5.5<br/>answers only from sources]
         L --> G2[Output guardrail<br/>no doses for personal questions]
         G2 --> OUT[Answer + PubMed links]
     end
@@ -46,7 +49,8 @@ flowchart LR
 | Keyword index | `src/bm25.py` | BM25 with tokenization that keeps medical abbreviations exact ("ALL" ≠ "all", "CD22", "ZUMA-3") |
 | Search | `src/retrieve.py` | Hybrid search: vector + BM25 rankings merged with reciprocal rank fusion |
 | Safety | `src/guardrails.py` | Detects questions about a specific person; a code check removes doses from those answers |
-| Answer | `src/generate.py` | Claude Sonnet 5.5 answers only from the 10 retrieved pieces, citing each fact |
+| Relevance check | `src/relevance_check.py` | Claude Haiku 5.5 marks the top 30 pieces yes / partly / no; only "yes" pieces (up to 10) go to the answer |
+| Answer | `src/generate.py` | Claude Sonnet 5.5 answers only from the kept pieces, citing each fact |
 | Index versions | `src/index_config.py` | Switch between the text index, text + tables/figures, and the fine-tuned model (`RAG_INDEX`) |
 | LangChain version | `langchain_version/` | The same system rebuilt with LangChain, for comparison |
 | Fine-tuning | `train/` | Contrastive fine-tuning of the embedding model (experiment) |
@@ -130,6 +134,50 @@ were there, which could fix up to 7 of 60 answers (37 → 44 correct) if Claude 
 - The final set was used to choose 10 pages, so this confirms the prediction rather than giving a fresh estimate.
 Details: [`eval/RESULTS.md`](eval/RESULTS.md).
 
+### Relevance check before answering (current version)
+
+The search ranks pieces by how much they are *about* the question's topic; it cannot tell which piece *contains the
+answer* (e.g. "How common is ICANS?" ranks pieces describing ICANS above the piece giving its rate, #13). Three
+chunking changes (section-based chunks, contextual headers, parent-child chunks) did not fix this, because every
+version still compares the question and each piece separately.
+
+The relevance check reads the question together with the top 30 pieces (Claude Haiku 5.5, ~0.3 cents per question)
+and marks each one yes / partly / no:
+
+| Checker result | What happens |
+|---|---|
+| at least one "yes" | Claude answers from the "yes" pieces (up to 10) |
+| only "partly" | pieces #31–60 are checked too; if still no "yes", Claude answers from the "partly" pieces and says the papers only partly address the question |
+| nothing related | a fixed reply, "The papers in this collection don't answer this question" (no answer is written) |
+| the check fails | Claude answers from the top 10 pieces, as before |
+
+This is a simplified, Corrective-RAG-style check: no web search (answers come only from the curated papers) and no
+sentence-level refinement inside pieces.
+
+**Checker alone** (151 questions, $0.42): the pieces Claude reads that contain the answer went from 47% to 70% on
+hand-written questions (10 → 8 pieces), and the answer piece was found for 12 more generated questions (55 → 67 of 80).
+No answerable question was blocked.
+
+**Answer test, final set (25 questions):**
+
+| | Top 10 pieces | With the relevance check |
+|---|---|---|
+| Correct (answerable) | 14 of 21 (67%) | **17 of 21 (81%)** |
+| Key facts missing from the pieces | 8 | **4** |
+| Safe on special questions | 4 of 4 | 4 of 4 |
+| Serious errors | 0 | 0 |
+| Citations check out | 18 of 21 | 15 of 21 |
+| Cost per question | ~2.3 cents | ~2.3 cents (answer ~2.0 + check ~0.3) |
+
+- 5 answers became correct (q33, q36, q41, q45, q47) and 2 became wrong (q31, q40); the new citation slips are minor
+  (study type or population labels).
+- The checker's instructions were written before any answers were seen and were not changed afterwards.
+- **Known weaknesses:** the checker treats mechanism evidence from other cancers as only "partly" relevant (q40 lost a
+  key point), and on two-part questions it can keep the part with a number and drop the definition (q31). Fixing them
+  needs a test on fresh questions, to avoid tuning the checker to this test set.
+
+Details: [`eval/RESULTS.md`](eval/RESULTS.md).
+
 ---
 
 ## Experiments that were tried and not adopted
@@ -155,6 +203,17 @@ Each was tested against the current version on the same questions. Full numbers:
 - Two-part questions, both answer pages in the top 5: 25% → 25%. One-part questions: 75% → 65% (worse).
 - Rank fusion favours overview pages that fit every sub-query a little over the specific page each part needs.
 
+**Section-based chunking and contextual headers** (`python src/chunk.py --by-section`, `RAG_INDEX=section`,
+`RAG_INDEX=section_hdr`; answer key translated to the new pieces by `eval/section_labels.py`)
+- Section-based alone: no change (only 16% of the original pieces crossed a section; pieces inside one section still
+  mix topics). With a "Paper / Section" header: +6 points top-5 overall, but no gain on hand-written questions
+  (top 10: 94% → 90%); the paper title boosts every piece of a paper whose title shares the question's words.
+
+**Parent-child chunking** (`src/chunk_children.py`, `RAG_INDEX=child`, `child_sec`, `child_hdr`)
+- The search reads 1–3-sentence children and returns their parent pieces. Best version (with a full header): MRR 0.66
+  → 0.69 and top 5 84% → 87% on hand-written questions, but top 10 unchanged (94%). The ICANS-rate piece fell from #13
+  to #45: single sentences that only describe ICANS now compete directly with the one giving its rate.
+
 ---
 
 ## Running it
@@ -175,9 +234,13 @@ Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 
 ```bash
 python eval/eval_retrieval.py --mode hybrid --split final         # search test (free)
-python eval/run_answers.py --mode hybrid --split final --label hybrid
-python eval/judge.py --split final --label hybrid                 # answer test (~$1 per 25 questions with 5 pages; more with 10)
+python eval/run_answers.py --mode live --split final --label live  # current system: search + relevance check
+python eval/judge.py --split final --label live                   # answer test (~$1.80 per 25 questions, both steps)
 ```
+
+`--mode hybrid` answers from the top 10 pieces without the relevance check (every run before it). To test the
+relevance check without paying for it twice: `python eval/check_chunks.py` (saves the checker's verdicts,
+~0.3 cents per question), `python eval/checker_report.py` (free comparison), then `--mode checked`.
 
 Other index versions: `RAG_INDEX=plus python src/embed.py` (text + tables and figures), then prefix any
 evaluation command with `RAG_INDEX=plus`.
@@ -195,12 +258,13 @@ and the fine-tuned model are not included in this repository.
 - The answer keys and grading were produced with AI assistance and spot-checked, not reviewed by a clinician.
 - Guardrails use pattern matching and may miss unusually phrased personal questions (one such case on the final set
   was still answered safely).
+- The relevance check was tested on the 25-question final set, which had already been used to choose 10 pieces; it
+  has known weaknesses on mechanism and two-part questions (see above), and adds one model call per question.
 
 ## Possible next steps
 
-- Confirm the switch to 10 pages on questions not used to choose it (holdout, practice or a fresh set).
+- A fresh test set (answer keys for the 34 unused holdout questions, q72–q105) to confirm the 10-piece switch and the
+  relevance check, and to test fixes for the checker's two weaknesses without tuning on the same questions.
 - A prompt rule against adding details the source does not state (journal names, patient ages, study type).
-- An LLM check of whether each retrieved page actually contains the answer (the idea behind Corrective RAG), since
-  retrieval of the specific fact is the main weakness.
 - Fine-tuning again on all pages with question-style training data, and HyDE (searching with a hypothetical answer).
 - A small production demo: API, container, and a rate-limited public link.

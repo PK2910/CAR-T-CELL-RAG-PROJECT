@@ -11,6 +11,9 @@ Run:  python eval/run_answers.py [--split dev|test|all] [--label baseline]
       python eval/run_answers.py --mode checked --split final --label final_checked
         (LLM relevance check: answers from the checker's saved verdicts in eval/results/chunk_checks.json,
          made by eval/check_chunks.py; see src/relevance_check.py)
+      python eval/run_answers.py --mode live --split final --label final_live
+        (the system as users get it: hybrid search + the relevance check run live; adds ~0.3 cents per question)
+vector / hybrid / rerank answer from the top 10 chunks without the relevance check, as in every run before it.
 """
 
 import argparse
@@ -38,7 +41,8 @@ SOURCE_FIELDS = ["chunk_id", "pmcid", "pmid", "title", "first_author", "journal"
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--split", default="dev", choices=SPLITS)
-    parser.add_argument("--mode", default="vector", choices=["vector", "hybrid", "rerank", "langchain", "checked"])
+    parser.add_argument("--mode", default="vector",
+                        choices=["vector", "hybrid", "rerank", "langchain", "checked", "live"])
     parser.add_argument("--label", default=None, help="name of this run (default: baseline for vector, else the mode)")
     args = parser.parse_args()
     args.label = args.label or ("baseline" if args.mode == "vector" else args.mode)
@@ -84,8 +88,10 @@ def main():
                 result = rag.answer(q["question"])
             elif args.mode == "checked":
                 result = answer_checked(q["question"], checks[q["id"]]["chunks"])
+            elif args.mode == "live":
+                result = answer(q["question"], mode="hybrid", check=True)
             else:
-                result = answer(q["question"], mode=args.mode)
+                result = answer(q["question"], mode=args.mode, check=False)
         except anthropic.APIError as e:  # keep going; one failed call shouldn't lose the whole run
             if "credit balance" in str(e):  # no point continuing: every further call would fail too
                 print(f"\nStopped at {q['id']}: the API credit ran out. Add credit and re-run the same command;"
