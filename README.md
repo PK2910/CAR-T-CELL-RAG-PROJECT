@@ -15,43 +15,61 @@ LLM relevance check before answering.
 
 ## How it works
 
+**Built once (offline):**
+
 ```mermaid
 flowchart LR
-    subgraph Offline["Built once"]
-        A[PubMed Central<br/>200 papers] --> B[Parse<br/>194 papers]
-        B --> C[Chunk<br/>5,354 pieces]
-        C --> D[(Vector index<br/>Qdrant · bge-small)]
-        C --> E[(Keyword index<br/>BM25)]
-    end
-    subgraph Online["Every question"]
-        Q[Question] --> G1[Input guardrail<br/>personal question?]
-        G1 --> V[Vector search]
-        G1 --> K[BM25 search]
-        V --> R[Merge<br/>reciprocal rank fusion]
-        K --> R
-        R --> T[Top 30 pieces]
-        T --> RC[Relevance check<br/>Claude Haiku keeps the pieces<br/>that answer the question]
-        RC -->|nothing related| NF[Reply: the papers<br/>don't answer this]
-        RC --> L[Claude Sonnet 5.5<br/>answers only from sources]
-        L --> G2[Output guardrail<br/>no doses for personal questions]
-        G2 --> OUT[Answer + PubMed links]
-    end
-    D -.-> V
-    E -.-> K
+    A["PubMed Central<br/>200 open-access papers"] --> B["Parse<br/>194 papers, by section,<br/>with title, year, article type"]
+    B --> C["Chunk<br/>5,354 pieces of ~400 tokens<br/>recursive splitting, 50-token overlap"]
+    C --> D[("Vector index<br/>bge-small in Qdrant")]
+    C --> E[("Keyword index<br/>case-aware BM25")]
+```
+
+**Every question (online):**
+
+```mermaid
+flowchart TB
+    Q["Question"] --> S["Hybrid search<br/>vector + BM25 rankings,<br/>merged with reciprocal rank fusion"]
+    S --> T["Top 30 pieces"]
+    T --> RC{"Relevance check<br/>Claude Haiku 5.5 marks each piece<br/>yes / partly / no"}
+    RC -->|"at least one yes"| Y["Up to 10 yes pieces"]
+    RC -->|"only partly"| P2{"Check pieces 31-60"}
+    P2 -->|"a yes found"| Y
+    P2 -->|"still only partly"| PA["Up to 10 partly pieces<br/>+ note: the papers may only<br/>partly answer this"]
+    RC -->|"nothing related"| NF["Fixed reply: the papers in this<br/>collection don't answer this question"]
+    RC -->|"check fails"| FB["Top 10 pieces<br/>(fallback)"]
+    Q --> G1["Input guardrail<br/>personal question? adds a<br/>no-doses note to the prompt"]
+    Y --> L["Claude Sonnet 5.5<br/>answers only from the pieces,<br/>cites each fact"]
+    PA --> L
+    FB --> L
+    G1 --> L
+    L --> G2["Output guardrail<br/>personal question + a dose in the answer<br/>= answer replaced with a safe message"]
+    G2 --> OUT["Answer + PubMed links"]
+```
+
+**How it is tested:**
+
+```mermaid
+flowchart LR
+    QS["Question sets<br/>hand-written + generated,<br/>with answer keys"] --> ST["Search test (free)<br/>is a correct piece in the top 5 / 10?"]
+    QS --> CR["Checker test (~0.3 cents/question)<br/>does the checker keep the correct pieces?"]
+    QS --> AT["Answer test (~7 cents/question)<br/>Claude answers, Claude Opus grades"]
+    AT --> M["Correct, faithful, citations, safety,<br/>were the needed facts in the pieces?"]
 ```
 
 | Step | File | What it does |
 |---|---|---|
 | Collect | `src/collect.py` | Downloads open-access papers from PubMed Central (NCBI E-utilities) |
 | Parse | `src/parse.py` | Converts XML to clean text by section, with title, year, author, article type, tables and figure captions |
-| Chunk | `src/chunk.py` | Recursive splitting into ~400-token pieces with sentence overlap |
+| Chunk | `src/chunk.py` | Recursive splitting into ~400-token pieces with sentence overlap; each piece keeps its paper and section labels (`--by-section`: section-based pieces, an experiment) |
 | Embed | `src/embed.py` | `BAAI/bge-small-en-v1.5` vectors stored in Qdrant |
 | Keyword index | `src/bm25.py` | BM25 with tokenization that keeps medical abbreviations exact ("ALL" ≠ "all", "CD22", "ZUMA-3") |
 | Search | `src/retrieve.py` | Hybrid search: vector + BM25 rankings merged with reciprocal rank fusion |
-| Safety | `src/guardrails.py` | Detects questions about a specific person; a code check removes doses from those answers |
 | Relevance check | `src/relevance_check.py` | Claude Haiku 5.5 marks the top 30 pieces yes / partly / no; only "yes" pieces (up to 10) go to the answer |
-| Answer | `src/generate.py` | Claude Sonnet 5.5 answers only from the kept pieces, citing each fact |
-| Index versions | `src/index_config.py` | Switch between the text index, text + tables/figures, and the fine-tuned model (`RAG_INDEX`) |
+| Safety | `src/guardrails.py` | Input: detects questions about a specific person and tells Claude not to give doses. Output: if a dose appears in such an answer anyway, code replaces the answer with a safe message |
+| Answer | `src/generate.py` | Puts it together: search, relevance check, guardrails, and Claude Sonnet 5.5 answering only from the kept pieces, citing each fact |
+| Index versions | `src/index_config.py` | Switch between index versions with `RAG_INDEX`: text (default), text + tables/figures, fine-tuned model, section-based, parent-child (experiments) |
+| Parent-child chunks | `src/chunk_children.py` | Cuts each piece into 1–3-sentence children for the parent-child experiment |
 | LangChain version | `langchain_version/` | The same system rebuilt with LangChain, for comparison |
 | Fine-tuning | `train/` | Contrastive fine-tuning of the embedding model (experiment) |
 | Evaluation | `eval/` | Question sets, answer keys, search and answer tests, LLM judge |
