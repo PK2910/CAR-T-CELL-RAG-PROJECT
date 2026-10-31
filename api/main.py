@@ -9,8 +9,10 @@ The API: the front door to the RAG system (README, Requirements).
   POST /feedback     {"answer_id": "...", "rating": "up" or "down", "comment": "..."} -> thumbs up/down for an answer
 
 Every answer is saved in the logbook (api/logbook.py) with an id, which the user can send to /feedback.
+A question asked before (same words) gets the saved answer at once, for free (api/cache.py).
 
 Public demo: anyone can ask, at most 10 questions per user per day and $1 per day in total (api/usage.py).
+Saved answers from the cache cost nothing and are not counted.
 The owner skips both limits by sending their key in the X-Owner-Key header; the key is set as RAG_OWNER_KEY in .env.
 
 Run:  uvicorn api.main:app            then open http://localhost:8000/docs to try it in the browser
@@ -37,6 +39,7 @@ from generate import answer, answer_stream, seconds_since  # noqa: E402  (also l
 from index_config import INFO_FILE  # noqa: E402
 from retrieve import retrieve  # noqa: E402
 from startup_check import fatal_problems, run_checks  # noqa: E402
+import cache  # noqa: E402
 import logbook  # noqa: E402
 import usage  # noqa: E402
 
@@ -87,11 +90,16 @@ def client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
+def who(request: Request, owner_key: str | None) -> str | None:
+    """The user's id (a salted hash of their address), or None for the owner."""
+    return None if is_owner(owner_key) else usage.user_id(client_ip(request))
+
+
 def admit(request: Request, owner_key: str | None) -> str | None:
     """Apply the usage limits. Returns the user's id, or None for the owner (whose questions are not counted)."""
-    if is_owner(owner_key):
+    user = who(request, owner_key)
+    if user is None:
         return None
-    user = usage.user_id(client_ip(request))
     refused = usage.check_and_count(user)
     if refused:
         raise HTTPException(status_code=429, detail=refused)
@@ -110,6 +118,7 @@ def public(result: dict, answer_id: str | None) -> dict:
                     for n, s in enumerate(result["sources"], 1)],
         "relevance_check": result.get("checker_outcome"),
         "fallback": bool(result.get("degraded")),  # True: no summary could be written; the passages are shown
+        "cached": bool(result.get("cached")),  # True: the saved answer to the same question asked before
         "disclaimer": DISCLAIMER,
     }
 
@@ -128,8 +137,12 @@ def health() -> dict:
 
 @app.post("/ask")
 def ask(body: Question, request: Request, x_owner_key: str | None = Header(default=None)) -> dict:
-    user = admit(request, x_owner_key)
     start = time.perf_counter()
+    saved = cache.get(body.question)
+    if saved:  # asked before: the saved answer, free and not counted
+        answer_id = logbook.record(body.question, saved, who(request, x_owner_key), "ask", seconds_since(start))
+        return public(saved, answer_id)
+    user = admit(request, x_owner_key)
     try:
         result = answer(body.question)
     except anthropic.APIError as e:
@@ -141,16 +154,25 @@ def ask(body: Question, request: Request, x_owner_key: str | None = Header(defau
         usage.add_spend(result["cost_usd"])
         if result.get("degraded"):
             usage.refund(user)  # no summary was written, so the question is not counted
+    cache.put(body.question, result)
     answer_id = logbook.record(body.question, result, user, "ask", seconds_since(start))
     return public(result, answer_id)
 
 
 @app.post("/ask/stream")
 def ask_stream(body: Question, request: Request, x_owner_key: str | None = Header(default=None)):
-    user = admit(request, x_owner_key)
+    start = time.perf_counter()
+    saved = cache.get(body.question)
+    user = who(request, x_owner_key) if saved else admit(request, x_owner_key)  # saved answers are not counted
 
     def events():
-        start, first_text = time.perf_counter(), None  # first_text: seconds until the first words appear
+        first_text = None  # seconds until the first words appear
+        if saved:  # asked before: the saved answer in one piece
+            answer_id = logbook.record(body.question, saved, user, "ask/stream", seconds_since(start),
+                                       seconds_since(start))
+            yield f"data: {json.dumps({'type': 'text', 'text': saved['answer']}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'done', **public(saved, answer_id)}, ensure_ascii=False)}\n\n"
+            return
         try:
             for event in answer_stream(body.question):
                 if event["type"] == "text" and first_text is None:
@@ -161,6 +183,7 @@ def ask_stream(body: Question, request: Request, x_owner_key: str | None = Heade
                         usage.add_spend(result["cost_usd"])
                         if result.get("degraded"):
                             usage.refund(user)
+                    cache.put(body.question, result)
                     answer_id = logbook.record(body.question, result, user, "ask/stream", seconds_since(start),
                                                first_text)
                     event = {"type": "done", **public(result, answer_id)}

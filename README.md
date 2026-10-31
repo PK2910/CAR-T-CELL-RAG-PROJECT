@@ -310,6 +310,27 @@ uvicorn api.main:app                            # then open http://localhost:800
   `eval/results/thumbs_down.json` as candidates for new test questions.
 - Questions are stored as typed; detecting and removing personal details before saving is a planned guardrail.
 
+**Caching** (`api/cache.py`, kept in `data/api_cache.sqlite`, not in the repository; delete the file to clear it):
+- A question asked before gets the saved answer at once (`"cached": true`): no search, no Claude call, $0, and it
+  does not count toward the 10 questions per day. "The same question" means the same words, ignoring capital
+  letters, extra spaces and the final "?".
+- Questions that only *mean* something similar are not matched (no "semantic cache"). Our search model scores
+  different questions as similar as real rewordings, so a similarity cut-off would hand out answers to different
+  questions:
+
+  | Similarity (bge-small) | Question pair | Same question? |
+  |---|---|---|
+  | 0.925 | "How common is ICANS after CAR-T in ALL?" / "What percentage of ALL patients get ICANS after CAR-T?" | yes |
+  | 0.956 | "How common is ICANS after CAR-T in ALL?" / "How often does ICANS happen after CAR-T for ALL?" | yes |
+  | 0.943 | ICANS rate in children / in adults | no |
+  | 0.950 | CAR-T before / after stem cell transplant | no |
+  | 0.934 | remission rate / relapse rate with tisagenlecleucel | no |
+
+- Each saved answer is tied to the versions that made it (index, chunking, models, prompts): after any change, old
+  answers no longer match. Answers expire after 30 days. Fallback answers, personal questions and declined answers
+  are not saved. The evaluation scripts call the pipeline directly and never use the cache.
+- The log report shows how many answers came from the cache, what that saved, and the most asked questions.
+
 Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 
 ```bash

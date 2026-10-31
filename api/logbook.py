@@ -4,8 +4,8 @@ to the stage that caused it, and users' thumbs up/down are kept next to the answ
 
 Each entry: when, which user (the same salted hash as the usage limits, or "owner"; never the IP address), the
 question and answer, the relevance check's outcome, the chunks the answer came from (ids and search scores), whether
-the fallback was used, seconds per stage, tokens and cost, and the versions that produced it (index, chunking,
-embedding model, Claude models, prompts). Kept in data/api_log.sqlite (not in the repository).
+the fallback was used, seconds per stage, tokens and cost, the versions that produced it (index, chunking,
+embedding model, Claude models, prompts), and whether it came from the cache (api/cache.py). Kept in data/api_log.sqlite (not in the repository).
 Summarize it with:  python api/log_report.py
 
 Writing an entry never stops an answer: if the logbook cannot be written, the user still gets the answer.
@@ -28,8 +28,9 @@ COLUMNS = """
     outcome TEXT, fallback INTEGER, guardrail TEXT, error TEXT, chunks TEXT, n_sources INTEGER,
     seconds_total REAL, seconds_first_text REAL, timing TEXT,
     tokens_in INTEGER, tokens_out INTEGER, cost_usd REAL, versions TEXT,
-    rating INTEGER, comment TEXT, rated_at TEXT
+    rating INTEGER, comment TEXT, rated_at TEXT, cached INTEGER, saved_usd REAL
 """
+ADDED_COLUMNS = {"cached": "INTEGER", "saved_usd": "REAL"}  # added with the cache (api/cache.py)
 
 _lock = threading.Lock()
 
@@ -58,6 +59,10 @@ def _db() -> sqlite3.Connection:
     DB_FILE.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(DB_FILE)
     db.execute(f"CREATE TABLE IF NOT EXISTS answers ({COLUMNS})")
+    have = {row[1] for row in db.execute("PRAGMA table_info(answers)")}
+    for name, kind in ADDED_COLUMNS.items():  # a logbook made before these columns existed keeps its entries
+        if name not in have:
+            db.execute(f"ALTER TABLE answers ADD COLUMN {name} {kind}")
     return db
 
 
@@ -87,6 +92,8 @@ def record(question: str, result: dict | None, user: str | None, endpoint: str, 
         "tokens_out": result.get("output_tokens"),
         "cost_usd": result.get("cost_usd"),
         "versions": json.dumps(versions()),
+        "cached": int(bool(result.get("cached"))),
+        "saved_usd": result.get("saved_usd"),  # a cached answer: what it cost the first time
     }
     try:
         with _lock, _db() as db:
