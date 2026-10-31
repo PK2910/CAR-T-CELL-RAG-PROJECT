@@ -41,6 +41,7 @@ from retrieve import retrieve  # noqa: E402
 from startup_check import fatal_problems, run_checks  # noqa: E402
 import cache  # noqa: E402
 import logbook  # noqa: E402
+import redact  # noqa: E402
 import usage  # noqa: E402
 
 DISCLAIMER = "Research and education tool that summarizes published studies. Not medical advice."
@@ -61,6 +62,7 @@ async def lifespan(app: FastAPI):
         if not c["ok"]:
             print(f"WARNING (startup check) {c['name']}: {c['detail']}")
     retrieve("warm-up", k=1)  # load the search model and indexes once, before the first question
+    redact.warm_up()  # and the personal-details check (api/redact.py), which cleans what the logbook saves
     yield
 
 

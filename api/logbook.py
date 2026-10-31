@@ -3,7 +3,7 @@ The logbook (README, Logging): one entry per question the API answers, so a wron
 to the stage that caused it, and users' thumbs up/down are kept next to the answer they rate.
 
 Each entry: when, which user (the same salted hash as the usage limits, or "owner"; never the IP address), the
-question and answer, the relevance check's outcome, the chunks the answer came from (ids and search scores), whether
+question and answer with personal details removed (api/redact.py), the relevance check's outcome, the chunks the answer came from (ids and search scores), whether
 the fallback was used, seconds per stage, tokens and cost, the versions that produced it (index, chunking,
 embedding model, Claude models, prompts), whether it came from the cache (api/cache.py), and any citations to
 sources it was not given (the citation check, src/guardrails.py). Kept in data/api_log.sqlite (not in the repository).
@@ -20,6 +20,8 @@ import threading
 from datetime import datetime, timezone
 from functools import cache
 from pathlib import Path
+
+from redact import redact
 
 ROOT = Path(__file__).resolve().parent.parent
 DB_FILE = ROOT / "data/api_log.sqlite"
@@ -82,8 +84,8 @@ def record(question: str, result: dict | None, user: str | None, endpoint: str, 
         "time": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "user": user or "owner",
         "endpoint": endpoint,
-        "question": question,
-        "answer": result.get("answer"),
+        "question": redact(question),
+        "answer": redact(result.get("answer")),  # an answer can repeat a name from the question
         "outcome": result.get("checker_outcome"),
         "fallback": int(bool(result.get("degraded"))),
         "guardrail": (result.get("guardrail") or {}).get("action"),
@@ -116,7 +118,7 @@ def add_feedback(answer_id: str, rating: str, comment: str | None = None) -> boo
     Returns False if there is no answer with this id."""
     with _lock, _db() as db:
         changed = db.execute("UPDATE answers SET rating = ?, comment = ?, rated_at = ? WHERE id = ?",
-                             (1 if rating == "up" else -1, comment,
+                             (1 if rating == "up" else -1, redact(comment),
                               datetime.now(timezone.utc).isoformat(timespec="seconds"), answer_id)).rowcount
     return changed > 0
 

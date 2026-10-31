@@ -308,7 +308,7 @@ uvicorn api.main:app                            # then open http://localhost:800
 - `python api/log_report.py [--days 7]` (free) summarizes questions per day, speed against the targets, cost,
   relevance-check outcomes, fallbacks, errors and feedback. `--export-down` saves the thumbs-down answers to
   `eval/results/thumbs_down.json` as candidates for new test questions.
-- Questions are stored as typed; detecting and removing personal details before saving is a planned guardrail.
+- Personal details are removed before anything is saved (see "Personal details" below).
 
 **Caching** (`api/cache.py`, kept in `data/api_cache.sqlite`, not in the repository; delete the file to clear it):
 - A question asked before gets the saved answer at once (`"cached": true`): no search, no Claude call, $0, and it
@@ -350,6 +350,28 @@ managing CRS?"). `python eval/trick_scan.py` checks that no paper chunk contains
 retrieved text is passed to Claude as a source, so a hidden instruction would be indirect prompt injection) and
 that no real test question is blocked (only q25, on purpose). Rules catch common phrasings only; the dose
 guardrail still runs on every answer.
+
+**Personal details** (`api/redact.py`, Microsoft Presidio with spaCy's small English model, run locally, free):
+before a question, answer or feedback comment is saved in the logbook, names, medical record and other ID numbers,
+full dates, phone numbers and emails are replaced: "My son John Smith, MRN 4829301, born 03/12/2018" is saved as
+"My son [NAME], [ID], born [DATE]". Claude still gets the question as typed; questions with personal details are
+not cached. Untuned, Presidio marked medical terms as personal details in the 191 test questions ("Kymriah" a
+person, "CRS" an organization, the "Philadelphia" chromosome a place), so: organizations, places, ages and partial
+dates are not removed; a name is kept only if all its words appear at least 10 times in the papers (drug and gene
+names, frequent author surnames); and a capitalized word after "my son", "my daughter", "our patient"... counts as
+a name, which the small model sometimes misses. After tuning, none of the 191 test questions is changed (~2 ms per
+question). Known gaps: a frequent author surname on its own ("Wang") is kept, and unusual name formats may be missed.
+If the check fails, the text is not saved at all.
+
+**Off-topic questions** need no extra rule: the relevance check finds no passage that answers them, and the fixed
+"the papers in this collection don't answer this question" reply is returned without an answer being written.
+Checked live on 2026-10-31 ("What is the best pizza in Los Angeles?", a question about buying Maggi in Brazil):
+both returned that reply, at ~0.2 cents and ~6 s each.
+
+**Personal questions about treatment options** ("My son relapsed after CAR-T, what are his options?") get a
+general summary of the evidence and a clear statement that no recommendation can be made for that person and that
+the treating team decides. Only doses are blocked outright. Re-confirmed on 2026-10-31 after a live test, following
+the roadmap's advice not to refuse such questions coldly.
 
 Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 

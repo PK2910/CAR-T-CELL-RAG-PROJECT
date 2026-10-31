@@ -9,7 +9,8 @@ for a real rewording), so a "semantic cache" would hand out answers to different
 
 Each saved answer is tied to the versions that made it (api/logbook.py: index, chunking, models, prompts): after
 any change, old answers no longer match. Answers expire after MAX_AGE_DAYS. Not saved: fallback answers (the
-next user should get a real answer), personal questions, and declined answers.
+next user should get a real answer), personal questions, questions containing personal details such as a name
+(api/redact.py), and declined answers.
 Kept in data/api_cache.sqlite (not in the repository); delete the file to clear the cache.
 A cache that cannot be read or written never stops an answer: the question is answered as if it were not cached.
 """
@@ -23,6 +24,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from logbook import versions
+from redact import redact
 
 ROOT = Path(__file__).resolve().parent.parent
 DB_FILE = ROOT / "data/api_cache.sqlite"
@@ -74,7 +76,8 @@ def get(question: str) -> dict | None:
 def put(question: str, result: dict) -> bool:
     """Save an answer for next time, unless it should not be reused. Returns True if it was saved."""
     if (result.get("degraded") or result.get("error") or result.get("stop_reason") == "refusal"
-            or (result.get("guardrail") or {}).get("personal")):
+            or (result.get("guardrail") or {}).get("personal")
+            or redact(question) != question):  # contains personal details: keep it out of the cache
         return False
     oldest = (_now() - timedelta(days=MAX_AGE_DAYS)).isoformat(timespec="seconds")
     try:
