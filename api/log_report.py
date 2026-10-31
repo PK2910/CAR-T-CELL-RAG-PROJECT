@@ -96,6 +96,9 @@ def main():
                                               for k, v in Counter(r["outcome"] for r in rows).most_common()))
     print(f"Fallback used:    {sum(r['fallback'] for r in rows)} times (no summary written; passages shown)")
     print(f"No answer at all: {len(rows) - len(answered) - len(from_cache)}")
+    bad_cites = [r for r in rows if json.loads(r["bad_citations"] or "[]")]
+    print(f"Citation check:   {len(bad_cites)} answers cited a source they were not given (note added)"
+          + "".join(f"\n  {r['id']}  cites {r['bad_citations']}  {r['question'][:60]}" for r in bad_cites))
     guard = Counter(r["guardrail"] for r in rows if r["guardrail"] not in (None, "none"))  # replaced, not_found, ...
     if guard:
         print("Guardrails:       " + " · ".join(f"{k} {v}" for k, v in guard.items()))

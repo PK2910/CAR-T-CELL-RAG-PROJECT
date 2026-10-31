@@ -5,7 +5,8 @@ to the stage that caused it, and users' thumbs up/down are kept next to the answ
 Each entry: when, which user (the same salted hash as the usage limits, or "owner"; never the IP address), the
 question and answer, the relevance check's outcome, the chunks the answer came from (ids and search scores), whether
 the fallback was used, seconds per stage, tokens and cost, the versions that produced it (index, chunking,
-embedding model, Claude models, prompts), and whether it came from the cache (api/cache.py). Kept in data/api_log.sqlite (not in the repository).
+embedding model, Claude models, prompts), whether it came from the cache (api/cache.py), and any citations to
+sources it was not given (the citation check, src/guardrails.py). Kept in data/api_log.sqlite (not in the repository).
 Summarize it with:  python api/log_report.py
 
 Writing an entry never stops an answer: if the logbook cannot be written, the user still gets the answer.
@@ -28,9 +29,11 @@ COLUMNS = """
     outcome TEXT, fallback INTEGER, guardrail TEXT, error TEXT, chunks TEXT, n_sources INTEGER,
     seconds_total REAL, seconds_first_text REAL, timing TEXT,
     tokens_in INTEGER, tokens_out INTEGER, cost_usd REAL, versions TEXT,
-    rating INTEGER, comment TEXT, rated_at TEXT, cached INTEGER, saved_usd REAL
+    rating INTEGER, comment TEXT, rated_at TEXT, cached INTEGER, saved_usd REAL, bad_citations TEXT
 """
-ADDED_COLUMNS = {"cached": "INTEGER", "saved_usd": "REAL"}  # added with the cache (api/cache.py)
+# Columns added after the first version; an older logbook file gets them when it is opened
+ADDED_COLUMNS = {"cached": "INTEGER", "saved_usd": "REAL",  # the cache (api/cache.py)
+                 "bad_citations": "TEXT"}  # the citation check (src/guardrails.py)
 
 _lock = threading.Lock()
 
@@ -43,6 +46,7 @@ def _short_hash(text: str) -> str:
 @cache
 def versions() -> dict:
     """Everything that decides what an answer looks like, so each answer can be traced to the setup that made it."""
+    import guardrails
     from generate import MODEL, SYSTEM_PROMPT
     from index_config import INDEX, INFO_FILE
     from relevance_check import INSTRUCTIONS
@@ -52,7 +56,8 @@ def versions() -> dict:
     return {"index": INDEX, "index_built": info.get("date_built"), "n_chunks": info.get("n_chunks"),
             "chunking": info.get("chunking"), "embedding_model": info.get("embedding_model"),
             "search": f"{SEARCH_MODE}, top {TOP_K}", "answer_model": MODEL, "checker_model": CHECKER_MODEL,
-            "answer_prompt": _short_hash(SYSTEM_PROMPT), "checker_prompt": _short_hash(INSTRUCTIONS)}
+            "answer_prompt": _short_hash(SYSTEM_PROMPT), "checker_prompt": _short_hash(INSTRUCTIONS),
+            "guardrails": _short_hash(Path(guardrails.__file__).read_text())}  # any change to the safety rules
 
 
 def _db() -> sqlite3.Connection:
@@ -94,6 +99,7 @@ def record(question: str, result: dict | None, user: str | None, endpoint: str, 
         "versions": json.dumps(versions()),
         "cached": int(bool(result.get("cached"))),
         "saved_usd": result.get("saved_usd"),  # a cached answer: what it cost the first time
+        "bad_citations": json.dumps((result.get("citations") or {}).get("invalid") or []),
     }
     try:
         with _lock, _db() as db:

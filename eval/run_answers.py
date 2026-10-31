@@ -117,6 +117,7 @@ def main():
             "cost_usd": result["cost_usd"],
             "latency_s": round(latency, 2),
             **({"checker_outcome": result["checker_outcome"]} if "checker_outcome" in result else {}),
+            **({"citations": result["citations"]} if "citations" in result else {}),
         })
         print(f"[{i:>2}/{len(questions)}] {q['id']}  {latency:5.1f}s  ${result['cost_usd']:.4f}  {q['question'][:60]}")
         save(rows)  # after every answer, so a stopped run loses nothing

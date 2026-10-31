@@ -15,7 +15,7 @@ import anthropic
 from dotenv import load_dotenv
 
 from embed import ROOT
-from guardrails import PERSONAL_NOTE, check_answer, is_personal
+from guardrails import PERSONAL_NOTE, check_answer, check_citations, is_personal
 from relevance_check import BATCH, NOT_FOUND_ANSWER, PARTLY_NOTE, run_checker, select
 from relevance_check import cost as checker_cost
 from retrieve import SEARCH_MODE, TOP_K, load_chunks, retrieve
@@ -136,15 +136,17 @@ def finish(question: str, response, prepared: dict) -> dict:
         text = "".join(b.text for b in response.content if b.type == "text")
 
     guard = check_answer(question, text)  # output guardrail: replaces the answer if a dose slipped through
+    cites = check_citations(guard["answer"], len(chunks))  # adds a note if it cites a source it was not given
 
     usage = response.usage
     cost = (usage.input_tokens * PRICE_PER_MTOK["input"]
             + usage.output_tokens * PRICE_PER_MTOK["output"]) / 1_000_000 + checker.get("checker_cost_usd", 0.0)
     return {
         "question": question,
-        "answer": guard["answer"],
+        "answer": cites["answer"],
         "original_answer": text if guard["action"] == "replaced" else None,  # kept for evaluation only
         "guardrail": {"personal": guard["personal"], "doses_found": guard["doses_found"], "action": guard["action"]},
+        "citations": {"cited": cites["cited"], "invalid": cites["invalid"]},
         "sources": chunks,
         "model": response.model,
         "stop_reason": response.stop_reason,
@@ -256,6 +258,8 @@ def show(result: dict) -> None:
         print(f"[relevance check] {result['checker_outcome']}"
               + (f" ({result['checker_error']}; answered from the top chunks instead)" if "checker_error" in result
                  else f", {len(result['sources'])} chunks kept"))
+    if (result.get("citations") or {}).get("invalid"):
+        print(f"[citation check] cites source(s) it was not given: {result['citations']['invalid']} (note added)")
     g = result["guardrail"]
     if g["personal"]:
         print(f"[guardrail] personal question detected; answer {'REPLACED (dose found: ' + ', '.join(g['doses_found']) + ')' if g['action'] == 'replaced' else 'passed'}")

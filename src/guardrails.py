@@ -10,6 +10,10 @@ Policy (decided 2026-10-06):
       OUTPUT guardrail: code scans Claude's answer; if a dose slipped through anyway, the whole answer
                         is replaced with a safe message (contact the treating team / emergency services).
   - Research questions about doses ("what doses were used in trials?") are answered normally, with citations.
+
+Citation check (added 2026-10-31): every [n] in an answer must be one of the sources Claude was given (1 to the
+number of sources). If not, a note saying so is added to the answer. Answers with no citations at all are only
+recorded, not changed: "the sources don't answer this" rightly has none.
 """
 
 import re
@@ -60,6 +64,33 @@ SAFE_MESSAGE = (
 
 def find_doses(text: str) -> list[str]:
     return [m.group(0) for p in DOSE_PATTERNS for m in re.finditer(p, text, re.IGNORECASE)]
+
+
+# [3] and [1, 4]. Ranges such as [22-30] are not read as citations: in answers they are almost always statistics
+# ("median 26 [22-30]"), and Claude rarely cites a range of sources (checked on 610 saved answers, 2026-10-31).
+CITATION = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
+CITATION_NOTE = ("Note: this answer cites source number(s) {numbers}, which were not among the {n} sources it was "
+                 "given; those statements could not be checked against a source.")
+
+
+def cited_numbers(answer: str) -> list[int]:
+    """Every source number the answer cites, in order of first appearance."""
+    numbers = []
+    for m in CITATION.finditer(answer):
+        for n in (int(x) for x in m.group(1).split(",")):
+            if n not in numbers:
+                numbers.append(n)
+    return numbers
+
+
+def check_citations(answer: str, n_sources: int) -> dict:
+    """The citation check. Returns the answer (with a note added if it cites sources it was not given), the
+    numbers cited, and the ones that point to no source."""
+    cited = cited_numbers(answer)
+    invalid = [n for n in cited if not 1 <= n <= n_sources]
+    if invalid:
+        answer += "\n\n" + CITATION_NOTE.format(numbers=", ".join(f"[{n}]" for n in invalid), n=n_sources)
+    return {"answer": answer, "cited": cited, "invalid": invalid}
 
 
 def check_answer(question: str, answer: str) -> dict:

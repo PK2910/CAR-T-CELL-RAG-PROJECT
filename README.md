@@ -331,6 +331,15 @@ uvicorn api.main:app                            # then open http://localhost:800
   are not saved. The evaluation scripts call the pipeline directly and never use the cache.
 - The log report shows how many answers came from the cache, what that saved, and the most asked questions.
 
+**Citation check** (`src/guardrails.py`, rules in code, free): every `[n]` in an answer must be one of the sources
+Claude was given. If not, a note is added to the answer ("cites source number(s) [9], which were not among the 5
+sources it was given") and the logbook records it. Ranges such as `[22-30]` are not read as citations: in answers
+they are almost always statistics ("median 26 [22-30]"). On the 610 saved test answers (`python
+eval/citation_report.py`), 1 answer cited a source it was not given (practice q15, `[9]` with 5 sources); a first
+version that also read ranges flagged 2 more that were statistics and a paper's own reference list, so ranges were
+dropped. Saved answers in the cache are tied to a fingerprint of the guardrail rules, so changing a rule retires
+them.
+
 Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 
 ```bash
