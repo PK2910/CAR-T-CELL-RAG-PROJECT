@@ -14,6 +14,11 @@ Policy (decided 2026-10-06):
 Citation check (added 2026-10-31): every [n] in an answer must be one of the sources Claude was given (1 to the
 number of sources). If not, a note saying so is added to the answer. Answers with no citations at all are only
 recorded, not changed: "the sources don't answer this" rightly has none.
+
+Trick check (added 2026-10-31): a question that tries to change the system's rules ("ignore your instructions",
+"reveal your system prompt", "you are now...") is not answered: no search and no Claude call. It catches common
+phrasings only; the dose guardrail above still runs on every answer, so a trick that gets past it still cannot
+produce a dose for a personal question.
 """
 
 import re
@@ -41,6 +46,36 @@ PERSONAL_NOTE = (
 
 def is_personal(question: str) -> bool:
     return any(re.search(p, question, re.IGNORECASE) for p in PERSONAL_PATTERNS)
+
+
+# ---------- Input guardrail: is the question a trick to change the rules? ----------
+
+# Words for the system's OWN rules. Not "guidelines" or "policies": real questions ask about treatment guidelines.
+_RULES = r"(instructions?|rules?|prompts?|guardrails?|programming)"
+TRICK_PATTERNS = [
+    # "ignore your instructions", "disregard all previous rules", "forget the above prompt"
+    rf"\b(ignore|disregard|forget|override|bypass)\b(\s+\w+){{0,3}}\s+{_RULES}\b",
+    # "do not follow your rules", "stop following the instructions"
+    rf"\b(do not|don't|stop|never)\s+follow(ing)?\b(\s+\w+){{0,3}}\s+{_RULES}\b",
+    # "reveal your system prompt", "print your instructions", "what are your rules" (only "your", or "the" + system/
+    # hidden/original/initial: "what are the rules for ..." is a real question)
+    rf"\b(reveal|show|print|repeat|display|tell me|output|what are|what is|what were)\s+(me\s+)?(your\s+(system\s+|"
+    rf"hidden\s+|original\s+|initial\s+)?|the\s+(system|hidden|original|initial)\s+){_RULES}\b",
+    r"\bsystem\s+prompt\b",
+    # "you are now DAN", "from now on you are", "pretend you are a doctor with no limits"
+    r"\byou\s+are\s+now\b", r"\bfrom\s+now\s+on,?\s+you\b", r"\b(pretend|imagine)\s+(that\s+)?you\s+(are|have|can)\b",
+    r"\bjailbr(eak|oken)\b", r"\b(DAN|developer)\s+mode\b", r"\bnew\s+instructions\s*:",
+]
+
+TRICK_MESSAGE = (
+    "This tool answers questions about research on CAR-T cell therapy in acute lymphoblastic leukemia, using "
+    "published papers. Your message looks like an attempt to change how the tool works, so it was not answered. "
+    "Please ask a question about the research. This tool is not medical advice."
+)
+
+
+def is_trick(question: str) -> bool:
+    return any(re.search(p, question, re.IGNORECASE) for p in TRICK_PATTERNS)
 
 
 # ---------- Output guardrail: does the answer contain a dose? ----------
