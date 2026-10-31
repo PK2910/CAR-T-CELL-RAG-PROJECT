@@ -67,6 +67,16 @@ def seconds_since(start: float) -> float:
     return round(time.perf_counter() - start, 2)
 
 
+class NoAPIKey(Exception):
+    """No Claude API key is set. The Claude library then fails before any request is sent, with a TypeError rather
+    than an API error, so it is checked here first (found when the Docker image was started without a key)."""
+
+
+def require_key(client) -> None:
+    if not (getattr(client, "api_key", None) or getattr(client, "auth_token", None)):
+        raise NoAPIKey("ANTHROPIC_API_KEY is not set")
+
+
 def not_found(question: str, checker: dict) -> dict:
     """Guardrail reply when the relevance check finds nothing related: no answer is written."""
     guard = check_answer(question, NOT_FOUND_ANSWER)
@@ -102,11 +112,12 @@ def prepare(client, question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chun
         timing["search_s"] = seconds_since(start)
         start = time.perf_counter()
         try:
+            require_key(client)
             rows, rounds, tokens_in, tokens_out = run_checker(client, question, ranked, format_sources)
             result, chunks = select(rows, {c["chunk_id"]: c for c in ranked}, k)
             checker = {"checker_outcome": result, "checker_rounds": rounds,
                        "checker_cost_usd": round(checker_cost(tokens_in, tokens_out), 5)}
-        except (anthropic.APIError, RuntimeError, ValueError, KeyError, StopIteration) as e:
+        except (anthropic.APIError, NoAPIKey, RuntimeError, ValueError, KeyError, StopIteration) as e:
             # Fail gracefully: without a working check, answer from the top k chunks as before
             result, chunks = "check_failed", ranked[:k]
             checker = {"checker_outcome": result, "checker_error": f"{type(e).__name__}: {e}", "checker_cost_usd": 0.0}
@@ -202,9 +213,10 @@ def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[
         return prepared["done"]
     start = time.perf_counter()
     try:
+        require_key(client)
         response = client.with_options(timeout=ANSWER_TIMEOUT_S, max_retries=1).beta.messages.create(
             **request(prepared["prompt"]))
-    except anthropic.APIError as e:  # includes timeouts, connection errors, and a used-up credit
+    except (anthropic.APIError, NoAPIKey) as e:  # includes timeouts, connection errors, a used-up credit, no key
         if not fallback:
             raise
         result = unavailable(question, prepared, e)
@@ -233,6 +245,7 @@ def answer_stream(question: str):
     yield {"type": "status", "text": f"Writing the answer from {len(prepared['chunks'])} passages..."}
     start = time.perf_counter()
     try:
+        require_key(client)
         if is_personal(question):
             result = finish(question, timed.beta.messages.create(**request(prepared["prompt"])), prepared)
             yield {"type": "text", "text": result["answer"]}
@@ -241,7 +254,7 @@ def answer_stream(question: str):
                 for piece in stream.text_stream:
                     yield {"type": "text", "text": piece}
                 result = finish(question, stream.get_final_message(), prepared)
-    except anthropic.APIError as e:  # fail gracefully: the found passages instead of an error
+    except (anthropic.APIError, NoAPIKey) as e:  # fail gracefully: the found passages instead of an error
         result = unavailable(question, prepared, e)
     result["timing"] = {**prepared["timing"], "answer_s": seconds_since(start)}
     yield {"type": "done", "result": result}

@@ -6,7 +6,8 @@ Each entry: when, which user (the same salted hash as the usage limits, or "owne
 question and answer with personal details removed (api/redact.py), the relevance check's outcome, the chunks the answer came from (ids and search scores), whether
 the fallback was used, seconds per stage, tokens and cost, the versions that produced it (index, chunking,
 embedding model, Claude models, prompts), whether it came from the cache (api/cache.py), and any citations to
-sources it was not given (the citation check, src/guardrails.py). Kept in data/api_log.sqlite (not in the repository).
+sources it was not given (the citation check, src/guardrails.py). Kept in data/api_log.sqlite (not in the
+repository; RAG_STATE_DIR moves it, as in Docker).
 Summarize it with:  python api/log_report.py
 
 Writing an entry never stops an answer: if the logbook cannot be written, the user still gets the answer.
@@ -14,6 +15,7 @@ Writing an entry never stops an answer: if the logbook cannot be written, the us
 
 import hashlib
 import json
+import os
 import secrets
 import sqlite3
 import threading
@@ -24,7 +26,8 @@ from pathlib import Path
 from redact import redact
 
 ROOT = Path(__file__).resolve().parent.parent
-DB_FILE = ROOT / "data/api_log.sqlite"
+STATE_DIR = Path(os.environ.get("RAG_STATE_DIR", ROOT / "data"))  # files that must survive a restart (Docker volume)
+DB_FILE = STATE_DIR / "api_log.sqlite"
 
 COLUMNS = """
     id TEXT PRIMARY KEY, time TEXT, user TEXT, endpoint TEXT, question TEXT, answer TEXT,

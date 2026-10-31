@@ -23,11 +23,11 @@ import threading
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from logbook import versions
+from logbook import STATE_DIR, versions
 from redact import redact
 
 ROOT = Path(__file__).resolve().parent.parent
-DB_FILE = ROOT / "data/api_cache.sqlite"
+DB_FILE = STATE_DIR / "api_cache.sqlite"
 MAX_AGE_DAYS = 30
 
 _lock = threading.Lock()

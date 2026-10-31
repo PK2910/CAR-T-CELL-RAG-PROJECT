@@ -287,13 +287,35 @@ uvicorn api.main:app                            # then open http://localhost:800
 - Behind a hosting service's proxy, set `TRUST_PROXY=1` so users are counted by their own address.
 - Only one process can open the local Qdrant index at a time: stop evaluation scripts before starting the API.
 
+**Docker** (the API in one box that runs the same on any machine):
+
+```bash
+python src/slim_index.py                       # once: copy only the live index (31 MB) to data/docker/qdrant
+docker build -t cart-rag .
+docker run --env-file .env -p 8000:8000 -v cart-rag-state:/app/state cart-rag   # then http://localhost:8000/docs
+```
+
+- The image holds the code, the packages from `requirements-api.txt` (the live system only, CPU-only PyTorch, at
+  the versions in `requirements.txt`), the search and name models, the chunks and the slim index. The full
+  `data/qdrant` keeps 8 experimental collections (536 MB); `src/slim_index.py` copies only the live one and checks
+  that the copy returns the same chunks, in the same order and with the same scores.
+- The API key is never copied into the image (`.dockerignore` lets in only what the `Dockerfile` copies); it is
+  passed in at start with `--env-file .env`.
+- The logbook, cache and usage counts are written to `/app/state` (`RAG_STATE_DIR`), a Docker volume, so they
+  survive restarts and new versions of the image. Outside Docker they stay in `data/`.
+- Checked 2026-11-01: the image is 2.0 GB (mostly PyTorch and the models), runs as a non-root user, contains no
+  `.env`, starts in ~50 s, passes the startup checks, answers from the slim index, and keeps the logbook when the
+  container is replaced.
+
 **Failing gracefully and the startup check** (`src/startup_check.py`):
 - Time limits: 20 s per relevance-check call and 45 s for the answer, one retry each (`CHECK_TIMEOUT_S`,
   `ANSWER_TIMEOUT_S` override them).
 - If the relevance check fails, the answer uses the top 10 passages. If the answer cannot be written (model service
   down, too slow, credit used up), the user gets the passages that were found, with excerpts and PubMed links
   (`"fallback": true`), and the question is not counted. Personal questions get a safe message instead of raw
-  passages, which could contain doses.
+  passages, which could contain doses. A missing API key also leads to this fallback: the Claude library fails
+  before sending anything, with a different error than a wrong key, which was only found when the Docker image was
+  started without a key (it returned a server error until fixed).
 - At startup the API checks that the embedding model and vector size match the index, and that the chunk count in the
   chunks file, the index and the index's build record agree; if not, it refuses to start (a mismatch would give
   wrong results without any error). A missing API key is a warning. `/health` shows the checks;

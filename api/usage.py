@@ -8,6 +8,7 @@ but cannot be traced back to an address. Days are UTC.
 """
 
 import hashlib
+import os
 import secrets
 import sqlite3
 import threading
@@ -15,8 +16,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DB_FILE = ROOT / "data/api_usage.sqlite"
-SALT_FILE = ROOT / "data/api_usage_salt.txt"
+STATE_DIR = Path(os.environ.get("RAG_STATE_DIR", ROOT / "data"))  # files that must survive a restart (Docker volume)
+DB_FILE = STATE_DIR / "api_usage.sqlite"
+SALT_FILE = STATE_DIR / "api_usage_salt.txt"
 QUESTIONS_PER_DAY = 10
 DAILY_BUDGET_USD = 1.00
 

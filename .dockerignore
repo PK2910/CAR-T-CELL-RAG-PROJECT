@@ -1,0 +1,11 @@
+# Only what the Dockerfile copies is sent to Docker. Everything else stays out, above all .env (the API key),
+# the full index with the experiments, the logbook/cache/usage files, and evaluation results.
+*
+!requirements.txt
+!requirements-api.txt
+!src/
+!api/
+!data/processed/chunks.json
+!data/processed/index_info.json
+!data/docker/qdrant/
+**/__pycache__
