@@ -6,6 +6,9 @@ The API: the front door to the RAG system (README, Requirements).
   POST /ask/stream   the same answer, sent piece by piece (Server-Sent Events): first progress messages, then the
                      answer as Claude writes it, then a final "done" event with the complete answer and sources.
                      Personal questions are not streamed (the dose guardrail checks the whole answer first).
+  POST /feedback     {"answer_id": "...", "rating": "up" or "down", "comment": "..."} -> thumbs up/down for an answer
+
+Every answer is saved in the logbook (api/logbook.py) with an id, which the user can send to /feedback.
 
 Public demo: anyone can ask, at most 10 questions per user per day and $1 per day in total (api/usage.py).
 The owner skips both limits by sending their key in the X-Owner-Key header; the key is set as RAG_OWNER_KEY in .env.
@@ -17,8 +20,10 @@ import hmac
 import json
 import os
 import sys
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Literal
 
 import anthropic
 from fastapi import FastAPI, Header, HTTPException, Request
@@ -28,10 +33,11 @@ from pydantic import BaseModel, Field
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "api"))
-from generate import answer, answer_stream  # noqa: E402  (also loads .env)
+from generate import answer, answer_stream, seconds_since  # noqa: E402  (also loads .env)
 from index_config import INFO_FILE  # noqa: E402
 from retrieve import retrieve  # noqa: E402
 from startup_check import fatal_problems, run_checks  # noqa: E402
+import logbook  # noqa: E402
 import usage  # noqa: E402
 
 DISCLAIMER = "Research and education tool that summarizes published studies. Not medical advice."
@@ -62,6 +68,12 @@ class Question(BaseModel):
     question: str = Field(min_length=3, max_length=1000, examples=["How common is ICANS after CAR-T in ALL?"])
 
 
+class Feedback(BaseModel):
+    answer_id: str = Field(min_length=1, max_length=64)
+    rating: Literal["up", "down"]
+    comment: str | None = Field(default=None, max_length=1000)
+
+
 def is_owner(key: str | None) -> bool:
     owner_key = os.environ.get("RAG_OWNER_KEY", "")
     return bool(owner_key and key) and hmac.compare_digest(key, owner_key)
@@ -86,9 +98,10 @@ def admit(request: Request, owner_key: str | None) -> str | None:
     return user
 
 
-def public(result: dict) -> dict:
+def public(result: dict, answer_id: str | None) -> dict:
     """What a user sees: the answer and its sources (no internal fields such as prompts or token counts)."""
     return {
+        "answer_id": answer_id,  # send it to /feedback to rate this answer
         "answer": result["answer"],
         "sources": [{"n": n, "title": s["title"], "first_author": s["first_author"], "year": s["year"],
                      "journal": s["journal"], "section": ", ".join(s.get("sections", [])),
@@ -109,23 +122,27 @@ def home():
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok" if all(c["ok"] for c in CHECKS) else "degraded", "checks": CHECKS,
-            "index": json.loads(INFO_FILE.read_text()) if INFO_FILE.exists() else None}
+            "index": json.loads(INFO_FILE.read_text()) if INFO_FILE.exists() else None,
+            "versions": logbook.versions()}
 
 
 @app.post("/ask")
 def ask(body: Question, request: Request, x_owner_key: str | None = Header(default=None)) -> dict:
     user = admit(request, x_owner_key)
+    start = time.perf_counter()
     try:
         result = answer(body.question)
-    except anthropic.APIError:
+    except anthropic.APIError as e:
         if user:
             usage.refund(user)
+        logbook.record(body.question, None, user, "ask", seconds_since(start), error=e)
         raise HTTPException(status_code=503, detail=UNAVAILABLE)
     if user:
         usage.add_spend(result["cost_usd"])
         if result.get("degraded"):
             usage.refund(user)  # no summary was written, so the question is not counted
-    return public(result)
+    answer_id = logbook.record(body.question, result, user, "ask", seconds_since(start))
+    return public(result, answer_id)
 
 
 @app.post("/ask/stream")
@@ -133,18 +150,32 @@ def ask_stream(body: Question, request: Request, x_owner_key: str | None = Heade
     user = admit(request, x_owner_key)
 
     def events():
+        start, first_text = time.perf_counter(), None  # first_text: seconds until the first words appear
         try:
             for event in answer_stream(body.question):
+                if event["type"] == "text" and first_text is None:
+                    first_text = seconds_since(start)
                 if event["type"] == "done":
+                    result = event["result"]
                     if user:
-                        usage.add_spend(event["result"]["cost_usd"])
-                        if event["result"].get("degraded"):
+                        usage.add_spend(result["cost_usd"])
+                        if result.get("degraded"):
                             usage.refund(user)
-                    event = {"type": "done", **public(event["result"])}
+                    answer_id = logbook.record(body.question, result, user, "ask/stream", seconds_since(start),
+                                               first_text)
+                    event = {"type": "done", **public(result, answer_id)}
                 yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
-        except anthropic.APIError:
+        except anthropic.APIError as e:
             if user:
                 usage.refund(user)
+            logbook.record(body.question, None, user, "ask/stream", seconds_since(start), first_text, error=e)
             yield f"data: {json.dumps({'type': 'error', 'text': UNAVAILABLE})}\n\n"
 
     return StreamingResponse(events(), media_type="text/event-stream")
+
+
+@app.post("/feedback")
+def feedback(body: Feedback) -> dict:
+    if not logbook.add_feedback(body.answer_id, body.rating, body.comment):
+        raise HTTPException(status_code=404, detail="No answer with this id.")
+    return {"status": "saved", "answer_id": body.answer_id, "rating": body.rating}

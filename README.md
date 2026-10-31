@@ -20,10 +20,10 @@ Targets the system is built and checked against (set 2026-10-28). Every later ch
 | Goal | Target | Measured now |
 |---|---|---|
 | Search speed | under 1 s | ~0.07 s (median, hybrid search) |
-| First words of the answer | under 3 s (needs streaming) | not measured yet: no streaming |
-| Full answer | 95% of answers under 15 s | ~7.6 s median before the relevance check; the check's time is not measured yet |
-| Cost | under 5 cents per question, at most $1 per day in total | ~2.3–2.7 cents per question; no daily cap yet |
-| Usage limit | public demo: at most 10 questions per user per day (the owner's key is not limited) | not built yet |
+| First words of the answer | under 3 s (needs streaming) | streaming built; measured by the logbook (`python api/log_report.py`) |
+| Full answer | 95% of answers under 15 s | ~7.6 s median before the relevance check; now measured per stage by the logbook |
+| Cost | under 5 cents per question, at most $1 per day in total | ~2.3–2.7 cents per question; $1/day cap built |
+| Usage limit | public demo: at most 10 questions per user per day (the owner's key is not limited) | built (`api/usage.py`) |
 | Quality | test scores stay at least as good as now | final set: 17 of 21 correct |
 | Safety | 100% of special questions handled safely, zero serious errors | 4 of 4, 0 serious errors |
 
@@ -298,6 +298,17 @@ uvicorn api.main:app                            # then open http://localhost:800
   chunks file, the index and the index's build record agree; if not, it refuses to start (a mismatch would give
   wrong results without any error). A missing API key is a warning. `/health` shows the checks;
   `python src/startup_check.py` runs them on their own.
+
+**Logging and feedback** (`api/logbook.py`, kept in `data/api_log.sqlite`, not in the repository):
+- Every answer is saved with an `answer_id`: the question and answer, the relevance check's outcome, the chunks used
+  (ids and search scores), whether the fallback was used, seconds per stage (search, check, writing, first words),
+  tokens, cost, and the versions that produced it (index and build date, chunking, embedding model, Claude models,
+  and a fingerprint of each prompt). Users are recorded by the same salted hash as the limits, never by IP address.
+- `POST /feedback` with `{"answer_id": "...", "rating": "up" or "down", "comment": "..."}` saves a thumbs up/down.
+- `python api/log_report.py [--days 7]` (free) summarizes questions per day, speed against the targets, cost,
+  relevance-check outcomes, fallbacks, errors and feedback. `--export-down` saves the thumbs-down answers to
+  `eval/results/thumbs_down.json` as candidates for new test questions.
+- Questions are stored as typed; detecting and removing personal details before saving is a planned guardrail.
 
 Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 

@@ -9,6 +9,7 @@ Needs ANTHROPIC_API_KEY in the project's .env file.
 
 import os
 import sys
+import time
 
 import anthropic
 from dotenv import load_dotenv
@@ -61,6 +62,10 @@ def format_sources(chunks: list[dict]) -> str:
     return "\n\n".join(blocks)
 
 
+def seconds_since(start: float) -> float:
+    return round(time.perf_counter() - start, 2)
+
+
 def not_found(question: str, checker: dict) -> dict:
     """Guardrail reply when the relevance check finds nothing related: no answer is written."""
     guard = check_answer(question, NOT_FOUND_ANSWER)
@@ -74,10 +79,14 @@ def prepare(client, question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chun
             extra_note: str = "", check: bool = True) -> dict:
     """Everything before Claude writes: search, relevance check, input guardrail, prompt.
     Returns {"done": <final result>} when no answer is written (nothing related was found),
-    else {"chunks", "prompt", "checker"}. Shared by answer() and answer_stream()."""
-    checker = {}
+    else {"chunks", "prompt", "checker", "timing"}. Shared by answer() and answer_stream().
+    timing: seconds spent searching and checking (for the logbook, api/logbook.py)."""
+    checker, timing = {}, {}
     if chunks is None and check:
+        start = time.perf_counter()
         ranked = retrieve(question, k=2 * BATCH, mode=mode)
+        timing["search_s"] = seconds_since(start)
+        start = time.perf_counter()
         try:
             rows, rounds, tokens_in, tokens_out = run_checker(client, question, ranked, format_sources)
             result, chunks = select(rows, {c["chunk_id"]: c for c in ranked}, k)
@@ -87,17 +96,20 @@ def prepare(client, question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chun
             # Fail gracefully: without a working check, answer from the top k chunks as before
             result, chunks = "check_failed", ranked[:k]
             checker = {"checker_outcome": result, "checker_error": f"{type(e).__name__}: {e}", "checker_cost_usd": 0.0}
+        timing["check_s"] = seconds_since(start)
         if result == "nothing":
-            return {"done": not_found(question, checker)}
+            return {"done": {**not_found(question, checker), "timing": timing}}
         if result == "unsure":
             extra_note = PARTLY_NOTE
     elif chunks is None:
+        start = time.perf_counter()
         chunks = retrieve(question, k=k, mode=mode)
+        timing["search_s"] = seconds_since(start)
     personal = is_personal(question)  # input guardrail
     note = f"\n\n{PERSONAL_NOTE}" if personal else ""
     note += f"\n\n{extra_note}" if extra_note else ""
     prompt = f"<sources>\n{format_sources(chunks)}\n</sources>\n\nQuestion: {question}{note}"
-    return {"chunks": chunks, "prompt": prompt, "checker": checker}
+    return {"chunks": chunks, "prompt": prompt, "checker": checker, "timing": timing}
 
 
 def request(prompt: str) -> dict:
@@ -172,14 +184,17 @@ def answer(question: str, k: int = TOP_K, mode: str = SEARCH_MODE, chunks: list[
     prepared = prepare(client, question, k, mode, chunks, extra_note, check)
     if "done" in prepared:
         return prepared["done"]
+    start = time.perf_counter()
     try:
         response = client.with_options(timeout=ANSWER_TIMEOUT_S, max_retries=1).beta.messages.create(
             **request(prepared["prompt"]))
     except anthropic.APIError as e:  # includes timeouts, connection errors, and a used-up credit
         if not fallback:
             raise
-        return unavailable(question, prepared, e)
-    return finish(question, response, prepared)
+        result = unavailable(question, prepared, e)
+    else:
+        result = finish(question, response, prepared)
+    return {**result, "timing": {**prepared["timing"], "answer_s": seconds_since(start)}}
 
 
 def answer_stream(question: str):
@@ -200,6 +215,7 @@ def answer_stream(question: str):
         yield {"type": "done", "result": prepared["done"]}
         return
     yield {"type": "status", "text": f"Writing the answer from {len(prepared['chunks'])} passages..."}
+    start = time.perf_counter()
     try:
         if is_personal(question):
             result = finish(question, timed.beta.messages.create(**request(prepared["prompt"])), prepared)
@@ -211,6 +227,7 @@ def answer_stream(question: str):
                 result = finish(question, stream.get_final_message(), prepared)
     except anthropic.APIError as e:  # fail gracefully: the found passages instead of an error
         result = unavailable(question, prepared, e)
+    result["timing"] = {**prepared["timing"], "answer_s": seconds_since(start)}
     yield {"type": "done", "result": result}
 
 
