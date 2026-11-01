@@ -1,6 +1,8 @@
 """
 The API: the front door to the RAG system (README, Requirements).
 
+  GET  /             the web page (api/static/index.html): ask a question, read the answer as it is written,
+                     check the cited passages, rate the answer
   GET  /health       is the server running? (also shows which index version it uses)
   POST /ask          {"question": "..."} -> the full answer, with its sources
   POST /ask/stream   the same answer, sent piece by piece (Server-Sent Events): first progress messages, then the
@@ -29,7 +31,7 @@ from typing import Literal
 
 import anthropic
 from fastapi import FastAPI, Header, HTTPException, Request
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -108,26 +110,43 @@ def admit(request: Request, owner_key: str | None) -> str | None:
     return user
 
 
-def public(result: dict, answer_id: str | None) -> dict:
-    """What a user sees: the answer and its sources (no internal fields such as prompts or token counts)."""
+def public(result: dict, answer_id: str | None, debug: dict | None = None) -> dict:
+    """What a user sees: the answer and its sources (no internal fields such as prompts or token counts).
+    debug: timings, chunk ids and costs, added only for the owner (owner_debug)."""
     return {
         "answer_id": answer_id,  # send it to /feedback to rate this answer
         "answer": result["answer"],
         "sources": [{"n": n, "title": s["title"], "first_author": s["first_author"], "year": s["year"],
-                     "journal": s["journal"], "section": ", ".join(s.get("sections", [])),
+                     "journal": s["journal"], "article_type": s.get("article_type"),
+                     "section": ", ".join(s.get("sections", [])),
                      "excerpt": s["text"][:400] + ("..." if len(s["text"]) > 400 else ""),
+                     "text": s["text"],  # the whole passage, so a reader can check what the citation rests on
                      "link": f"https://pubmed.ncbi.nlm.nih.gov/{s['pmid']}/" if s.get("pmid") else None}
                     for n, s in enumerate(result["sources"], 1)],
         "relevance_check": result.get("checker_outcome"),
         "fallback": bool(result.get("degraded")),  # True: no summary could be written; the passages are shown
         "cached": bool(result.get("cached")),  # True: the saved answer to the same question asked before
         "disclaimer": DISCLAIMER,
+        **({"debug": debug} if debug else {}),
     }
+
+
+def owner_debug(result: dict, seconds: float, first_text_s: float | None = None) -> dict:
+    """For the owner only: what the logbook records about this answer, shown on the web page's debug panel."""
+    return {"seconds_total": seconds, "seconds_first_text": first_text_s, "timing": result.get("timing"),
+            "relevance_check": result.get("checker_outcome"), "checker_rounds": result.get("checker_rounds"),
+            "cost_usd": result.get("cost_usd"), "saved_usd": result.get("saved_usd"),
+            "tokens": [result.get("input_tokens"), result.get("output_tokens")],
+            "guardrail": result.get("guardrail"), "citations": result.get("citations"),
+            "error": result.get("error") or result.get("checker_error"),
+            "chunks": [{"n": n, "chunk_id": s.get("chunk_id"), "score": s.get("score")}
+                       for n, s in enumerate(result.get("sources", []), 1)],
+            "versions": logbook.versions()}
 
 
 @app.get("/", include_in_schema=False)
 def home():
-    return RedirectResponse("/docs")  # the main address opens the test page
+    return FileResponse(ROOT / "api/static/index.html")  # the web page (api/static/index.html); /docs is for testing
 
 
 @app.get("/health")
@@ -140,10 +159,11 @@ def health() -> dict:
 @app.post("/ask")
 def ask(body: Question, request: Request, x_owner_key: str | None = Header(default=None)) -> dict:
     start = time.perf_counter()
+    owner = is_owner(x_owner_key)
     saved = cache.get(body.question)
     if saved:  # asked before: the saved answer, free and not counted
         answer_id = logbook.record(body.question, saved, who(request, x_owner_key), "ask", seconds_since(start))
-        return public(saved, answer_id)
+        return public(saved, answer_id, owner_debug(saved, seconds_since(start)) if owner else None)
     user = admit(request, x_owner_key)
     try:
         result = answer(body.question)
@@ -158,12 +178,13 @@ def ask(body: Question, request: Request, x_owner_key: str | None = Header(defau
             usage.refund(user)  # no summary was written, so the question is not counted
     cache.put(body.question, result)
     answer_id = logbook.record(body.question, result, user, "ask", seconds_since(start))
-    return public(result, answer_id)
+    return public(result, answer_id, owner_debug(result, seconds_since(start)) if owner else None)
 
 
 @app.post("/ask/stream")
 def ask_stream(body: Question, request: Request, x_owner_key: str | None = Header(default=None)):
     start = time.perf_counter()
+    owner = is_owner(x_owner_key)
     saved = cache.get(body.question)
     user = who(request, x_owner_key) if saved else admit(request, x_owner_key)  # saved answers are not counted
 
@@ -172,8 +193,9 @@ def ask_stream(body: Question, request: Request, x_owner_key: str | None = Heade
         if saved:  # asked before: the saved answer in one piece
             answer_id = logbook.record(body.question, saved, user, "ask/stream", seconds_since(start),
                                        seconds_since(start))
+            done = public(saved, answer_id, owner_debug(saved, seconds_since(start)) if owner else None)
             yield f"data: {json.dumps({'type': 'text', 'text': saved['answer']}, ensure_ascii=False)}\n\n"
-            yield f"data: {json.dumps({'type': 'done', **public(saved, answer_id)}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'done', **done}, ensure_ascii=False)}\n\n"
             return
         try:
             for event in answer_stream(body.question):
@@ -188,7 +210,8 @@ def ask_stream(body: Question, request: Request, x_owner_key: str | None = Heade
                     cache.put(body.question, result)
                     answer_id = logbook.record(body.question, result, user, "ask/stream", seconds_since(start),
                                                first_text)
-                    event = {"type": "done", **public(result, answer_id)}
+                    debug = owner_debug(result, seconds_since(start), first_text) if owner else None
+                    event = {"type": "done", **public(result, answer_id, debug)}
                 yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
         except anthropic.APIError as e:
             if user:

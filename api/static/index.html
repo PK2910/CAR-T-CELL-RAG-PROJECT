@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAR-T in ALL · Literature Q&amp;A</title>
+<meta name="description" content="Answers questions about CAR-T cell therapy in acute lymphoblastic leukemia from published papers, with citations.">
+<style>
+  :root {
+    --bg: #f7f8fa; --panel: #ffffff; --text: #1d2330; --muted: #5b6475; --line: #e2e6ee;
+    --accent: #0f6e78; --accent-soft: #e3f2f3; --warn: #8a5a00; --warn-soft: #fff4dc;
+    --info-soft: #eef1f7; --cite: #0f6e78; --focus: #2b8a95;
+    --radius: 10px; --shadow: 0 1px 2px rgba(20, 30, 50, .06), 0 4px 16px rgba(20, 30, 50, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --panel: #1a1f27; --text: #e6e9ef; --muted: #9aa3b2; --line: #2a313c;
+      --accent: #5cc4cc; --accent-soft: #173238; --warn: #f0c060; --warn-soft: #2e2614;
+      --info-soft: #1f2530; --cite: #6fd0d8; --focus: #5cc4cc; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }  /* elements styled with display: flex must still hide */
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 16px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  header.site { padding: 36px 0 20px; }
+  h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.01em; }
+  h1 span, h1 .sep { color: var(--muted); font-weight: 500; }
+  .lede { margin: 6px 0 0; color: var(--muted); }
+  .disclaimer {
+    display: inline-block; margin: 12px 0 0; padding: 4px 10px; border-radius: 999px;
+    background: var(--warn-soft); color: var(--warn); font-size: .85rem;
+  }
+
+  form#ask-form {
+    display: flex; gap: 8px; align-items: flex-end; padding: 8px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  textarea {
+    flex: 1; resize: none; border: 0; background: transparent; color: inherit; font: inherit;
+    padding: 8px 10px; min-height: 44px; max-height: 200px;
+  }
+  textarea:focus { outline: none; }
+  form#ask-form:focus-within { border-color: var(--focus); }
+  button {
+    font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--text); padding: 6px 12px;
+  }
+  button:hover { border-color: var(--accent); }
+  button:disabled { opacity: .55; cursor: default; }
+  #ask-btn { background: var(--accent); border-color: var(--accent); color: #fff; padding: 10px 20px; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { #ask-btn { color: #0b1a1c; } }
+
+  .examples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 0; font-size: .9rem; }
+  .examples span { color: var(--muted); }
+  .examples button { border-radius: 999px; padding: 4px 12px; font-size: .88rem; text-align: left; }
+
+  #result { margin: 28px 0 0; }
+  .status { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: .95rem; min-height: 1.6em; }
+  .status:empty { display: none; }
+  .status.busy::before {
+    content: ""; width: 14px; height: 14px; border-radius: 50%; flex: none;
+    border: 2px solid var(--line); border-top-color: var(--accent); animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .status.busy::before { animation: none; } }
+
+  .notice { margin: 12px 0 0; padding: 10px 14px; border-radius: var(--radius); font-size: .95rem; }
+  .notice.warn { background: var(--warn-soft); color: var(--warn); }
+  .notice.info { background: var(--info-soft); color: var(--muted); }
+
+  .answer {
+    margin: 12px 0 0; padding: 18px 22px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow); overflow-wrap: anywhere;
+  }
+  .answer:empty { display: none; }
+  .answer p { margin: 0 0 .8em; }
+  .answer p:last-child, .answer ul:last-child, .answer ol:last-child { margin-bottom: 0; }
+  .answer h3 { font-size: 1.02rem; margin: 1em 0 .4em; }
+  .answer ul, .answer ol { margin: 0 0 .8em; padding-left: 1.3em; }
+  .answer li { margin: .25em 0; }
+  .answer.muted { color: var(--muted); }
+  .answer details.more { margin: 14px 0 0; border-top: 1px solid var(--line); padding: 10px 0 0; }
+  .answer details.more summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: .95rem; }
+  .answer details.more[open] summary { margin-bottom: 8px; }
+  a.cite {
+    color: var(--cite); text-decoration: none; font-size: .78em; font-weight: 600;
+    vertical-align: super; line-height: 0; padding: 0 1px;
+  }
+  a.cite:hover { text-decoration: underline; }
+  .badge { display: inline-block; font-size: .78rem; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 0; font-size: .92rem; }
+  .actions .label { color: var(--muted); margin-left: auto; }
+  .actions button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+  .comment { display: flex; gap: 8px; margin: 10px 0 0; }
+  .comment input {
+    flex: 1; font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--panel); color: inherit;
+  }
+  .thanks { color: var(--accent); font-size: .92rem; margin: 8px 0 0; }
+
+  #sources h2 { font-size: 1.05rem; margin: 32px 0 4px; }
+  #sources .hint { color: var(--muted); font-size: .88rem; margin: 0 0 12px; }
+  ol#source-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .paper { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .paper-head { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; }
+  .paper-title { font-weight: 600; }
+  .paper-meta { color: var(--muted); font-size: .88rem; margin: 2px 0 8px; }
+  .paper a.pubmed { white-space: nowrap; font-size: .88rem; color: var(--accent); }
+  details.passage { border-top: 1px solid var(--line); padding: 8px 0 0; margin: 8px 0 0; scroll-margin-top: 80px; }
+  details.passage summary { cursor: pointer; font-size: .92rem; list-style: none; }
+  details.passage summary::-webkit-details-marker { display: none; }
+  details.passage summary .n { color: var(--cite); font-weight: 700; margin-right: 6px; }
+  details.passage summary .section { color: var(--muted); }
+  details.passage summary .preview { display: block; color: var(--muted); margin-top: 2px; }
+  details.passage[open] summary .preview { display: none; }
+  details.passage blockquote {
+    margin: 8px 0 4px; padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--bg);
+    border-radius: 0 8px 8px 0; font-size: .93rem; white-space: pre-wrap;
+  }
+  details.passage.flash { animation: flash 1.6s ease-out; }
+  @keyframes flash { from { background: var(--accent-soft); } to { background: transparent; } }
+
+  details#debug { margin: 28px 0 0; font-size: .85rem; }
+  details#debug pre { overflow: auto; background: var(--panel); border: 1px solid var(--line); padding: 12px; border-radius: 8px; }
+
+  footer { margin: 48px 0 32px; color: var(--muted); font-size: .85rem; }
+  footer a, footer button.linklike { color: var(--muted); }
+  button.linklike { border: 0; background: none; padding: 0; text-decoration: underline; font-size: inherit; }
+  .owner { display: flex; gap: 8px; margin: 10px 0 0; }
+  .owner input { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: inherit; }
+
+  @media (max-width: 560px) {
+    header.site { padding-top: 24px; }
+    h1 { font-size: 1.3rem; }
+    h1 span { display: block; }
+    h1 .sep { display: none; }
+    .answer { padding: 14px 16px; }
+    .paper-head { flex-direction: column; gap: 2px; }
+    .actions .label { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <h1>CAR-T in ALL <span><b class="sep">· </b>Literature Q&amp;A</span></h1>
+    <p class="lede">Ask about CAR-T cell therapy in acute lymphoblastic leukemia. Answers come only from published
+      papers, and every claim cites the passage it rests on.</p>
+    <p class="disclaimer" id="disclaimer">Research and education tool that summarizes published studies. Not medical advice.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <form id="ask-form">
+    <label for="question" class="sr-only">Your question</label>
+    <textarea id="question" rows="1" minlength="3" maxlength="1000" required
+              placeholder="Ask a question about CAR-T therapy in ALL…"></textarea>
+    <button type="submit" id="ask-btn">Ask</button>
+  </form>
+  <div class="examples" id="examples"><span>Try:</span></div>
+
+  <section id="result" hidden>
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <div id="notice" class="notice" hidden></div>
+    <article id="answer" class="answer"></article>
+
+    <div id="actions" class="actions" hidden>
+      <button type="button" id="copy-btn">Copy answer</button>
+      <span id="cached-badge" class="badge" hidden>Saved answer: asked before</span>
+      <span class="label">Was this helpful?</span>
+      <button type="button" id="up-btn" aria-pressed="false" aria-label="Helpful">👍</button>
+      <button type="button" id="down-btn" aria-pressed="false" aria-label="Not helpful">👎</button>
+    </div>
+    <form id="comment-form" class="comment" hidden>
+      <label for="comment" class="sr-only">Comment</label>
+      <input id="comment" maxlength="1000" placeholder="What was wrong or missing? (optional)">
+      <button type="submit">Send</button>
+    </form>
+    <p id="thanks" class="thanks" hidden>Thanks, your feedback was saved.</p>
+
+    <section id="sources" hidden>
+      <h2>Sources</h2>
+      <p class="hint">Click a number in the answer, or a passage below, to read the text it is based on.</p>
+      <ol id="source-list"></ol>
+    </section>
+
+    <details id="debug" hidden><summary>Debug (owner only)</summary><pre id="debug-body"></pre></details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>Built on 194 open-access papers from PubMed Central. Answers can contain mistakes: check the cited passages.
+    Questions about a specific person's care belong with their treating team.</p>
+  <p><a href="https://github.com/PK2910/CAR-T-CELL-RAG-PROJECT" target="_blank" rel="noopener">How it works (GitHub)</a>
+    · <a href="/docs">API</a> · <button type="button" class="linklike" id="owner-toggle">Owner</button></p>
+  <form id="owner-form" class="owner" hidden>
+    <label for="owner-key" class="sr-only">Owner key</label>
+    <input id="owner-key" type="password" placeholder="Owner key" autocomplete="off">
+    <button type="submit">Save</button>
+    <button type="button" id="owner-clear">Clear</button>
+  </form>
+</footer>
+
+<script>
+"use strict";
+
+const EXAMPLES = [
+  "How common is ICANS after CAR-T in ALL?",
+  "What drugs are used to manage cytokine release syndrome?",
+  "Is a stem cell transplant needed after CAR-T?",
+  "What happens when ALL relapses as CD19-negative?",
+];
+const OWNER_KEY_STORE = "cart-rag-owner-key";
+
+const $ = (id) => document.getElementById(id);
+let controller = null;  // lets a new question cancel the one still being answered
+let current = null;     // the finished answer: {answer_id, answer, sources, ...}
+let rating = null;
+
+// ---------- turning the answer text into safe HTML ----------
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+// Bold and citations. [3] and [1, 4] become links to the sources; ranges such as [22-30] are statistics, not
+// citations, and stay as text (the same rule as the citation check in src/guardrails.py).
+function inline(escaped) {
+  return escaped
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\[(\d+(?:\s*,\s*\d+)*)\]/g, (_, nums) => nums.split(",").map((n) => n.trim())
+      .map((n) => `<a href="#src-${n}" class="cite" data-n="${n}" aria-label="source ${n}">[${n}]</a>`).join(""));
+}
+
+// A small Markdown subset: paragraphs, headings, bullet and numbered lists, bold. The text is escaped first,
+// so nothing in an answer can add its own HTML to the page.
+function renderMarkdown(text) {
+  let html = "", list = null, para = [];
+  const flushPara = () => { if (para.length) { html += `<p>${inline(para.join(" "))}</p>`; para = []; } };
+  const flushList = () => { if (list) { html += `</${list}>`; list = null; } };
+  const openList = (kind) => { flushPara(); if (list !== kind) { flushList(); html += `<${kind}>`; list = kind; } };
+  for (const raw of escapeHtml(text).split("\n")) {
+    const line = raw.trim();
+    let m;
+    if (!line) { flushPara(); flushList(); }
+    else if ((m = line.match(/^#{1,6}\s+(.*)$/))) { flushPara(); flushList(); html += `<h3>${inline(m[1])}</h3>`; }
+    else if ((m = line.match(/^[-*•]\s+(.*)$/))) { openList("ul"); html += `<li>${inline(m[1])}</li>`; }
+    else if ((m = line.match(/^\d+[.)]\s+(.*)$/))) { openList("ol"); html += `<li>${inline(m[1])}</li>`; }
+    else { flushList(); para.push(line); }
+  }
+  flushPara(); flushList();
+  return html;
+}
+
+// Answers are written plain-language first (src/generate.py, SYSTEM_PROMPT): "Short answer", "Key points", then a
+// line "Details for clinicians and researchers:". Everything after that line is folded away, open on request.
+const DETAILS_LINE = /^[ \t]*(?:\*\*)?Details for clinicians and researchers:?(?:\*\*)?:?[ \t]*$/im;
+
+function renderAnswer(text) {
+  const m = DETAILS_LINE.exec(text);
+  if (!m) return renderMarkdown(text);
+  const rest = text.slice(m.index + m[0].length);
+  return `${renderMarkdown(text.slice(0, m.index))}<details class="more"><summary>Details for clinicians and ` +
+         `researchers</summary>${renderMarkdown(rest)}</details>`;
+}
+
+// ---------- page state ----------
+
+function setStatus(text, busy) {
+  $("status").textContent = text || "";
+  $("status").classList.toggle("busy", Boolean(busy));
+}
+
+function setNotice(text, kind) {
+  $("notice").hidden = !text;
+  $("notice").textContent = text || "";
+  $("notice").className = `notice ${kind || ""}`;
+}
+
+function resetResult() {
+  current = null; rating = null;
+  $("result").hidden = false;
+  $("answer").innerHTML = ""; $("answer").classList.remove("muted");
+  setNotice(""); setStatus("");
+  for (const id of ["actions", "comment-form", "thanks", "sources", "debug", "cached-badge"]) $(id).hidden = true;
+  for (const id of ["up-btn", "down-btn"]) $(id).setAttribute("aria-pressed", "false");
+  $("comment").value = "";
+  $("source-list").innerHTML = "";
+}
+
+function ownerKey() {
+  try { return localStorage.getItem(OWNER_KEY_STORE) || ""; } catch { return ""; }
+}
+
+function headers() {
+  const h = { "Content-Type": "application/json" };
+  if (ownerKey()) h["X-Owner-Key"] = ownerKey();
+  return h;
+}
+
+function errorText(status, body) {
+  if (status === 429) return body.detail || "The daily limit has been reached. Please try again tomorrow.";
+  if (status === 422) return "Please type a question between 3 and 1,000 characters.";
+  if (status === 503) return body.detail || "The answer service is unavailable right now. Please try again later.";
+  return `Something went wrong (error ${status}). Please try again.`;
+}
+
+// ---------- asking: read the streamed answer (Server-Sent Events over a POST request) ----------
+
+async function ask(question) {
+  autosize();
+  if (controller) controller.abort();
+  controller = new AbortController();
+  const mine = controller;
+  resetResult();
+  setStatus("Sending your question…", true);
+  $("ask-btn").disabled = true;
+  let text = "";
+  try {
+    const res = await fetch("/ask/stream", {
+      method: "POST", headers: headers(), body: JSON.stringify({ question }), signal: mine.signal,
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setStatus(""); setNotice(errorText(res.status, body), "warn");
+      return;
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let end;
+      while ((end = buffer.indexOf("\n\n")) >= 0) {  // one event per blank-line-separated block
+        const block = buffer.slice(0, end);
+        buffer = buffer.slice(end + 2);
+        const data = block.split("\n").filter((l) => l.startsWith("data: ")).map((l) => l.slice(6)).join("\n");
+        if (!data) continue;
+        const event = JSON.parse(data);
+        if (event.type === "status") setStatus(event.text, true);
+        else if (event.type === "text") { text += event.text; $("answer").innerHTML = renderAnswer(text); }
+        else if (event.type === "done") finish(event);
+        else if (event.type === "error") { setStatus(""); setNotice(event.text, "warn"); }
+      }
+    }
+    if (!current && !$("notice").textContent) {
+      setStatus(""); setNotice("The connection closed before the answer was complete. Please try again.", "warn");
+    }
+  } catch (err) {
+    if (err.name === "AbortError") return;  // replaced by a newer question
+    setStatus(""); setNotice("Could not reach the server. Check that it is running and try again.", "warn");
+  } finally {
+    if (controller === mine) { controller = null; $("ask-btn").disabled = false; }
+  }
+}
+
+// The "done" event carries the final, checked answer: it replaces the streamed text (a guardrail may have
+// added a note or replaced the answer).
+function finish(result) {
+  current = result;
+  setStatus("");
+  $("answer").innerHTML = renderAnswer(result.answer);
+  if (result.fallback) {
+    setNotice("A summary could not be written right now, so the most relevant passages are shown below.", "warn");
+  } else if (result.relevance_check === "nothing") {
+    $("answer").classList.add("muted");
+  } else if (result.relevance_check === "unsure") {
+    setNotice("The passages found are related to the question but may not answer it directly. Check the sources.", "info");
+  } else if ((result.sources || []).length === 1) {
+    setNotice("Only a small part of the research in this collection covers this question, so this answer may not " +
+              "give the full picture. You can read the supporting text below.", "info");
+  }
+  $("cached-badge").hidden = !result.cached;
+  $("actions").hidden = !result.answer_id;
+  renderSources(result.sources || []);
+  if (result.debug) {
+    $("debug").hidden = false;
+    $("debug-body").textContent = JSON.stringify(result.debug, null, 2);
+  }
+}
+
+// "review-article" -> "Review", "research-article" -> "Research article", "case-report" -> "Case report"
+function studyType(t) {
+  const words = String(t || "").replace(/^review-article$/, "review").replace(/-/g, " ").trim();
+  return words ? words[0].toUpperCase() + words.slice(1) : "";
+}
+
+// Sources grouped by paper: each paper once, with its passages ([n]) underneath.
+function renderSources(sources) {
+  if (!sources.length) return;
+  const papers = new Map();
+  for (const s of sources) {
+    const key = s.link || `${s.title}|${s.year}`;
+    if (!papers.has(key)) papers.set(key, { ...s, passages: [] });
+    papers.get(key).passages.push(s);
+  }
+  $("source-list").innerHTML = [...papers.values()].map((p) => {
+    const meta = [`${escapeHtml(p.first_author)} et al.`, escapeHtml(p.journal), escapeHtml(p.year),
+                  escapeHtml(studyType(p.article_type))].filter(Boolean).join(" · ");
+    const link = p.link ? `<a class="pubmed" href="${escapeHtml(p.link)}" target="_blank" rel="noopener">PubMed ↗</a>` : "";
+    const passages = p.passages.map((s) => {
+      const full = s.text || s.excerpt || "";
+      const preview = full.length > 170 ? `${full.slice(0, 170)}…` : full;
+      return `<details class="passage" id="src-${s.n}">
+          <summary><span class="n">[${s.n}]</span><span class="section">${escapeHtml(s.section || "Passage")}</span>
+            <span class="preview">${escapeHtml(preview)}</span></summary>
+          <blockquote>${escapeHtml(full)}</blockquote></details>`;
+    }).join("");
+    return `<li class="paper"><div class="paper-head"><span class="paper-title">${escapeHtml(p.title)}</span>${link}</div>
+        <div class="paper-meta">${meta}</div>${passages}</li>`;
+  }).join("");
+  $("sources").hidden = false;
+}
+
+// ---------- feedback, copy, owner key ----------
+
+async function sendFeedback(value, comment) {
+  if (!current || !current.answer_id) return;
+  const res = await fetch("/feedback", {
+    method: "POST", headers: headers(),
+    body: JSON.stringify({ answer_id: current.answer_id, rating: value, comment: comment || null }),
+  }).catch(() => null);
+  if (!res || !res.ok) { setNotice("Your feedback could not be saved. Please try again.", "warn"); return; }
+  $("thanks").hidden = false;
+}
+
+function rate(value) {
+  rating = value;
+  $("up-btn").setAttribute("aria-pressed", String(value === "up"));
+  $("down-btn").setAttribute("aria-pressed", String(value === "down"));
+  $("comment-form").hidden = false;
+  $("comment").placeholder = value === "down" ? "What was wrong or missing? (optional)" : "Anything to add? (optional)";
+  sendFeedback(value);
+}
+
+function plainAnswer() {
+  const sources = (current.sources || []).map((s) =>
+    `[${s.n}] ${s.first_author} et al. (${s.year}). ${s.title}. ${s.journal}.${s.link ? " " + s.link : ""}`);
+  return `${current.answer}\n\nSources:\n${sources.join("\n")}\n\n${current.disclaimer || ""}`;
+}
+
+// ---------- wiring ----------
+
+for (const q of EXAMPLES) {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = q;
+  b.addEventListener("click", () => { $("question").value = q; autosize(); ask(q); });
+  $("examples").appendChild(b);
+}
+
+function autosize() {
+  const t = $("question");
+  t.style.height = "auto";
+  t.style.height = `${Math.min(t.scrollHeight, 200)}px`;
+}
+
+$("question").addEventListener("input", autosize);
+window.addEventListener("resize", autosize);
+autosize();
+$("question").addEventListener("keydown", (e) => {  // Enter asks; Shift+Enter starts a new line
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("ask-form").requestSubmit(); }
+});
+$("ask-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const q = $("question").value.trim();
+  if (q.length < 3) { $("result").hidden = false; setNotice(errorText(422, {}), "warn"); return; }
+  ask(q);
+});
+
+$("answer").addEventListener("click", (e) => {  // a citation opens and highlights its passage
+  const a = e.target.closest("a.cite");
+  if (!a) return;
+  e.preventDefault();
+  const passage = $(`src-${a.dataset.n}`);
+  if (!passage) return;
+  passage.open = true;
+  passage.classList.remove("flash"); void passage.offsetWidth; passage.classList.add("flash");
+  passage.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+
+$("up-btn").addEventListener("click", () => rate("up"));
+$("down-btn").addEventListener("click", () => rate("down"));
+$("comment-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (rating) sendFeedback(rating, $("comment").value.trim());
+  $("comment-form").hidden = true;
+});
+$("copy-btn").addEventListener("click", async () => {
+  if (!current) return;
+  try { await navigator.clipboard.writeText(plainAnswer()); $("copy-btn").textContent = "Copied"; }
+  catch { $("copy-btn").textContent = "Copy failed"; }
+  setTimeout(() => { $("copy-btn").textContent = "Copy answer"; }, 1600);
+});
+
+$("owner-toggle").addEventListener("click", () => {
+  $("owner-form").hidden = !$("owner-form").hidden;
+  $("owner-key").value = ownerKey();
+});
+$("owner-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  try { localStorage.setItem(OWNER_KEY_STORE, $("owner-key").value.trim()); } catch { /* storage blocked */ }
+  $("owner-form").hidden = true;
+});
+$("owner-clear").addEventListener("click", () => {
+  try { localStorage.removeItem(OWNER_KEY_STORE); } catch { /* storage blocked */ }
+  $("owner-key").value = ""; $("owner-form").hidden = true;
+});
+</script>
+</body>
+</html>

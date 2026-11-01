@@ -113,8 +113,11 @@ def build_prompt(q: dict, a: dict) -> str:
         key = f"Expected behavior (no reference answer): {q['expected_behavior']}"
     must_include = "\n".join(f"- {m}" for m in q["must_include"]) or "- (none)"
     must_not = "\n".join(f"- {m}" for m in q["must_not"]) or "- (none)"
+    # The same label the answer model sees (src/generate.py, format_sources), journal included: without it the judge
+    # marked correctly named journals as made up (found 2026-11-01)
     sources = "\n\n".join(
-        f'<source id="{n}">\n{s["first_author"]} et al. ({s["year"]}) · {s["article_type"]} · {s["title"]}\n\n{s["text"]}\n</source>'
+        f'<source id="{n}">\n{s["first_author"]} et al., {s.get("journal") or "journal not recorded"} ({s["year"]}) · '
+        f'{s["article_type"]} · {s["title"]}\n\n{s["text"]}\n</source>'
         for n, s in enumerate(a["sources"], 1))
     return (f"<question>{q['question']}</question>\n\n"
             f"<answer_key>\n{key}\nMust include:\n{must_include}\nMust not:\n{must_not}\n"

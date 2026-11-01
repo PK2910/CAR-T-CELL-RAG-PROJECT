@@ -5,7 +5,7 @@ acute lymphoblastic leukemia (ALL)**. It answers questions from 194 open-access 
 source of every fact.
 
 The project focuses on **measurement**: every change was tested on fixed question sets and kept only if it helped.
-Twelve improvements were tried; four were kept: hybrid search, safety guardrails, 10 chunks instead of 5, and an
+Thirteen improvements were tried; four were kept: hybrid search, safety guardrails, 10 chunks instead of 5, and an
 LLM relevance check before answering.
 
 > **Research and education prototype — not medical advice.** It summarizes published studies and is not
@@ -224,6 +224,28 @@ Details: [`eval/RESULTS.md`](eval/RESULTS.md).
 
 Each was tested against the current version on the same questions. Full numbers: [`eval/RESULTS.md`](eval/RESULTS.md).
 
+**Plain-language answers** (2026-11-01; run `final_plain`)
+- Why: a live answer to "...please explain in simple terms" came back full of trial names and abbreviations. The
+  instructions were extended to write in layers: a short answer in everyday words, key points with each term
+  explained and proportions given both ways ("about 1 in 5 (20%)"), then a section of details for clinicians and
+  researchers, keeping exact numbers and citations in every part.
+- Readability improved but not enough: the plain part scored grade 9.0 with 5.1 abbreviations per 100 words (whole
+  answers before: 10.4 and 8.2), but whole answers grew from ~400 to ~530 words.
+- Safety got worse: 3 serious errors on the final set (before: 0). Each traced to the new instructions: the short
+  answer gave a dexamethasone dose without the fact that it was used during blinatumomab, not CAR-T (q54; the
+  context was only in the details); asking for study and product names led to a finding being attributed to a
+  trial the source does not name (q53); grouping under headings filed donor-derived cells as off-the-shelf (q35).
+  Correctness was 15 of 21 (before: 17), but this run used the live relevance check, which kept different passages
+  for most questions, so not all of that difference comes from the instructions; on the 6 questions with identical
+  passages, 4 got worse.
+- The judge also marked 8 answers unfaithful only because they named a journal: the judge was not shown journal
+  names, which the answer model is. Fixed in `eval/judge.py`; without those 8 the answers were as faithful as before
+  (14 vs 13 of 25).
+- Not adopted; the instructions were restored to the tested version. A revised attempt would keep each number with
+  its context in the plain part, forbid naming studies or products the source does not name, cap the length, and be
+  tuned on the practice set (with saved relevance-check verdicts, so only the instructions differ) before one check
+  on the final set.
+
 **Tables and figure captions as extra chunks** (`src/chunk_extras.py`; 1,299 table + 791 figure chunks)
 - Same correctness (75% vs 75% holdout, 70% vs 70% generated); fewer unsupported details (faithful 62% → 81% and
   73% → 87%), confirmed with a repeat run of the baseline. Occasionally a table chunk pushed out the right text page.
@@ -270,12 +292,33 @@ python src/embed.py
 python src/generate.py "What drugs are used to manage cytokine release syndrome after CAR-T?"
 ```
 
-The API (after the steps above):
+The API and web page (after the steps above):
 
 ```bash
 echo "RAG_OWNER_KEY=choose-a-password" >> .env   # optional: your own key, which skips the demo limits
-uvicorn api.main:app                            # then open http://localhost:8000/docs to try it in the browser
+uvicorn api.main:app                            # then open http://localhost:8000 (web page) or /docs (API)
 ```
+
+**Web page** (`api/static/index.html`, one file served by the API; no build step or extra packages):
+- The answer appears as it is written, with the real pipeline steps as progress messages ("Searching the papers
+  and checking which passages answer the question…", "Writing the answer from 8 passages…"). The final checked
+  answer replaces the streamed text when it arrives.
+- Citations are links: `[3]` opens and highlights passage 3 below. Sources are grouped by paper (each paper once,
+  its passages underneath), with journal, year, study type, section and a PubMed link; each passage expands to the
+  full text the answer was given. Ranges such as `[22-30]` stay plain text, as in the citation check.
+- Thumbs up/down with an optional comment (`/feedback`), a copy button (answer + sources + disclaimer), clear
+  messages for "the papers don't answer this", the fallback, "only partly related", the daily limit, and a
+  "saved answer" badge for cached answers. Four example questions to click.
+- Answers are rendered from a small Markdown subset after escaping, so an answer cannot add HTML to the page.
+- With the owner key saved under "Owner" (kept in the browser), answers include a debug panel: seconds per stage,
+  relevance-check outcome, chunk ids and scores, cost, guardrail and citation results, versions.
+- Light and dark mode; checked at 375 px (phone) and desktop widths.
+- When an answer rests on a single passage, a note says that only a small part of the research covers the
+  question, so the answer may not give the full picture.
+- If an answer contains a line "Details for clinicians and researchers", the part after it is folded away (kept
+  from the plain-language experiment, which was not adopted; current answers do not have that line).
+- Not built yet: filters (year, study type, population), which change the search and need their own testing, and
+  highlighting the exact lines used.
 
 - `POST /ask` with `{"question": "..."}` returns the answer and its sources (title, year, section, PubMed link).
 - `POST /ask/stream` sends progress messages, then the answer as it is written (Server-Sent Events), then a final
@@ -395,6 +438,12 @@ general summary of the evidence and a clear statement that no recommendation can
 the treating team decides. Only doses are blocked outright. Re-confirmed on 2026-10-31 after a live test, following
 the roadmap's advice not to refuse such questions coldly.
 
+**Readability** (`python eval/readability.py`, free): scores saved answers with the Flesch-Kincaid grade level and,
+because that formula treats "ICANS" or "CRS" as easy one-syllable words, also counts abbreviations per 100 words.
+Current answers (final set): grade 10.4, 8.2 abbreviations per 100 words, ~400 words; plain-language health writing
+usually aims for about grade 8. A plain-language version of the instructions was tested and not adopted (see
+"Experiments that were tried and not adopted").
+
 Evaluation (`--split`: practice, final, holdout, synthetic, confirm, mq):
 
 ```bash
@@ -418,6 +467,10 @@ and the fine-tuned model are not included in this repository.
 ## Limitations
 
 - Small corpus: 194 open-access papers; several key original trials are not open access.
+- The papers are about CAR-T in ALL, so questions that compare ALL with other blood cancers (CLL, lymphoma,
+  myeloma) can only be answered from the few passages that make such comparisons. Example (2026-11-01): "How is
+  CAR-T in ALL different from other blood cancers?" kept 1 relevant passage; the answer said the papers do not
+  fully compare them, and the web page then notes that only a small part of the research covers the question.
 - Small hand-written evaluation sets: one question moves a score by 4–7 points.
 - Generated question sets list only the passage each question came from, so other valid pages count as misses.
 - The answer keys and grading were produced with AI assistance and spot-checked, not reviewed by a clinician.

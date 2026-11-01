@@ -599,3 +599,31 @@ chunks and marks every chunk yes / partly / no; questions with no "yes" but some
   adds one Haiku call per question (not timed here: its verdicts were saved in Step A).
 - **Next:** fix the checker prompt for multi-part and mechanism questions, re-check, and confirm on other questions
   before making it the default.
+
+## Plain-language instructions (2026-11-01, user-run `final_plain`, $2.02) — not adopted
+
+The answer instructions were extended to write in layers (short answer in everyday words, key points with terms
+explained and "1 in 5 (20%)" proportions, then "Details for clinicians and researchers"). Run with `--mode live`
+(live relevance check), judged with the same judge and answer keys, compared with `final_checked`.
+
+| | Before (`final_checked`) | Plain-language (`final_plain`) |
+|---|---|---|
+| Correct (21 answerable, judge) | 17 | 15 |
+| Faithful (of 25) | 13 | 6 (14 without the journal-name judge artifact) |
+| Serious errors | 0 | **3** (q35, q53, q54) |
+| Readability: grade (whole answer / plain part) | 10.4 / – | 9.9 / 9.0 |
+| Abbreviations per 100 words (whole / plain part) | 8.2 / – | 6.9 / 5.1 |
+| Words (median) | 397 | 527 |
+
+- Serious errors, all traced to the new instructions: q54 put a 5 mg/day dexamethasone dose in the short answer
+  without saying it was given during blinatumomab (context only in the details; violates a must-not); q53 attributed a
+  finding to ZUMA-3 / brexu-cel, which the source does not name (the instructions asked for study and product names);
+  q35 listed donor-derived products under "off-the-shelf".
+- Minor new habits: plain-language definitions not taken from the sources (q37, q55).
+- Confound: the live relevance check kept different passages than the saved verdicts for 19 of 25 questions (q51: 1 of
+  7 shared). On the 6 questions with identical passages, 4 got worse (q32, q34 unfaithful; q35, q54 serious).
+- Judge artifact: 8 answers were marked unfaithful only for naming the journal, which the answer model is shown and
+  the judge was not. `eval/judge.py` now shows the judge the journal too.
+- Decision: instructions restored to the tested version (prompt fingerprint 6cded0d5). A revised attempt should keep
+  numbers with their context in the plain part, forbid naming unnamed studies/products, cap length, and be tuned on the
+  practice set with `--mode checked` before one final-set check.
