@@ -11,6 +11,8 @@ LLM relevance check before answering.
 > **Research and education prototype — not medical advice.** It summarizes published studies and is not
 > designed or validated to guide the care of any individual patient.
 
+One-page summary of intended use, results, safety measures and limitations: [`MODEL_CARD.md`](MODEL_CARD.md).
+
 ---
 
 ## Requirements
