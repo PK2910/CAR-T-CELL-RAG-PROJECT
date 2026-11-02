@@ -627,3 +627,35 @@ explained and "1 in 5 (20%)" proportions, then "Details for clinicians and resea
 - Decision: instructions restored to the tested version (prompt fingerprint 6cded0d5). A revised attempt should keep
   numbers with their context in the plain part, forbid naming unnamed studies/products, cap length, and be tuned on the
   practice set with `--mode checked` before one final-set check.
+
+## Robustness of the search, and query rewriting (2026-11-02, free: search only)
+
+`eval/robustness.py` changes each question in six ways and grades the search (hybrid, top 10) with the same answer
+key. First run, 62 hand-written questions, no rewriting (Hit@10 before → after, questions the change applies to):
+
+| Change | n | Hit@10 | Lost from the top 10 |
+|---|---|---|---|
+| lowercase, no "?" | 62 | 94% → 92% | 2 |
+| one typo (longest word) | 62 | 94% → 87% | 5 (q02, q44, q48, q50, q71) |
+| abbreviations spelled out | 57 | 93% → 75% | 10 (9 of them by spelling out CAR-T) |
+| full names abbreviated | 6 | 100% → 100% | 0 |
+| keywords only | 62 | 94% → 92% | 2 |
+| "CAR T" for "CAR-T" | 47 | 96% → 94% | 1 |
+
+In the top 30 (what the relevance check reads): typo 98% → 95%, spelled out 98% → 91%.
+
+Query rewriting (`src/query_rewrite.py`), built from the papers: typo correction against the papers' vocabulary
+(17,710 words) and 275 abbreviation definitions found in the papers ("cytokine release syndrome (CRS)"). The names
+fix first added "EFS" to a question with "event-free survival" and pushed its answer from #6 to #14 (q08), so it was
+limited to forms the papers use at least 5 times more often; this setting was chosen on the practice questions only.
+
+| Set | Setting | Correctly typed | Typo | Spelled out |
+|---|---|---|---|---|
+| practice (24, used to choose settings) | off / spelling / both | 100 / 100 / 100% | 96 / 100 / 100% | 81 / 81 / 90% |
+| generated (120, judging) | off / spelling / both | 72 / 72 / 72% | 69 / 72 / 72% | 59 / 59 / 57% |
+| seen: final + holdout (38) | off / spelling / both | 89 / 89 / 89% | 82 / 87 / 87% | 72 / 72 / 69% |
+
+- Kept: typo correction (default on). It changes none of the 191 test questions (after a fix: it had turned
+  "doesn't" into "does't"), so earlier results stand. Startup +~1 s, a few ms per question.
+- Not kept: the names fix: its practice-set gain did not carry over to new questions.
+- Not fixed: typos that form another real word ("patent" for "patient"); spelled-out names.

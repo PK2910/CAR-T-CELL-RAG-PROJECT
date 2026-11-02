@@ -54,13 +54,15 @@ def versions() -> dict:
     import guardrails
     from generate import MODEL, SYSTEM_PROMPT
     from index_config import INDEX, INFO_FILE
+    from query_rewrite import REWRITE
     from relevance_check import INSTRUCTIONS
     from relevance_check import MODEL as CHECKER_MODEL
     from retrieve import SEARCH_MODE, TOP_K
     info = json.loads(INFO_FILE.read_text()) if INFO_FILE.exists() else {}
     return {"index": INDEX, "index_built": info.get("date_built"), "n_chunks": info.get("n_chunks"),
             "chunking": info.get("chunking"), "embedding_model": info.get("embedding_model"),
-            "search": f"{SEARCH_MODE}, top {TOP_K}", "answer_model": MODEL, "checker_model": CHECKER_MODEL,
+            "search": f"{SEARCH_MODE}, top {TOP_K}", "query_rewrite": "+".join(sorted(REWRITE)) or "off",
+            "answer_model": MODEL, "checker_model": CHECKER_MODEL,
             "answer_prompt": _short_hash(SYSTEM_PROMPT), "checker_prompt": _short_hash(INSTRUCTIONS),
             "guardrails": _short_hash(Path(guardrails.__file__).read_text())}  # any change to the safety rules
 

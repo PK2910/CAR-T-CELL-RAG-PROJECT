@@ -26,6 +26,7 @@ from bm25 import bm25_ranking
 # Reuse the exact settings the index was built with
 from embed import CHUNKS_FILE, COLLECTION, EMBEDDING_MODEL, QDRANT_PATH, QUERY_PREFIX
 from index_config import PARENT_CHILD, UNITS_FILE  # parent-child: the indexes hold children, results are parents
+from query_rewrite import rewrite  # the search's copy of the question: typos corrected (src/query_rewrite.py)
 
 TOP_K = 10  # pages given to Claude; was 5. 13 of 34 missing facts were on pages #6-10 (eval/RESULTS.md)
 SEARCH_MODE = "hybrid"  # best configuration (see eval/RESULTS.md); "vector" = baseline, "rerank" = tested, not kept
@@ -121,6 +122,7 @@ def reranked(question: str) -> list[tuple[int, float]]:
 def ranking(question: str, mode: str = SEARCH_MODE) -> list[int]:
     """All chunk positions in the order the given search mode ranks them (used by the evaluation).
     For "rerank": the re-sorted top 50, followed by the rest in hybrid order."""
+    question = rewrite(question)
     if mode == "vector":
         return [pos for pos, _ in to_parents(vector_hits(question, len(load_units())))]
     hybrid = [pos for pos, _ in hybrid_ranking(question)]
@@ -134,6 +136,7 @@ def retrieve(question: str, k: int = TOP_K, mode: str = SEARCH_MODE) -> list[dic
     """Return the k best chunks for the question, best first.
     Each result is the chunk's text + labels, plus its score
     (cosine similarity for "vector", RRF score for "hybrid", reranker score for "rerank")."""
+    question = rewrite(question)
     if mode == "vector" and not PARENT_CHILD:
         q_vec = load_model().encode(QUERY_PREFIX + question, normalize_embeddings=True)
         hits = load_client().query_points(COLLECTION, query=q_vec.tolist(), limit=k).points

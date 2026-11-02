@@ -14,7 +14,7 @@ lymphoblastic leukemia (ALL) using only passages from published papers, and cite
 | Part | What is used |
 |---|---|
 | Papers | 194 open-access papers from PubMed Central, cut into 5,354 passages of ~400 tokens (index built 2026-10-04) |
-| Search | Hybrid: meaning-based vectors (BAAI/bge-small-en-v1.5) plus exact-word search (BM25), merged |
+| Search | Hybrid: meaning-based vectors (BAAI/bge-small-en-v1.5) plus exact-word search (BM25), merged; typos in the question are corrected for the search using the papers' vocabulary |
 | Relevance check | Claude Haiku 5.5 reads the question with the top 30 passages and keeps the ones that answer it |
 | Answer | Claude Sonnet 5.5 writes the answer from the kept passages (up to 10), citing each one |
 | Safety | Rules in code around the models (see "Safety measures") |
@@ -45,6 +45,7 @@ Measured on fixed, hand-written question sets with answer keys, graded by Claude
 | Cost | ~2.3–2.7 cents per question | Limit for the public demo: 10 questions per person per day, $1 per day in total |
 | Speed | ~13 s median for a full answer, up to ~17 s | From the first live questions (a small sample). First words appear sooner (streaming). The target of 95% under 15 s is **not met**; the relevance check takes ~6–8 s. |
 | Readability | about grade 10.4 | 8.2 abbreviations per 100 words; plain-language health writing aims for about grade 8 |
+| Robustness of the search | holds up to lowercase, keywords, "CAR T"; a typo is corrected | On 120 new questions: correctly typed 72%, with a typo 72% after correction (69% before). Spelling out "CAR-T" as "chimeric antigen receptor T-cell" still lowers it to 59%. |
 
 Main finding from testing: when an answer is wrong, the needed fact was usually never retrieved (about 94% of
 missing facts), not ignored by the answer model.
@@ -70,6 +71,8 @@ missing facts), not ignored by the answer model.
   fixed as of October 2026 and do not update themselves.
 - **ALL only:** comparisons with other blood cancers can only use the few passages that make them.
 - **Small test sets:** 21 answerable questions in the final set, so one question moves a score by about 5 points.
+- **Wording matters:** writing out abbreviations in full ("chimeric antigen receptor" instead of "CAR-T") or a typo
+  that forms another real word ("patent" for "patient") can make the search miss the right passage.
 - **Answer keys** were written with AI assistance and spot-checked, not reviewed by a clinician.
 - **Habits:** the answer model sometimes adds a detail the passage does not state (a patient group, a study type).
   The relevance check is sometimes too strict on mechanism and two-part questions.
@@ -90,8 +93,8 @@ for quality monitoring, with personal details removed, and are kept only on the 
 - Every answer is logged with its time per step, cost, relevance-check outcome, passages used and versions; users can
   rate answers, and thumbs-down answers can be exported as candidate test questions (`python api/log_report.py`).
 - Any change to models, prompts, chunking or guardrails is tested on the same question sets before it is kept.
-- Planned: automatic tests on every code change (CI), robustness tests with reworded questions, and a schedule for
-  adding new papers.
+- Robustness: `python eval/robustness.py` re-tests the search with reworded and misspelled questions.
+- Planned: automatic tests on every code change (CI) and a schedule for adding new papers.
 
 ## Contact
 

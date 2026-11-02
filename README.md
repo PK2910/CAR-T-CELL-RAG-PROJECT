@@ -5,8 +5,8 @@ acute lymphoblastic leukemia (ALL)**. It answers questions from 194 open-access 
 source of every fact.
 
 The project focuses on **measurement**: every change was tested on fixed question sets and kept only if it helped.
-Thirteen improvements were tried; four were kept: hybrid search, safety guardrails, 10 chunks instead of 5, and an
-LLM relevance check before answering.
+Fifteen improvements were tried; five were kept: hybrid search, safety guardrails, 10 chunks instead of 5, an
+LLM relevance check before answering, and typo correction for the search.
 
 > **Research and education prototype — not medical advice.** It summarizes published studies and is not
 > designed or validated to guide the care of any individual patient.
@@ -439,6 +439,29 @@ both returned that reply, at ~0.2 cents and ~6 s each.
 general summary of the evidence and a clear statement that no recommendation can be made for that person and that
 the treating team decides. Only doses are blocked outright. Re-confirmed on 2026-10-31 after a live test, following
 the roadmap's advice not to refuse such questions coldly.
+
+**Robustness and typo correction** (`python eval/robustness.py`, free: search only): real users do not type the test
+questions word for word, so each question is changed in six realistic ways (lowercase, one typo, abbreviations spelled
+out, full names abbreviated, keywords only, "CAR T" without the hyphen) and the search is graded with the same answer
+key. The search held up to lowercase, keywords and hyphens, but lost answer passages from the top 10 after a typo in
+an important word ("sterids") and, most of all, when "CAR-T" was spelled out as "chimeric antigen receptor T-cell"
+(the papers almost always write "CAR-T"). Two fixes rewrite the search's copy of the question (`src/query_rewrite.py`;
+Claude always gets the question as typed), both built from the papers, not from the test questions: correcting a word
+the papers never use to the most common word one letter away ("sterids" → "steroids"), and adding the abbreviation the
+papers prefer ("chimeric antigen receptor" → also "CAR"). Settings were chosen on the 24 practice questions and judged
+on 120 generated questions not used to make them (Hit@10):
+
+| | Correctly typed | With a typo | Names spelled out |
+|---|---|---|---|
+| No rewriting | 72% | 69% | 59% |
+| **Typo correction (on)** | 72% | **72%** | 59% |
+| Typo correction + names | 72% | 72% | 57% |
+
+Typo correction is on: it brings questions with a typo back to the level of correctly typed ones, changes none of the
+191 test questions, and adds a few milliseconds. The names fix helped on the practice questions (81% → 90%) but not on
+the new ones, so it is off (`RAG_QUERY_REWRITE` switches either). Not fixed: a typo that makes another real word
+("patent" for "patient"), and spelled-out names. The relevance check reads the top 30, which softens these losses
+(typo: 98% → 95% of hand-written questions keep an answer passage in the top 30 without correction).
 
 **Readability** (`python eval/readability.py`, free): scores saved answers with the Flesch-Kincaid grade level and,
 because that formula treats "ICANS" or "CRS" as easy one-syllable words, also counts abbreviations per 100 words.
