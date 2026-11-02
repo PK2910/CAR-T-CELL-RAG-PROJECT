@@ -1,0 +1,39 @@
+# Continuous integration: on every push and pull request, GitHub installs the live system's packages and runs
+#   1. the code tests (tests/): pretend Claude, made-up passages, no API key, no cost
+#   2. a security check of the packages (pip-audit): fails if any has a known vulnerability
+# Answer quality is not tested here: that needs the papers and index, which are not in the repository (eval/).
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-api.txt
+            requirements-dev.txt
+
+      - name: Install packages (as in the Dockerfile)
+        run: |
+          pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+          grep -v "^en_core_web_sm" requirements.txt > constraints.txt
+          pip install -r requirements-api.txt -r requirements-dev.txt -c constraints.txt
+
+      - name: Code tests
+        run: python -m pytest -q tests
+
+      - name: Security check of the packages
+        run: |
+          grep -v "^en_core_web_sm" requirements-api.txt > audit-requirements.txt
+          pip-audit -r audit-requirements.txt

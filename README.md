@@ -1,5 +1,7 @@
 # CAR-T Literature Q&A (RAG)
 
+[![tests](https://github.com/PK2910/CAR-T-CELL-RAG-PROJECT/actions/workflows/tests.yml/badge.svg)](https://github.com/PK2910/CAR-T-CELL-RAG-PROJECT/actions/workflows/tests.yml)
+
 A retrieval-augmented question-answering system over the published literature on **CAR-T cell therapy for
 acute lymphoblastic leukemia (ALL)**. It answers questions from 194 open-access papers and cites the
 source of every fact.
@@ -331,6 +333,21 @@ uvicorn api.main:app                            # then open http://localhost:800
   not counted. Send the owner key in the `X-Owner-Key` header to skip the limits.
 - Behind a hosting service's proxy, set `TRUST_PROXY=1` so users are counted by their own address.
 - Only one process can open the local Qdrant index at a time: stop evaluation scripts before starting the API.
+
+**Tests** (`tests/`, run on every push by GitHub Actions: `.github/workflows/tests.yml`):
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest tests          # 60 code tests, a few seconds, no API key or cost
+```
+
+- Code tests check that the code works, with a pretend Claude, pretend search results and temporary storage: the
+  answer pipeline (timing, fallback, missing key), logbook and feedback, cache, daily limits, guardrails (doses,
+  tricks, citations, personal details), typo correction, owner debug, and the web page's answer renderer (with
+  Node.js). On a fresh checkout, made-up passages (`tests/fixtures/chunks.json`) stand in for the papers.
+- CI also runs `pip-audit` on the live system's packages and fails on any known vulnerability.
+- Answer quality is not part of CI: it needs the papers and index, which are not in the repository. Run the search,
+  robustness and answer tests in `eval/` after changing the search, chunks, index, models or instructions.
 
 **Docker** (the API in one box that runs the same on any machine):
 

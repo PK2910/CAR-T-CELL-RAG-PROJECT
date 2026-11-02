@@ -1,0 +1,72 @@
+[
+ {
+  "pmcid": "PMC0000000",
+  "journal": "Test Journal",
+  "article_type": "research-article",
+  "chunk_id": "test_0",
+  "pmid": "10000000",
+  "title": "Steroids and response",
+  "first_author": "Test A",
+  "year": 2024,
+  "sections": [
+   "Results"
+  ],
+  "text": "In this made-up cohort, steroids were given for neurotoxicity. Patients who received steroids early had similar response rates. Short courses of steroids did not reduce expansion. Steroids are common after CAR-T."
+ },
+ {
+  "pmcid": "PMC0000000",
+  "journal": "Test Journal",
+  "article_type": "research-article",
+  "chunk_id": "test_1",
+  "pmid": "10000001",
+  "title": "Infections after CAR-T",
+  "first_author": "Test B",
+  "year": 2023,
+  "sections": [
+   "Results"
+  ],
+  "text": "Infections were common in the first month. Bacterial infections came first and viral infections later. Severe infections were less common. Infections were tracked for one year."
+ },
+ {
+  "pmcid": "PMC0000000",
+  "journal": "Test Journal",
+  "article_type": "research-article",
+  "chunk_id": "test_2",
+  "pmid": "10000002",
+  "title": "Managing CRS",
+  "first_author": "Test C",
+  "year": 2022,
+  "sections": [
+   "Discussion"
+  ],
+  "text": "Tocilizumab is the first drug for CRS. When tocilizumab did not work, steroids were added. Tocilizumab doses followed the label. Most patients needed one dose of tocilizumab; a second dose of tocilizumab was rare."
+ },
+ {
+  "pmcid": "PMC0000000",
+  "journal": "Test Journal",
+  "article_type": "research-article",
+  "chunk_id": "test_3",
+  "pmid": "10000003",
+  "title": "Steroid timing",
+  "first_author": "Test D",
+  "year": 2025,
+  "sections": [
+   "Methods"
+  ],
+  "text": "Steroids were recorded with their start day. The use of steroids was common in severe cases. Infections and steroids were both recorded in the case report form."
+ },
+ {
+  "pmcid": "PMC0000000",
+  "journal": "Test Journal",
+  "article_type": "research-article",
+  "chunk_id": "test_4",
+  "pmid": "10000004",
+  "title": "ICANS rates",
+  "first_author": "Test E",
+  "year": 2021,
+  "sections": [
+   "Results"
+  ],
+  "text": "ICANS occurred in a common share of patients and was mostly mild. Infections were also recorded. The common grading system was used."
+ }
+]

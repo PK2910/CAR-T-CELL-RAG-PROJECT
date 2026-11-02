@@ -94,7 +94,8 @@ for quality monitoring, with personal details removed, and are kept only on the 
   rate answers, and thumbs-down answers can be exported as candidate test questions (`python api/log_report.py`).
 - Any change to models, prompts, chunking or guardrails is tested on the same question sets before it is kept.
 - Robustness: `python eval/robustness.py` re-tests the search with reworded and misspelled questions.
-- Planned: automatic tests on every code change (CI) and a schedule for adding new papers.
+- Every push runs 60 code tests and a security check of the packages on GitHub (CI).
+- Planned: a schedule for adding new papers.
 
 ## Contact
 
