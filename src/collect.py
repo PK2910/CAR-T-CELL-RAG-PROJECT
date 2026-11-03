@@ -4,8 +4,12 @@ Search PubMed Central (PMC) for open-access papers on CAR-T in ALL
 and download each paper's full-text XML into data/raw/.
 
 Run:  python src/collect.py
+      python src/collect.py --since 2026/10/04 [--dry-run]
+        (an update: papers published since that date are added to the ones already downloaded, with no 200-paper
+         cap; --dry-run only lists them. See README, "Keeping it up to date")
 """
 
+import argparse
 import json
 import os
 import time
@@ -60,14 +64,16 @@ def eutils_get(endpoint: str, params: dict) -> requests.Response:
     return resp
 
 
-def search_pmc(query: str, max_results: int) -> list[str]:
-    """Return PMC IDs matching the query, most relevant first."""
+def search_pmc(query: str, max_results: int, since: str | None = None) -> list[str]:
+    """Return PMC IDs matching the query, most relevant first (only those published since `since`, YYYY/MM/DD)."""
+    dates = {"datetype": "pdat", "mindate": since, "maxdate": "3000"} if since else {}
     resp = eutils_get("esearch.fcgi", {
         "db": "pmc",
         "term": query,
         "retmax": max_results,
         "retmode": "json",
         "sort": "relevance",
+        **dates,
     })
     result = resp.json()["esearchresult"]
     if result.get("errorlist") or result.get("warninglist"):
@@ -81,8 +87,42 @@ def has_full_text(xml: str) -> bool:
     return "<body" in xml
 
 
+def update(since: str, dry_run: bool) -> None:
+    """Add papers published since a date to the existing collection (no cap), and record the update in the
+    manifest. Existing papers keep their files, so their chunk ids (PMCID_number) and the answer keys stay valid."""
+    ids = search_pmc(QUERY, max_results=1000, since=since)
+    new = [i for i in ids if not (RAW_DIR / f"PMC{i}.xml").exists()]
+    print(f"{len(new)} not downloaded yet: {', '.join('PMC' + i for i in new) or 'none'}")
+    if dry_run or not new:
+        return
+    added, no_full_text = [], []
+    for pmc_id in new:
+        xml = eutils_get("efetch.fcgi", {"db": "pmc", "id": pmc_id, "retmode": "xml"}).text
+        if not has_full_text(xml):
+            no_full_text.append(pmc_id)
+            continue
+        (RAW_DIR / f"PMC{pmc_id}.xml").write_text(xml, encoding="utf-8")
+        added.append(pmc_id)
+        print(f"[{len(added):>3}] saved PMC{pmc_id}")
+    manifest_file = RAW_DIR / "manifest.json"
+    manifest = json.loads(manifest_file.read_text()) if manifest_file.exists() else {"pmc_ids": []}
+    manifest["pmc_ids"] += [f"PMC{i}" for i in added]
+    manifest.setdefault("updates", []).append({"date": date.today().isoformat(), "since": since,
+                                               "added": [f"PMC{i}" for i in added],
+                                               "skipped_no_full_text": [f"PMC{i}" for i in no_full_text]})
+    manifest_file.write_text(json.dumps(manifest, indent=2))
+    print(f"\nDone: {len(added)} papers added ({len(no_full_text)} had no full text). Next: parse, chunk, embed.")
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--since", help="update: only papers published since this date (YYYY/MM/DD)")
+    parser.add_argument("--dry-run", action="store_true", help="with --since: list new papers, download nothing")
+    args = parser.parse_args()
     RAW_DIR.mkdir(parents=True, exist_ok=True)
+    if args.since:
+        update(args.since, args.dry_run)
+        return
 
     # Ask for extra IDs, because a few records won't contain full text
     ids = search_pmc(QUERY, max_results=int(TARGET_PAPERS * 1.5))

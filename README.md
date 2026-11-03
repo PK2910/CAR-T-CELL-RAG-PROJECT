@@ -349,6 +349,27 @@ python -m pytest tests          # 60 code tests, a few seconds, no API key or co
 - Answer quality is not part of CI: it needs the papers and index, which are not in the repository. Run the search,
   robustness and answer tests in `eval/` after changing the search, chunks, index, models or instructions.
 
+**Keeping it up to date** (the papers are fixed as of 2026-10-04; research on CAR-T moves fast):
+- **When:** every 3–6 months, or sooner after a major approval or trial result, or when thumbs-down comments or
+  "the papers don't answer this" replies point to missing recent evidence (`python api/log_report.py`).
+- **Steps:**
+  1. `python src/collect.py --since <last collection date> --dry-run` lists papers published since then (on
+     2026-11-02 it listed 113 for October alone). Skim the titles: the search terms also match papers that only
+     mention CAR-T and ALL in passing.
+  2. `python src/collect.py --since <date>` downloads them next to the existing ones (no 200-paper cap) and records
+     the update in `data/raw/manifest.json`. Existing papers keep their files, so their chunk ids (`PMCID_number`)
+     and every answer key stay valid.
+  3. `python src/parse.py`, `python src/chunk.py`, `python src/embed.py`: the index is rebuilt with the same chunking
+     and embedding model; the exact-word index is rebuilt automatically when the search starts.
+  4. Check nothing got worse, against the current numbers: `python eval/robustness.py --sets hand` and
+     `--sets generated` (free; first line "Unchanged questions": Hit@10 now 94% hand-written, 72% generated, and the
+     typo and wording rows below it); for a large update, the answer test on the final set (~$2; now 17 of 21
+     correct, 0 serious errors). Scores can dip slightly
+     for a reason that is not a fault: a new paper may answer a test question, but the answer key does not list it yet.
+  5. `python src/slim_index.py`, rebuild the Docker image, and update the paper count and date in `MODEL_CARD.md`.
+- **Already automatic:** the startup check refuses to start if the chunks and the index do not match; every answer
+  records the index version it used; saved answers from the cache stop matching once the index changes.
+
 **Docker** (the API in one box that runs the same on any machine):
 
 ```bash
