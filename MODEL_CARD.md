@@ -45,6 +45,7 @@ Measured on fixed, hand-written question sets with answer keys, graded by Claude
 | Cost | ~2.3–2.7 cents per question | Limit for the public demo: 10 questions per person per day, $1 per day in total |
 | Speed | ~13 s median for a full answer, up to ~17 s | From the first live questions (a small sample). First words appear sooner (streaming). The target of 95% under 15 s is **not met**; the relevance check takes ~6–8 s. |
 | Readability | about grade 10.4 | 8.2 abbreviations per 100 words; plain-language health writing aims for about grade 8 |
+| Load | 20 people asking at once: all answered, ~17 s each | With a stand-in Claude taking 14 s per answer (`eval/load_test.py`): 1 person 14.1 s, 10 people 15.3 s, 20 people 16.9 s. One server process. |
 | Robustness of the search | holds up to lowercase, keywords, "CAR T"; a typo is corrected | On 120 new questions: correctly typed 72%, with a typo 72% after correction (69% before). Spelling out "CAR-T" as "chimeric antigen receptor T-cell" still lowers it to 59%. |
 
 Main finding from testing: when an answer is wrong, the needed fact was usually never retrieved (about 94% of
@@ -94,7 +95,7 @@ for quality monitoring, with personal details removed, and are kept only on the 
   rate answers, and thumbs-down answers can be exported as candidate test questions (`python api/log_report.py`).
 - Any change to models, prompts, chunking or guardrails is tested on the same question sets before it is kept.
 - Robustness: `python eval/robustness.py` re-tests the search with reworded and misspelled questions.
-- Every push runs 60 code tests and a security check of the packages on GitHub (CI).
+- Every push runs 61 code tests and a security check of the packages on GitHub (CI).
 - Updates: new papers are added every 3–6 months, or sooner after major results, with the same checks before the
   new index is used (README, "Keeping it up to date"). On 2026-11-02, 113 papers published since the collection
   date were waiting to be reviewed.

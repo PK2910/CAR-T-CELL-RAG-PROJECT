@@ -659,3 +659,23 @@ limited to forms the papers use at least 5 times more often; this setting was ch
   "doesn't" into "does't"), so earlier results stand. Startup +~1 s, a few ms per question.
 - Not kept: the names fix: its practice-set gain did not carry over to new questions.
 - Not fixed: typos that form another real word ("patent" for "patient"); spelled-out names.
+
+## Load test (2026-11-02, free: stand-in Claude)
+
+`eval/load_test.py`: the real server (startup checks, real hybrid search, guardrails, logbook, cache) with Claude
+replaced by a stand-in that takes 6 s for the relevance check and streams the answer over 8 s; rounds of 1, 5, 10 and
+20 different questions sent at the same moment to `/ask/stream`. All questions were answered in every round.
+
+| At once | Full answer, median (before fix) | Search / check / writing, median | Logbook entry, median (before fix) |
+|---|---|---|---|
+| 1 | 14.1 s (14.2 s) | 0.4 / 6.0 / 7.6 s | 0.04 s (0.04 s) |
+| 5 | 14.1 s (15.0 s) | 0.4 / 6.0 / 7.5 s | 0.09 s (0.26 s) |
+| 10 | 15.3 s (17.9 s) | 1.5 / 6.0 / 7.5 s | 0.21 s (1.51 s) |
+| 20 | 16.9 s (30.2 s) | 2.7 / 6.0 / 7.6 s | 0.27 s (12.60 s) |
+
+- Cause of the slowdown: the privacy cleaning (Presidio + spaCy) before each logbook and cache write, run in 20
+  threads at once: 20 answers took 3.4 s to clean together instead of ~0.3 s, and the logbook entries waited behind
+  it. Fix: `api/redact.py` cleans one text at a time (20 answers: 0.31 s). A code test checks that cleaning many
+  texts at once still gives the same results.
+- Still growing with load: the search, 0.4 s alone to 2.7 s with 20 at once (it runs in the same process).
+- Not measured: the real Claude's speed under load (the stand-in has fixed times) and more than one server process.

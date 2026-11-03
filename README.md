@@ -338,7 +338,7 @@ uvicorn api.main:app                            # then open http://localhost:800
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest tests          # 60 code tests, a few seconds, no API key or cost
+python -m pytest tests          # 61 code tests, a few seconds, no API key or cost
 ```
 
 - Code tests check that the code works, with a pretend Claude, pretend search results and temporary storage: the
@@ -348,6 +348,22 @@ python -m pytest tests          # 60 code tests, a few seconds, no API key or co
 - CI also runs `pip-audit` on the live system's packages and fails on any known vulnerability.
 - Answer quality is not part of CI: it needs the papers and index, which are not in the repository. Run the search,
   robustness and answer tests in `eval/` after changing the search, chunks, index, models or instructions.
+
+**Load test** (`python eval/load_test.py`, free): the real server (startup checks, real hybrid search, guardrails,
+logbook, cache) with a stand-in Claude that takes as long as the real one (6 s relevance check + 8 s streamed answer),
+and rounds of 1, 5, 10 and 20 different questions sent at the same moment. Every question was answered in every round.
+The first run showed 20 people waiting 30 s for an answer that takes 14 s alone; timing each step found the cause: the
+privacy cleaning before logging, run in 20 threads at once, slowed itself down (12.6 s per logbook entry instead of
+0.04 s). It now runs one text at a time (~15 ms each):
+
+| Asking at once | 1 | 5 | 10 | 20 |
+|---|---|---|---|---|
+| Full answer, median, before the fix | 14.2 s | 15.0 s | 17.9 s | 30.2 s |
+| **Full answer, median, now** | 14.1 s | 14.1 s | 15.3 s | **16.9 s** |
+| First words, median, now | 6.6 s | 6.5 s | 7.6 s | 9.0 s |
+
+The remaining slowdown is the search (0.4 s alone, 2.7 s with 20 at once). One server process is enough for a demo; the
+daily limits (10 questions per person, $1 per day) cap the load anyway.
 
 **Keeping it up to date** (the papers are fixed as of 2026-10-04; research on CAR-T moves fast):
 - **When:** every 3–6 months, or sooner after a major approval or trial result, or when thumbs-down comments or

@@ -19,6 +19,7 @@ If the check fails, the text is not saved at all (FAILED is saved instead): priv
 import json
 import re
 import sys
+import threading
 from collections import Counter
 from functools import cache
 from pathlib import Path
@@ -26,6 +27,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 VOCAB_MIN_COUNT = 10
 FAILED = "[not saved: the personal-details check failed]"
+# One text at a time: run in parallel threads, the language model slows them all down badly (20 answers finishing
+# together: 3.4 s for the cleaning and 12.6 s per logbook entry in the load test, eval/load_test.py); one after
+# another each takes ~15 ms
+_one_at_a_time = threading.Lock()
 
 PLACEHOLDERS = {"PERSON": "[NAME]", "EMAIL_ADDRESS": "[EMAIL]", "PHONE_NUMBER": "[PHONE]", "ID": "[ID]",
                 "DATE": "[DATE]", "US_SSN": "[ID]", "CREDIT_CARD": "[ID]", "IP_ADDRESS": "[ID]"}
@@ -87,14 +92,15 @@ def redact(text: str | None) -> str | None:
         from presidio_analyzer import RecognizerResult
         from presidio_anonymizer.entities import OperatorConfig
         analyzer, anonymizer = _engines()
-        found = [r for r in analyzer.analyze(text, language="en", entities=list(PLACEHOLDERS), score_threshold=0.4)
-                 if r.entity_type != "PERSON" or _is_real_name(text[r.start:r.end])]
-        for m in NAME_AFTER.finditer(text):
-            start, end = m.span(1)
-            if _is_real_name(m.group(1)) and not any(r.start < end and start < r.end for r in found):
-                found.append(RecognizerResult("PERSON", start, end, 0.9))
-        return anonymizer.anonymize(text=text, analyzer_results=found, operators={
-            e: OperatorConfig("replace", {"new_value": v}) for e, v in PLACEHOLDERS.items()}).text
+        with _one_at_a_time:
+            found = [r for r in analyzer.analyze(text, language="en", entities=list(PLACEHOLDERS), score_threshold=0.4)
+                     if r.entity_type != "PERSON" or _is_real_name(text[r.start:r.end])]
+            for m in NAME_AFTER.finditer(text):
+                start, end = m.span(1)
+                if _is_real_name(m.group(1)) and not any(r.start < end and start < r.end for r in found):
+                    found.append(RecognizerResult("PERSON", start, end, 0.9))
+            return anonymizer.anonymize(text=text, analyzer_results=found, operators={
+                e: OperatorConfig("replace", {"new_value": v}) for e, v in PLACEHOLDERS.items()}).text
     except Exception as e:  # any failure (missing package or model, a bug): save nothing rather than the raw text
         print(f"WARNING (personal-details check) failed, text not saved: {type(e).__name__}: {e}")
         return FAILED

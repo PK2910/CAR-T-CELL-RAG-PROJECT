@@ -67,6 +67,17 @@ def test_personal_details_are_removed():
     assert redact("My daughter Emily got CAR-T on 2026-09-14") == "My daughter [NAME] got CAR-T on [DATE]"
 
 
+def test_cleaning_many_texts_at_once_gives_the_same_results():
+    import threading
+    text, results = "My son John Smith, MRN 4829301, has ALL", []
+    threads = [threading.Thread(target=lambda: results.append(redact(text))) for _ in range(10)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert results == ["My son [NAME], [ID], has ALL"] * 10
+
+
 @pytest.mark.parametrize("text", ["my son has ALL", "How common is ICANS after CAR-T in ALL?",
                                   "See trial NCT02435849 for CD19 CAR-T results."])
 def test_ordinary_text_is_not_changed(text):
