@@ -679,3 +679,44 @@ replaced by a stand-in that takes 6 s for the relevance check and streams the an
   texts at once still gives the same results.
 - Still growing with load: the search, 0.4 s alone to 2.7 s with 20 at once (it runs in the same process).
 - Not measured: the real Claude's speed under load (the stand-in has fixed times) and more than one server process.
+
+## Busy-period and stress tests (2026-11-03, free: stand-in Claude, Locust)
+
+`python eval/load_test.py --locust steady|stress` (`eval/locustfile.py`, Locust 2.46.7). These tests are closer to
+real use than the rounds above:
+- People arrive 2 a second (steady) or 5 a second (stress) at the start of each stage.
+- Each person asks a random question from a pool of 100 on `/ask/stream`, reads the answer for 3–8 s, then asks again.
+- The stand-in Claude takes as long as the real one did, the same for each question: check 5–8 s and first words
+  0.7–1.2 s later (logbook); 1,300–3,700 characters written at 300–420 a second (logbook and final test set).
+  The median is 14.9 s in all.
+- The cache is off. Time added by the server = full answer time minus the stand-in's own time for that question.
+- Each stage is judged on the questions asked after everyone in it had arrived. Server CPU and memory are sampled
+  once a second.
+
+Targets, set before running: errors under 1%; for 95% of questions, the server adds under 2 s, the first words
+appear within 10 s, and the full answer within 15 s.
+
+**Steady (25 people, 3.5 minutes):** 256 of 257 answered (1 connection error), 1.19 answers a second (1.22 if the
+server added nothing). Time added by the server: 95% under 1.2 s. First words: 95% within 9.1 s. Full answer: 95%
+within 18.9 s, 99% within 20.4 s. Writing 8.1 ms per token. CPU median 35%, memory at most 1.3 GB.
+
+**Stress (90 s at each stage):**
+
+| People | Asked | Answers/s (expected) | Errors | First words p95 | Full p95 / p99 | Added p95 | Search p95 | ms/token | CPU median / max |
+|---|---|---|---|---|---|---|---|---|---|
+| 10 | 38 | 0.44 (0.49) | 0% | 9.2 s | 20.4 / 20.9 s | 2.0 s | 1.2 s | 7.7 | 16 / 105% |
+| 25 | 99 | 1.12 (1.22) | 0% | 9.1 s | 18.7 / 21.3 s | 1.2 s | 0.7 s | 8.0 | 36 / 95% |
+| 50 | 192 | 2.48 (2.45) | 0% | 9.0 s | 19.8 / 20.6 s | 3.9 s | 0.4 s | 8.1 | 59 / 108% |
+| 75 | 281 | 3.46 (3.67) | 1.1% | 9.9 s | 23.4 / 25.7 s | 8.4 s | 0.4 s | 8.3 | 83 / 124% |
+| 100 | 315 | 3.68 (4.90) | 0.6% | 11.1 s | 26.6 / 29.3 s | 10.5 s | 0.7 s | 10.1 | 102 / 129% |
+
+- Limit between 50 and 75 people. Throughput stops growing at about 3.7 answers a second, and the added time rises
+  from 1–4 s to 8–10 s. The search is not the cause (p95 under 1 s). Likely causes, not confirmed:
+  - The thread pool of 40 that runs the streamed answers. Each one keeps a thread busy while waiting for Claude;
+    about 37 are being streamed at once with 50 people and about 55 with 75.
+  - One CPU core fully used (median 102% at 100 people).
+- 10 people: the 2.0 s added time includes the server's first, slower questions (search p95 1.2 s there vs. 0.4–0.7 s
+  later).
+- Errors: 5 connection errors, mid-run, under 1 s after asking. Possibly the server closing an idle reused connection
+  (uvicorn keeps it 5 s; pauses were 3–8 s). Not confirmed.
+- Not measured: the real Claude under load, and the online server. Re-run after deploying.

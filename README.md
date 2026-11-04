@@ -362,8 +362,37 @@ privacy cleaning before logging, run in 20 threads at once, slowed itself down (
 | **Full answer, median, now** | 14.1 s | 14.1 s | 15.3 s | **16.9 s** |
 | First words, median, now | 6.6 s | 6.5 s | 7.6 s | 9.0 s |
 
-The remaining slowdown is the search (0.4 s alone, 2.7 s with 20 at once). One server process is enough for a demo; the
-daily limits (10 questions per person, $1 per day) cap the load anyway.
+(These rounds used an earlier stand-in with fixed times: 6 s check + 8 s answer.)
+
+**Busy-period and stress tests** (`python eval/load_test.py --locust steady|stress`, free, with
+[Locust](https://locust.io), `eval/locustfile.py`). These are closer to real use. People arrive a few per second, each asks a
+random question from a pool of 100, reads the answer for 3–8 s and asks again. The stand-in Claude now takes as
+long as the real one did for each question: check 5–8 s, then 1,300–3,700 characters at 300–420 a second, about 15 s
+in all (from the logbook and the final test set). The cache is off, so every question is answered from scratch.
+Targets set before running: errors under 1%, and for 95% of questions the server adds under 2 s to Claude's time, and
+the first words appear within 10 s.
+
+| People at once | 10 | 25 | 50 | 75 | 100 |
+|---|---|---|---|---|---|
+| Answers per second (if the server added nothing) | 0.44 (0.49) | 1.12 (1.22) | 2.48 (2.45) | 3.46 (3.67) | 3.68 (4.90) |
+| Time the server adds, 95% under | 2.0 s | 1.2 s | 3.9 s | 8.4 s | 10.5 s |
+| First words, 95% within | 9.2 s | 9.1 s | 9.0 s | 9.9 s | 11.1 s |
+| Full answer, 95% within | 20.4 s | 18.7 s | 19.8 s | 23.4 s | 26.6 s |
+| Errors | 0% | 0% | 0% | 1.1% | 0.6% |
+| Server CPU, median (100% = one core) | 16% | 36% | 59% | 83% | 102% |
+
+- **Up to 25 people at once all targets are met except the full-answer one**, also in a separate 3.5-minute test with
+  25 people (256 of 257 answered, 1.19 answers a second, server adds 1.2 s). The 10-people figure includes the
+  server's first, slower questions.
+- **The limit is between 50 and 75 people at once.** Beyond it, people wait longer and throughput stops growing
+  (about 3.7 answers a second). Likely causes, not confirmed: the server's 40 worker threads (each streamed answer
+  keeps one busy, and about 55 are being streamed at once with 75 people) and one CPU core fully used.
+- The full-answer target (95% under 15 s) is not met even with few people, because Claude alone takes about 15 s.
+- 6 of 1,333 questions failed with a connection error, at random moments. Possibly a reused connection that the
+  server closed after 5 s idle (pauses were 3–8 s). Not confirmed.
+- What this does not cover: the real Claude under load (its speed and request limits), and the online server,
+  which is a different machine. Re-run after deploying. With the daily limits (about 40 new answers a day at $1), 50
+  people at once is far more than the demo will see.
 
 **Keeping it up to date** (the papers are fixed as of 2026-10-04; research on CAR-T moves fast):
 - **When:** every 3–6 months, or sooner after a major approval or trial result, or when thumbs-down comments or
