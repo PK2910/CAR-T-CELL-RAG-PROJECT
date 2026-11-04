@@ -3,7 +3,7 @@ The API: the front door to the RAG system (README, Requirements).
 
   GET  /             the web page (api/static/index.html): ask a question, read the answer as it is written,
                      check the cited passages, rate the answer
-  GET  /health       is the server running? (also shows which index version it uses)
+  GET  /health       is the server running? (also shows which index version it uses, and any alerts: api/alerts.py)
   POST /ask          {"question": "..."} -> the full answer, with its sources
   POST /ask/stream   the same answer, sent piece by piece (Server-Sent Events): first progress messages, then the
                      answer as Claude writes it, then a final "done" event with the complete answer and sources.
@@ -24,6 +24,7 @@ import hmac
 import json
 import os
 import sys
+import threading
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -41,6 +42,7 @@ from generate import answer, answer_stream, seconds_since  # noqa: E402  (also l
 from index_config import INFO_FILE  # noqa: E402
 from retrieve import retrieve  # noqa: E402
 from startup_check import fatal_problems, run_checks  # noqa: E402
+import alerts  # noqa: E402
 import cache  # noqa: E402
 import logbook  # noqa: E402
 import redact  # noqa: E402
@@ -65,7 +67,10 @@ async def lifespan(app: FastAPI):
             print(f"WARNING (startup check) {c['name']}: {c['detail']}")
     retrieve("warm-up", k=1)  # load the search model and indexes once, before the first question
     redact.warm_up()  # and the personal-details check (api/redact.py), which cleans what the logbook saves
+    stop = threading.Event()
+    threading.Thread(target=alerts.watch, args=(stop,), daemon=True).start()  # checks the logbook every 5 minutes
     yield
+    stop.set()
 
 
 app = FastAPI(title="CAR-T Literature Q&A", description=DISCLAIMER, lifespan=lifespan)
@@ -153,7 +158,8 @@ def home():
 def health() -> dict:
     return {"status": "ok" if all(c["ok"] for c in CHECKS) else "degraded", "checks": CHECKS,
             "index": json.loads(INFO_FILE.read_text()) if INFO_FILE.exists() else None,
-            "versions": logbook.versions()}
+            "versions": logbook.versions(),
+            "alerts": alerts.safe_check()}  # empty when all is well; what to do for each: RUNBOOK.md
 
 
 @app.post("/ask")

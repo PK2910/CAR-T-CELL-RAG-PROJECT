@@ -338,12 +338,12 @@ uvicorn api.main:app                            # then open http://localhost:800
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest tests          # 61 code tests, a few seconds, no API key or cost
+python -m pytest tests          # 70 code tests, a few seconds, no API key or cost
 ```
 
 - Code tests check that the code works, with a pretend Claude, pretend search results and temporary storage: the
   answer pipeline (timing, fallback, missing key), logbook and feedback, cache, daily limits, guardrails (doses,
-  tricks, citations, personal details), typo correction, owner debug, and the web page's answer renderer (with
+  tricks, citations, personal details), typo correction, owner debug, alerts, and the web page's answer renderer (with
   Node.js). On a fresh checkout, made-up passages (`tests/fixtures/chunks.json`) stand in for the papers.
 - CI also runs `pip-audit` on the live system's packages and fails on any known vulnerability.
 - Answer quality is not part of CI: it needs the papers and index, which are not in the repository. Run the search,
@@ -459,6 +459,25 @@ docker run --env-file .env -p 8000:8000 -v cart-rag-state:/app/state cart-rag   
   relevance-check outcomes, fallbacks, errors and feedback. `--export-down` saves the thumbs-down answers to
   `eval/results/thumbs_down.json` as candidates for new test questions.
 - Personal details are removed before anything is saved (see "Personal details" below).
+
+**Alerts** (`api/alerts.py`; what to do for each: [RUNBOOK.md](RUNBOOK.md)): every 5 minutes the server checks its
+logbook and warns when something needs a look:
+
+| Alert | Goes off when |
+|---|---|
+| `slow` | 95% of the last hour's answers took over 25 s (normal: about 19 s, mostly Claude) |
+| `failing` | over 5% of the last hour's questions got no answer or only the passages |
+| `budget` | today's public spending passed $0.80 of the $1 limit |
+| `thumbs_down` | over 30% of the last week's ratings were thumbs down |
+| `bad_citations` | an answer in the last day cited a passage it was not given |
+
+- Rules about shares and speed wait for at least 5 answers or ratings. Saved answers from the cache are left out of
+  the speed and failure rules.
+- Current alerts are listed at `/health` under `"alerts"`. The status stays "ok", so the host does not restart a
+  server that is working. Each alert's start and end is printed to the server's logs and added to `alerts.log`.
+- Once online, an uptime service watching `/health` can email when `"alerts"` is not empty, or when the server
+  does not answer at all (which the alerts cannot report themselves).
+- By hand: `python api/alerts.py`. Tested on made-up logbook entries (`tests/test_alerts.py`).
 
 **Caching** (`api/cache.py`, kept in `data/api_cache.sqlite`, not in the repository; delete the file to clear it):
 - A question asked before gets the saved answer at once (`"cached": true`): no search, no Claude call, $0, and it
