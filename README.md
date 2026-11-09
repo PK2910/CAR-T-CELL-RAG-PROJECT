@@ -434,6 +434,8 @@ docker run --env-file .env -p 8000:8000 -v cart-rag-state:/app/state cart-rag   
 - Checked 2026-11-01: the image is 2.0 GB (mostly PyTorch and the models), runs as a non-root user, contains no
   `.env`, starts in ~50 s, passes the startup checks, answers from the slim index, and keeps the logbook when the
   container is replaced.
+- Online on AWS since 2026-11-09 (ECR, EC2 Arm, Parameter Store for the key, an IAM role with only the rights it
+  needs): every step and command, updating, costs and troubleshooting are in [DEPLOY.md](DEPLOY.md).
 
 **Failing gracefully and the startup check** (`src/startup_check.py`):
 - Time limits: 20 s per relevance-check call and 45 s for the answer, one retry each (`CHECK_TIMEOUT_S`,
