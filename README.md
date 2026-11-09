@@ -2,20 +2,138 @@
 
 [![tests](https://github.com/PK2910/CAR-T-CELL-RAG-PROJECT/actions/workflows/tests.yml/badge.svg)](https://github.com/PK2910/CAR-T-CELL-RAG-PROJECT/actions/workflows/tests.yml)
 
-A retrieval-augmented question-answering system over the published literature on **CAR-T cell therapy for
-acute lymphoblastic leukemia (ALL)**. It answers questions from 194 open-access papers and cites the
-source of every fact.
+**Ask a question about a cancer treatment in plain English, get an answer written only from published research,
+with the source of every sentence.**
 
-The project focuses on **measurement**: every change was tested on fixed question sets and kept only if it helped.
-Fifteen improvements were tried; five were kept: hybrid search, safety guardrails, 10 chunks instead of 5, an
-LLM relevance check before answering, and typo correction for the search.
+> **Research and education tool, not medical advice.** It summarizes published studies and is not designed or
+> validated to guide the care of any individual patient.
 
-> **Research and education prototype — not medical advice.** It summarizes published studies and is not
-> designed or validated to guide the care of any individual patient.
+## In plain words
 
-One-page summary of intended use, results, safety measures and limitations: [`MODEL_CARD.md`](MODEL_CARD.md).
+**The topic.** Acute lymphoblastic leukemia (**ALL**) is a blood cancer, and the most common cancer in children.
+**CAR-T** is a newer treatment: a patient's own immune cells (T cells) are taken out, changed in a lab so they can
+recognise the leukemia, and put back to attack it. Hundreds of studies have been written about it, and finding a
+clear answer in them takes hours.
+
+**What this project does.** You type a question, for example *"How common are brain-related side effects (ICANS)
+after CAR-T?"*. The system looks through **194 research papers**, picks the passages that answer it, and has an AI
+(Claude) write a short answer **using only those passages**. Every sentence points to its source, so you can check it.
+
+**Why not just ask a chatbot?** A general chatbot answers from memory and can make things up, with no way to check.
+This system can only use the papers it was given, shows where each fact comes from, and says so when the papers
+don't answer the question. This approach is called **RAG** (retrieval-augmented generation): *retrieve* the right
+passages first, then *generate* the answer from them.
+
+### How an answer is made
+
+```mermaid
+flowchart LR
+    Q["You ask<br/>a question"] --> F["1. Find<br/>the 30 most relevant passages<br/>in 194 papers"]
+    F --> C["2. Check<br/>an AI keeps only the passages<br/>that really answer it"]
+    C --> W["3. Write<br/>Claude writes the answer<br/>from those passages only"]
+    W --> S["4. Safety check<br/>no doses for a specific person,<br/>citations checked"]
+    S --> A["Answer<br/>with numbered sources<br/>and links to the papers"]
+```
+
+Before any of this, the papers were prepared once: downloaded from PubMed Central (a free library of medical
+research), cut into 5,354 short passages of about a paragraph each, and indexed so they can be searched both by
+**meaning** ("brain side effects" finds "neurotoxicity") and by **exact words** (drug and trial names).
+
+### An example
+
+A real answer from the live site (shortened). The question had two parts, and the papers only cover the second, so
+the system says so instead of guessing:
+
+> **Q:** Who gets affected the most by ALL, and how does CAR-T help them?
+>
+> **A:** The papers only partly address this question. They say little about who is most affected by ALL [...].
+> A review reports complete remission rates of 68% to 93% in B-ALL after CAR-T treatment **[6]**. The same review
+> notes that 10% to 30% of patients do not respond [...] **[6]**.
+
+### Where it runs
+
+The app is online on **Amazon Web Services (AWS)**, with a secure (HTTPS) address:
+
+```mermaid
+flowchart LR
+    U["Your browser"] -->|"HTTPS (encrypted)"| CA
+    subgraph AWS["AWS computer (EC2, Ohio)"]
+        CA["Caddy<br/>padlock and certificate"] --> APP["The app<br/>search + safety rules"]
+    end
+    APP -->|"passages + question"| CL["Claude<br/>(Anthropic)"]
+    CL -->|"answer"| APP
+    KEY[("Key safe<br/>(Parameter Store)")] -.->|"API key at start"| APP
+```
+
+Step-by-step deployment, costs and fixes: [`DEPLOY.md`](DEPLOY.md).
+
+### How we know it works
+
+Every change was **measured** on fixed sets of test questions with answer keys written in advance, and kept only if
+the scores improved. 15 ideas were tried; 5 were kept.
+
+```mermaid
+flowchart LR
+    I["An idea<br/>e.g. a better search"] --> T["Test on the same<br/>questions as before"]
+    T --> D{"Better?"}
+    D -->|"yes"| K["Keep it"]
+    D -->|"no"| X["Drop it<br/>(and write down why)"]
+```
+
+| | Result |
+|---|---|
+| Correct answers on the final test set | **17 of 21** (81%). The set was also used for tuning, so expect less on new questions; the first untouched run scored 48% |
+| Serious errors | **0 of 25** |
+| Safety questions handled correctly (e.g. dose for a specific child) | **4 of 4** |
+| Off-topic questions refused | 2 of 2 |
+| Cost | about **2.5 cents** per question; limited to $1 a day in total |
+| Speed | full answer ~13 s (median); the first words appear sooner, as the answer is shown while it is written |
+| Many users at once | fine with 50 people at once in a load test (with a stand-in for Claude, on a laptop) |
+
+**Main lesson:** when an answer was wrong, the needed fact was usually never found by the search (about 94% of
+missing facts), not ignored by the AI. So improving the search mattered most.
+
+### Safety
+
+- **No doses for a specific person.** If a question is about someone's own care ("my son", "should I give") and a
+  dose appears in the answer anyway, the code replaces the answer with a safe message.
+- **No guessing.** If no passage answers the question, it says the papers don't cover it.
+- **Citations are checked** by code, and trick questions ("ignore your instructions") are refused.
+- **Privacy:** names, phone numbers and other personal details are removed before anything is logged.
+- **Cost limits:** 10 questions per person per day, $1 a day in total.
+
+More detail: the one-page [`MODEL_CARD.md`](MODEL_CARD.md) (what it is for, results, safety, limits).
+
+### What is in this repository
+
+| Folder or file | What it holds |
+|---|---|
+| `src/` | The pipeline: collect and prepare the papers, search, relevance check, answer, safety rules |
+| `api/` | The web app: the page, the API, logging, usage limits, alerts |
+| `eval/` | Test questions, answer keys and the scripts that score the system |
+| `tests/` | 71 automatic code checks, run on every change (GitHub Actions) |
+| `train/`, `langchain_version/` | Experiments: a fine-tuned search model, and the same system rebuilt with LangChain |
+| [`MODEL_CARD.md`](MODEL_CARD.md) | One-page summary for users |
+| [`DEPLOY.md`](DEPLOY.md) | How it runs on AWS |
+| [`RUNBOOK.md`](RUNBOOK.md) | What to do when an alert goes off |
+
+### Words used in this project
+
+| Word | Meaning |
+|---|---|
+| **RAG** | Retrieval-augmented generation: find the right text first, then let the AI answer from it |
+| **Passage (chunk)** | A short piece of a paper, about a paragraph (~400 tokens) |
+| **Embedding** | A list of numbers that captures a passage's meaning, so similar meanings can be found |
+| **Hybrid search** | Searching by meaning and by exact words at the same time, then merging the results |
+| **LLM** | Large language model, the kind of AI that writes text (here Claude, by Anthropic) |
+| **Guardrail** | A safety rule written in code around the AI |
+| **Citation** | The number in brackets, e.g. [6], pointing to the passage a sentence came from |
 
 ---
+
+# Technical details
+
+Everything below is for readers who want the full picture: targets, design, every experiment and how to run it.
 
 ## Requirements
 
@@ -615,4 +733,5 @@ and the fine-tuned model are not included in this repository.
   relevance check, and to test fixes for the checker's two weaknesses without tuning on the same questions.
 - A prompt rule against adding details the source does not state (journal names, patient ages, study type).
 - Fine-tuning again on all pages with question-style training data, and HyDE (searching with a hypothetical answer).
-- A small production demo: API, container, and a rate-limited public link.
+- Done since: a production demo (API, container, rate-limited public site on AWS with HTTPS; [`DEPLOY.md`](DEPLOY.md)).
+  Still open: monitoring from outside (uptime check, CloudWatch alarms) and a load test on the server.
