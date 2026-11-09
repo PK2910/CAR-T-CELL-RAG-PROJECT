@@ -5,6 +5,8 @@
 **Ask a question about a cancer treatment in plain English, get an answer written only from published research,
 with the source of every sentence.**
 
+**Try it:** [https://13-184-51-203.sslip.io](https://13-184-51-203.sslip.io) (up to 10 questions per person a day)
+
 > **Research and education tool, not medical advice.** It summarizes published studies and is not designed or
 > validated to guide the care of any individual patient.
 
@@ -52,20 +54,9 @@ the system says so instead of guessing:
 
 ### Where it runs
 
-The app is online on **Amazon Web Services (AWS)**, with a secure (HTTPS) address:
-
-```mermaid
-flowchart LR
-    U["Your browser"] -->|"HTTPS (encrypted)"| CA
-    subgraph AWS["AWS computer (EC2, Ohio)"]
-        CA["Caddy<br/>padlock and certificate"] --> APP["The app<br/>search + safety rules"]
-    end
-    APP -->|"passages + question"| CL["Claude<br/>(Anthropic)"]
-    CL -->|"answer"| APP
-    KEY[("Key safe<br/>(Parameter Store)")] -.->|"API key at start"| APP
-```
-
-Step-by-step deployment, costs and fixes: [`DEPLOY.md`](DEPLOY.md).
+The app was packaged with Docker and put online on **AWS**, with a secure (HTTPS) address, usage limits and
+alerts: **[https://13-184-51-203.sslip.io](https://13-184-51-203.sslip.io)**. How it was deployed:
+[`DEPLOY.md`](DEPLOY.md).
 
 ### How we know it works
 
@@ -114,7 +105,7 @@ More detail: the one-page [`MODEL_CARD.md`](MODEL_CARD.md) (what it is for, resu
 | `tests/` | 71 automatic code checks, run on every change (GitHub Actions) |
 | `train/`, `langchain_version/` | Experiments: a fine-tuned search model, and the same system rebuilt with LangChain |
 | [`MODEL_CARD.md`](MODEL_CARD.md) | One-page summary for users |
-| [`DEPLOY.md`](DEPLOY.md) | How it runs on AWS |
+| [`DEPLOY.md`](DEPLOY.md) | How it was deployed on AWS |
 | [`RUNBOOK.md`](RUNBOOK.md) | What to do when an alert goes off |
 
 ### Words used in this project
@@ -553,8 +544,7 @@ docker run --env-file .env -p 8000:8000 -v cart-rag-state:/app/state cart-rag   
 - Checked 2026-11-01: the image is 2.0 GB (mostly PyTorch and the models), runs as a non-root user, contains no
   `.env`, starts in ~50 s, passes the startup checks, answers from the slim index, and keeps the logbook when the
   container is replaced.
-- Online on AWS since 2026-11-09 (ECR, EC2 Arm, Parameter Store for the key, an IAM role with only the rights it
-  needs): every step and command, updating, costs and troubleshooting are in [DEPLOY.md](DEPLOY.md).
+- Online on AWS since 2026-11-09: [DEPLOY.md](DEPLOY.md).
 
 **Failing gracefully and the startup check** (`src/startup_check.py`):
 - Time limits: 20 s per relevance-check call and 45 s for the answer, one retry each (`CHECK_TIMEOUT_S`,
