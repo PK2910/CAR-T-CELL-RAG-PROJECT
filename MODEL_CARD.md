@@ -97,7 +97,7 @@ for quality monitoring, with personal details removed, and are kept only on the 
   down and wrong citations, and lists them at `/health`. What to do for each: [RUNBOOK.md](RUNBOOK.md).
 - Any change to models, prompts, chunking or guardrails is tested on the same question sets before it is kept.
 - Robustness: `python eval/robustness.py` re-tests the search with reworded and misspelled questions.
-- Every push runs 70 code tests and a security check of the packages on GitHub (CI).
+- Every push runs 71 code tests and a security check of the packages on GitHub (CI).
 - Updates: new papers are added every 3–6 months, or sooner after major results, with the same checks before the
   new index is used (README, "Keeping it up to date"). On 2026-11-02, 113 papers published since the collection
   date were waiting to be reviewed.

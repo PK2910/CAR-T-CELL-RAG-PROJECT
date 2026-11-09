@@ -11,7 +11,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     HF_HOME=/app/hf_cache \
-    RAG_STATE_DIR=/app/state
+    RAG_STATE_DIR=/app/state \
+    RAG_DOCS=0
 
 WORKDIR /app
 

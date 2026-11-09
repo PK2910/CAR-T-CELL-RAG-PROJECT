@@ -338,7 +338,7 @@ uvicorn api.main:app                            # then open http://localhost:800
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest tests          # 70 code tests, a few seconds, no API key or cost
+python -m pytest tests          # 71 code tests, a few seconds, no API key or cost
 ```
 
 - Code tests check that the code works, with a pretend Claude, pretend search results and temporary storage: the
@@ -420,7 +420,8 @@ the first words appear within 10 s.
 ```bash
 python src/slim_index.py                       # once: copy only the live index (31 MB) to data/docker/qdrant
 docker build -t cart-rag .
-docker run --env-file .env -p 8000:8000 -v cart-rag-state:/app/state cart-rag   # then http://localhost:8000/docs
+docker run --env-file .env -p 8000:8000 -v cart-rag-state:/app/state cart-rag   # then http://localhost:8000
+# the image turns off the /docs page (RAG_DOCS=0) so the online site does not show it; add -e RAG_DOCS=1 to see it
 ```
 
 - The image holds the code, the packages from `requirements-api.txt` (the live system only, CPU-only PyTorch, at

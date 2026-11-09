@@ -73,7 +73,15 @@ async def lifespan(app: FastAPI):
     stop.set()
 
 
-app = FastAPI(title="CAR-T Literature Q&A", description=DISCLAIMER, lifespan=lifespan)
+def docs_pages(env=os.environ) -> dict:
+    """The /docs and /redoc pages (try the API in the browser) are for testing: on, unless RAG_DOCS=0 (the Docker
+    image sets it, so the online site does not show them)."""
+    on = env.get("RAG_DOCS", "1") != "0"
+    return {"docs_url": "/docs" if on else None, "redoc_url": "/redoc" if on else None,
+            "openapi_url": "/openapi.json" if on else None}
+
+
+app = FastAPI(title="CAR-T Literature Q&A", description=DISCLAIMER, lifespan=lifespan, **docs_pages())
 
 
 class Question(BaseModel):

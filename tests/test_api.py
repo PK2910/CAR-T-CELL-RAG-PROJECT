@@ -184,6 +184,13 @@ def test_debug_only_with_owner_key(client, monkeypatch):
     assert "debug" not in client.post("/ask", json={"question": "Q?"}, headers={"X-Owner-Key": "wrong"}).json()
 
 
+def test_docs_pages_off_online(client):
+    import main
+    assert client.get("/docs").status_code == 200  # on by default, for testing on the laptop
+    assert set(main.docs_pages({"RAG_DOCS": "0"}).values()) == {None}  # the Docker image sets RAG_DOCS=0
+    assert main.docs_pages({})["docs_url"] == "/docs"
+
+
 def test_health(client):
     body = client.get("/health").json()
     assert "versions" in body and body["versions"]["answer_model"] == generate.MODEL
